@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestió - Jo Recursos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;600&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, .brand-font { font-family: 'Fredoka', sans-serif; }
+        .hidden-app { display: none !important; }
+        .qr-hidden { display: none; }
+        
+        /* Estils QR App */
+        .qr-app-wrapper {
+            --qr-primary: #3498db; --qr-dark: #2c3e50; --qr-light: #ecf0f1;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); padding: 30px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .qr-app-wrapper .panel { background: white; padding: 25px; border-radius: 10px; flex: 1; min-width: 300px; }
+        .qr-app-wrapper input, .qr-app-wrapper select, .qr-app-wrapper textarea { width: 100%; padding: 12px; border: 1px solid #bdc3c7; border-radius: 6px; margin-bottom: 15px; }
+        .qr-app-wrapper button { width: 100%; padding: 12px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; margin-bottom: 10px; }
+        .btn-gen { background: #3498db; color: white; } .btn-dl { background: #2ecc71; color: white; } .btn-exit { background: #e74c3c; color: white; margin-top: 20px; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
+
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 flex justify-between h-20 items-center">
+            <a href="index.html" class="flex items-center gap-2 text-gray-600 hover:text-orange-600 transition">
+                <i class="fas fa-arrow-left"></i> Tornar a l'Inici
+            </a>
+            <span class="text-2xl font-bold text-orange-900 brand-font">Gestió d'Aula</span>
+        </div>
+    </nav>
+
+    <main class="flex-grow py-12">
+        <div class="max-w-6xl mx-auto px-4">
+            
+            <!-- MENÚ D'EINES -->
+            <div id="gestio-resources-list">
+                <div class="grid md:grid-cols-3 gap-6">
+                    
+                    <!-- TARGETA QR -->
+                    <div class="bg-white border rounded-xl p-6 shadow-sm hover:shadow-md transition border-orange-200 ring-2 ring-orange-50">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="bg-orange-100 text-orange-800 text-xs font-bold px-3 py-1 rounded-full">TIC</span>
+                            <i class="fas fa-qrcode text-gray-700 text-2xl"></i>
+                        </div>
+                        <h4 class="font-bold text-lg mb-2">Generador de Codis QR</h4>
+                        <p class="text-gray-600 text-sm mb-4">Crea codis QR per a enllaços, textos o Wi-Fi.</p>
+                        <button onclick="openQrApp()" class="w-full bg-orange-600 text-white py-2 rounded-lg font-bold hover:bg-orange-700 transition shadow-md">
+                            Obrir Generador 🚀
+                        </button>
+                    </div>
+
+                    <!-- TARGETA GRUPS (Enllaç a fitxer extern) -->
+                    <div class="bg-white border rounded-xl p-6 shadow-sm hover:shadow-md transition border-indigo-200 ring-2 ring-indigo-50">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-3 py-1 rounded-full">Organització</span>
+                            <i class="fas fa-users text-indigo-600 text-2xl"></i>
+                        </div>
+                        <h4 class="font-bold text-lg mb-2">Generador de Grups</h4>
+                        <p class="text-gray-600 text-sm mb-4">Crea grups aleatoris d'alumnes en segons.</p>
+                        <a href="grups.html" class="block w-full text-center bg-indigo-600 text-white py-2 rounded-lg font-bold hover:bg-indigo-700 transition shadow-md">
+                            Obrir Generador 🚀
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- APP QR (EMBEGIDA) -->
+            <div id="qr-generator-app" class="qr-app-wrapper hidden-app">
+                <h2 class="text-2xl font-bold text-center mb-6 text-slate-700">Generador QR</h2>
+                <div class="flex flex-wrap gap-8">
+                    <div class="panel">
+                        <label class="block font-bold mb-2">Tipus:</label>
+                        <select id="qr-content-type">
+                            <option value="url">URL / Web</option>
+                            <option value="text">Text</option>
+                            <option value="wifi">Wi-Fi</option>
+                        </select>
+                        
+                        <div id="qr-group-url"> <input type="url" id="qr-url" placeholder="https://exemple.cat"> </div>
+                        <div id="qr-group-text" class="qr-hidden"> <textarea id="qr-text" placeholder="Missatge..."></textarea> </div>
+                        <div id="qr-group-wifi" class="qr-hidden"> 
+                            <input type="text" id="qr-ssid" placeholder="Nom Wi-Fi"> 
+                            <input type="text" id="qr-pass" placeholder="Contrasenya"> 
+                        </div>
+                        
+                        <div id="qr-status" class="p-2 rounded text-center mb-4 hidden"></div>
+                        <button onclick="generateQR()" class="btn-gen">Generar</button>
+                        <button id="qr-dl-btn" class="btn-dl" disabled>Descarregar</button>
+                    </div>
+                    <div class="panel flex flex-col items-center justify-center bg-white">
+                        <div id="qr-output"></div>
+                        <p id="qr-placeholder" class="text-gray-400 text-center mt-4">El codi apareixerà aquí</p>
+                    </div>
+                </div>
+                <button onclick="closeQrApp()" class="btn-exit">Tancar</button>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // Navegació App QR
+        function openQrApp() { document.getElementById('gestio-resources-list').style.display = 'none'; document.getElementById('qr-generator-app').classList.remove('hidden-app'); }
+        function closeQrApp() { document.getElementById('qr-generator-app').classList.add('hidden-app'); document.getElementById('gestio-resources-list').style.display = 'block'; }
+
+        // Lògica App QR
+        const qrType = document.getElementById('qr-content-type');
+        qrType.addEventListener('change', function() {
+            ['url','text','wifi'].forEach(t => document.getElementById('qr-group-'+t).classList.add('qr-hidden'));
+            document.getElementById('qr-group-'+this.value).classList.remove('qr-hidden');
+        });
+
+        function generateQR() {
+            let content = '';
+            const type = qrType.value;
+            if(type === 'url') content = document.getElementById('qr-url').value;
+            else if(type === 'text') content = document.getElementById('qr-text').value;
+            else if(type === 'wifi') content = `WIFI:S:${document.getElementById('qr-ssid').value};T:WPA;P:${document.getElementById('qr-pass').value};;`;
+
+            if(!content) return alert("Omple els camps!");
+
+            const qr = qrcode(0, 'M');
+            qr.addData(content);
+            qr.make();
+            const img = document.createElement('img');
+            img.src = qr.createDataURL(8, 0);
+            
+            const out = document.getElementById('qr-output');
+            out.innerHTML = '';
+            out.appendChild(img);
+            document.getElementById('qr-placeholder').style.display='none';
+            
+            const dlBtn = document.getElementById('qr-dl-btn');
+            dlBtn.disabled = false;
+            dlBtn.onclick = () => {
+                const a = document.createElement('a');
+                a.href = img.src;
+                a.download = 'qr-code.png';
+                a.click();
+            };
+        }
+    </script>
+</body>
+</html>
