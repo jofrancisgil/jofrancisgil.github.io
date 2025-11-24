@@ -3,440 +3,585 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Creador de Joc Memory</title>
+    <title>Generador de Mots Encreuats</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Nunito', sans-serif; }
-        
-        /* Estils per a l'efecte de gir de la carta (Flip Card) */
-        .perspective-1000 {
-            perspective: 1000px;
-        }
-        
-        .card-inner {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            text-align: center;
-            transition: transform 0.6s;
-            transform-style: preserve-3d;
-            cursor: pointer;
-        }
-        
-        .card.flipped .card-inner {
-            transform: rotateY(180deg);
-        }
-        
-        .card-front, .card-back {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            -webkit-backface-visibility: hidden;
-            backface-visibility: hidden;
-            border-radius: 0.75rem;
+        @import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Inter:wght@400;600;700&display=swap');
+
+        body { font-family: 'Inter', sans-serif; }
+        .font-hand { font-family: 'Patrick Hand', cursive; }
+
+        /* Estils de la graella interactiva */
+        .cw-cell {
+            width: 2.5rem;
+            height: 2.5rem;
+            border: 1px solid #cbd5e1;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            font-weight: bold;
+            text-transform: uppercase;
+            position: relative;
+            background: white;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .cw-cell:focus {
+            outline: none;
+            background-color: #e0e7ff; /* indigo-100 */
+            border-color: #6366f1;
+        }
+
+        .cw-cell.active-word {
+            background-color: #fef9c3; /* yellow-100 */
         }
         
-        /* La part del darrere (taronja/disseny) */
-        .card-front {
-            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-            color: white;
+        .cw-cell.black-cell {
+            background-color: transparent;
+            border: none;
+        }
+
+        .cw-number {
+            position: absolute;
+            top: 1px;
+            left: 2px;
+            font-size: 0.6rem;
+            color: #64748b;
+            pointer-events: none;
         }
         
-        /* La part del davant (contingut/text) - Gira 180 graus per defecte */
-        .card-back {
-            background-color: white;
+        /* Input invisible però funcional per a mòbils */
+        .cell-input {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: transparent;
+            text-align: center;
+            font-size: 1.25rem;
+            padding: 0;
+            margin: 0;
+            outline: none;
             color: #1e293b;
-            transform: rotateY(180deg);
-            border: 2px solid #e2e8f0;
-            padding: 0.5rem;
         }
 
-        .matched .card-back {
-            background-color: #dcfce7; /* Verd suau quan s'encerta */
-            border-color: #22c55e;
-        }
-
-        /* Animació d'entrada */
-        @keyframes popIn {
-            0% { transform: scale(0.8); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-        .animate-pop {
-            animation: popIn 0.3s ease-out forwards;
-        }
     </style>
 </head>
-<body class="bg-orange-50 text-slate-800 min-h-screen">
+<body class="bg-slate-50 text-slate-800 min-h-screen">
 
-    <div class="container mx-auto px-4 py-8 max-w-4xl">
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
         
-        <!-- Capçalera -->
-        <header class="text-center mb-8">
-            <div class="inline-flex items-center justify-center p-3 bg-orange-100 text-orange-600 rounded-full mb-4 shadow-sm">
-                <i data-lucide="brain-circuit" class="w-8 h-8"></i>
+        <header class="text-center mb-10">
+            <div class="inline-flex items-center justify-center p-3 bg-teal-100 text-teal-700 rounded-full mb-4">
+                <i data-lucide="pen-tool" class="w-8 h-8"></i>
             </div>
-            <h1 class="text-4xl font-black text-slate-800 mb-2 tracking-tight">Memory Interactiu</h1>
-            <p class="text-slate-500 font-medium">Crea la teva partida personalitzada a l'instant</p>
+            <h1 class="text-4xl font-bold text-slate-900 mb-2">Generador de Mots Encreuats</h1>
+            <p class="text-slate-500">Crea activitats de vocabulari interactives i imprimibles</p>
         </header>
 
-        <!-- PANELL DE CONFIGURACIÓ (Visible inicialment) -->
-        <div id="setupPanel" class="max-w-xl mx-auto bg-white p-8 rounded-3xl shadow-xl border border-orange-100">
-            <div class="mb-6">
-                <label class="block text-lg font-bold text-slate-700 mb-2 flex items-center gap-2">
-                    <i data-lucide="list" class="w-5 h-5 text-orange-500"></i>
-                    Paraules del joc
-                </label>
-                <p class="text-sm text-slate-400 mb-3">Escriu les paraules separades per comes o salts de línia.</p>
-                <textarea id="wordInput" rows="5" 
-                    class="w-full p-4 bg-slate-50 border-2 border-slate-200 rounded-xl focus:border-orange-500 focus:ring-0 transition-colors text-lg"
-                    placeholder="Exemple:&#10;GOS, GAT, OCELL, PEIX, TORTUGA"></textarea>
-            </div>
-
-            <div class="flex items-center justify-between bg-orange-50 p-4 rounded-xl mb-6">
-                <div>
-                    <span class="block font-bold text-orange-800">Dificultat</span>
-                    <span class="text-xs text-orange-600">Es recomana entre 4 i 12 paraules</span>
-                </div>
-                <div class="text-right">
-                    <span id="wordCountBadge" class="bg-white px-3 py-1 rounded-full text-sm font-bold text-orange-600 shadow-sm border border-orange-100">
-                        0 paraules
-                    </span>
-                </div>
-            </div>
-
-            <button onclick="startGame()" class="w-full py-4 bg-orange-600 hover:bg-orange-700 text-white font-black text-xl rounded-2xl shadow-lg shadow-orange-200 transform hover:-translate-y-1 transition-all flex justify-center items-center gap-3">
-                <i data-lucide="play" class="w-6 h-6 fill-current"></i>
-                COMENÇAR JOC
-            </button>
-        </div>
-
-        <!-- PANELL DE JOC (Ocult inicialment) -->
-        <div id="gamePanel" class="hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
-            <!-- Barra d'estat -->
-            <div class="flex justify-between items-center mb-6 bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
-                <button onclick="stopGame()" class="text-slate-400 hover:text-red-500 transition-colors flex items-center gap-1 text-sm font-bold">
-                    <i data-lucide="arrow-left" class="w-4 h-4"></i> Tornar
-                </button>
-                
-                <div class="flex gap-6">
-                    <div class="flex items-center gap-2">
-                        <i data-lucide="clock" class="w-5 h-5 text-orange-500"></i>
-                        <span id="timer" class="font-mono font-bold text-xl text-slate-700">00:00</span>
+            <!-- CONFIGURACIÓ (Esquerra) -->
+            <div class="lg:col-span-4 space-y-6">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Títol</label>
+                    <input type="text" id="cwTitle" value="Geografia Europea" class="w-full p-2 border border-slate-300 rounded-lg mb-4 focus:ring-2 focus:ring-teal-500">
+
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="block text-sm font-semibold text-slate-700">Paraules i Pistes</label>
+                        <button onclick="addInputRow()" class="text-xs text-teal-600 font-bold hover:underline flex items-center gap-1">
+                            <i data-lucide="plus" class="w-3 h-3"></i> Afegir paraula
+                        </button>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <i data-lucide="move" class="w-5 h-5 text-indigo-500"></i>
-                        <span class="font-bold text-xl text-slate-700"><span id="moves">0</span> <span class="text-sm text-slate-400 font-normal">mov.</span></span>
+                    
+                    <div id="wordsContainer" class="space-y-3 max-h-[400px] overflow-y-auto pr-2 mb-4">
+                        <!-- Les files s'afegiran aquí via JS -->
                     </div>
-                </div>
 
-                <button onclick="restartGame()" class="p-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-600 transition-colors" title="Reiniciar">
-                    <i data-lucide="rotate-ccw" class="w-5 h-5"></i>
-                </button>
-            </div>
-
-            <!-- Graella del Joc -->
-            <div id="gameGrid" class="grid gap-4 mx-auto perspective-1000">
-                <!-- Les cartes es generaran aquí -->
-            </div>
-
-        </div>
-
-        <!-- PANELL DE VICTÒRIA (Modal) -->
-        <div id="winModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
-            <div class="bg-white p-8 rounded-3xl shadow-2xl max-w-sm w-full text-center transform scale-90 transition-transform duration-300" id="winCard">
-                <div class="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4 text-yellow-500 animate-bounce">
-                    <i data-lucide="trophy" class="w-10 h-10"></i>
-                </div>
-                <h2 class="text-3xl font-black text-slate-800 mb-2">Felicitats!</h2>
-                <p class="text-slate-500 mb-6">Has completat el memory.</p>
-                
-                <div class="grid grid-cols-2 gap-4 mb-8">
-                    <div class="bg-slate-50 p-3 rounded-xl">
-                        <span class="block text-xs text-slate-400 uppercase font-bold">Temps</span>
-                        <span id="finalTime" class="text-lg font-bold text-slate-700">00:00</span>
-                    </div>
-                    <div class="bg-slate-50 p-3 rounded-xl">
-                        <span class="block text-xs text-slate-400 uppercase font-bold">Moviments</span>
-                        <span id="finalMoves" class="text-lg font-bold text-slate-700">12</span>
-                    </div>
-                </div>
-
-                <div class="flex gap-3">
-                    <button onclick="restartGame()" class="flex-1 py-3 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-xl transition-colors">
-                        Tornar a jugar
+                    <button onclick="generateCrossword()" class="w-full py-3 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl shadow-lg shadow-teal-200 transition-all flex justify-center items-center gap-2">
+                        <i data-lucide="wand-2" class="w-5 h-5"></i>
+                        Generar Mots Encreuats
                     </button>
-                    <button onclick="stopGame()" class="px-4 py-3 bg-white border-2 border-slate-200 text-slate-600 hover:border-slate-300 font-bold rounded-xl transition-colors">
-                        Sortir
+                    <p id="genError" class="text-xs text-red-500 mt-2 text-center hidden">No s'han pogut col·locar totes les paraules. Prova d'afegir-ne més per connectar-les.</p>
+                </div>
+
+                <div class="bg-teal-50 border border-teal-100 p-4 rounded-xl text-sm text-teal-800">
+                    <p class="font-bold flex items-center gap-2 mb-1"><i data-lucide="printer" class="w-4 h-4"></i> Impressió</p>
+                    <p>Utilitza el botó "Imprimir Fitxa" per generar un full A4 net per als alumnes.</p>
+                </div>
+            </div>
+
+            <!-- RESULTAT (Dreta) -->
+            <div class="lg:col-span-8">
+                
+                <div class="flex justify-end mb-4 gap-2">
+                    <button onclick="checkAnswers()" class="px-4 py-2 bg-white border border-slate-300 hover:border-teal-500 hover:text-teal-600 text-slate-600 rounded-lg shadow-sm transition-all flex items-center gap-2" title="Comprovar respostes">
+                        <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+                        <span class="hidden sm:inline">Comprovar</span>
+                    </button>
+                    <button onclick="printCrossword()" class="px-4 py-2 bg-white border border-slate-300 hover:border-teal-500 hover:text-teal-600 text-slate-600 rounded-lg shadow-sm transition-all flex items-center gap-2">
+                        <i data-lucide="printer" class="w-5 h-5"></i>
+                        Imprimir Fitxa
                     </button>
                 </div>
+
+                <div id="cwArea" class="bg-white p-6 md:p-8 rounded-xl shadow-lg border border-slate-200 min-h-[500px] flex flex-col items-center justify-center">
+                    
+                    <div class="text-center mb-6">
+                        <h2 id="displayTitle" class="text-2xl font-bold text-slate-800">Geografia Europea</h2>
+                        <p class="text-slate-400 text-sm">Clica una casella per començar a escriure</p>
+                    </div>
+
+                    <!-- Graella -->
+                    <div id="gridWrapper" class="relative bg-slate-50 p-4 rounded-lg border border-slate-100 mb-8 overflow-x-auto max-w-full">
+                        <div id="cwGrid" class="grid gap-0 mx-auto">
+                            <!-- JS Inject -->
+                        </div>
+                    </div>
+
+                    <!-- Pistes Visuals -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl">
+                        <div>
+                            <h3 class="font-bold text-slate-700 border-b border-slate-200 pb-2 mb-3">Horitzontals</h3>
+                            <ul id="cluesAcross" class="space-y-2 text-sm text-slate-600"></ul>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-700 border-b border-slate-200 pb-2 mb-3">Verticals</h3>
+                            <ul id="cluesDown" class="space-y-2 text-sm text-slate-600"></ul>
+                        </div>
+                    </div>
+
+                </div>
             </div>
         </div>
-
     </div>
 
     <script>
         lucide.createIcons();
 
-        // Variables d'Estat
-        let cards = [];
-        let flippedCards = [];
-        let matchedPairs = 0;
-        let totalPairs = 0;
-        let moves = 0;
-        let timerInterval;
-        let seconds = 0;
-        let isLockBoard = false; // Per evitar clicks durant animacions
+        // Dades Inicials d'Exemple
+        const initialData = [
+            { word: "PARIS", clue: "Capital de França" },
+            { word: "ITALIA", clue: "País amb forma de bota" },
+            { word: "ALPS", clue: "Serralada més alta d'Europa" },
+            { word: "DANUBI", clue: "Riu que passa per Viena i Budapest" },
+            { word: "EURO", clue: "Moneda comuna de molts països europeus" }
+        ];
 
-        // Elements DOM
-        const wordInput = document.getElementById('wordInput');
-        const wordCountBadge = document.getElementById('wordCountBadge');
-        const setupPanel = document.getElementById('setupPanel');
-        const gamePanel = document.getElementById('gamePanel');
-        const gameGrid = document.getElementById('gameGrid');
-        const movesDisplay = document.getElementById('moves');
-        const timerDisplay = document.getElementById('timer');
-        const winModal = document.getElementById('winModal');
-        const winCard = document.getElementById('winCard');
+        // Estat Global
+        let gridData = [];
+        let placedWords = [];
+        const gridSize = 15;
 
-        // Listener per comptar paraules
-        wordInput.addEventListener('input', () => {
-            const words = getCleanWords();
-            wordCountBadge.innerText = `${words.length} paraules`;
-            if(words.length > 12) {
-                wordCountBadge.classList.add('text-red-600', 'bg-red-50');
-                wordCountBadge.innerText += " (Màxim recomanat!)";
-            } else {
-                wordCountBadge.classList.remove('text-red-600', 'bg-red-50');
-            }
-        });
-
-        // Helpers
-        function getCleanWords() {
-            return wordInput.value
-                .split(/[\n,]/)
-                .map(w => w.trim())
-                .filter(w => w.length > 0);
-        }
-
-        function formatTime(secs) {
-            const m = Math.floor(secs / 60).toString().padStart(2, '0');
-            const s = (secs % 60).toString().padStart(2, '0');
-            return `${m}:${s}`;
-        }
-
-        // Lògica del Joc
-        function startGame() {
-            const words = getCleanWords();
+        // INICIALITZACIÓ
+        window.onload = () => {
+            const container = document.getElementById('wordsContainer');
+            initialData.forEach(item => addInputRow(item.word, item.clue));
+            // Afegir unes quantes files buides extra
+            addInputRow();
+            addInputRow();
             
-            if (words.length < 2) {
-                alert("Si us plau, escriu almenys 2 paraules per jugar.");
-                return;
-            }
+            generateCrossword();
+        };
 
-            // Preparar dades
-            totalPairs = words.length;
-            // Dupliquem les paraules per fer parelles
-            const deck = [...words, ...words];
-            // Barregem
-            cards = deck.sort(() => 0.5 - Math.random());
-
-            // UI Switch
-            setupPanel.classList.add('hidden');
-            gamePanel.classList.remove('hidden');
-            
-            resetStats();
-            renderGrid(cards);
-            startTimer();
-        }
-
-        function stopGame() {
-            stopTimer();
-            gamePanel.classList.add('hidden');
-            setupPanel.classList.remove('hidden');
-            winModal.classList.add('hidden');
-            // Tornem a mostrar la modal oculta per CSS
-            winModal.classList.remove('flex'); 
-            winModal.classList.add('hidden');
-        }
-
-        function restartGame() {
-            winModal.classList.add('opacity-0');
-            setTimeout(() => {
-                winModal.classList.add('hidden');
-                winModal.classList.remove('flex');
-                startGame();
-            }, 300);
-        }
-
-        function resetStats() {
-            matchedPairs = 0;
-            moves = 0;
-            seconds = 0;
-            movesDisplay.innerText = '0';
-            timerDisplay.innerText = '00:00';
-            flippedCards = [];
-            isLockBoard = false;
-        }
-
-        function startTimer() {
-            stopTimer();
-            timerInterval = setInterval(() => {
-                seconds++;
-                timerDisplay.innerText = formatTime(seconds);
-            }, 1000);
-        }
-
-        function stopTimer() {
-            clearInterval(timerInterval);
-        }
-
-        function renderGrid(deckItems) {
-            gameGrid.innerHTML = '';
-            
-            // Ajustar columnes segons nombre de cartes
-            let cols = 2; // mòbil base
-            if (deckItems.length > 12) cols = 4;
-            else if (deckItems.length > 6) cols = 3;
-            else cols = 2;
-
-            // Classes de graella responsive Tailwind
-            gameGrid.className = 'grid gap-3 mx-auto perspective-1000 w-full';
-            
-            // Logica simple per columnes CSS inline per precisió
-            if (window.innerWidth >= 768) {
-                // Desktop logic
-                const total = deckItems.length;
-                const optimalCols = Math.ceil(Math.sqrt(total));
-                gameGrid.style.gridTemplateColumns = `repeat(${optimalCols}, minmax(0, 1fr))`;
-            } else {
-                // Mobile logic
-                gameGrid.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
-            }
-
-            deckItems.forEach((word, index) => {
-                // Estructura de la carta (Card Flip)
-                const card = document.createElement('div');
-                card.className = 'card h-24 md:h-32 w-full animate-pop';
-                card.style.animationDelay = `${index * 50}ms`;
-                card.dataset.word = word;
-                card.dataset.index = index;
-
-                card.innerHTML = `
-                    <div class="card-inner">
-                        <div class="card-front">
-                            <i data-lucide="help-circle" class="w-8 h-8 opacity-50"></i>
-                        </div>
-                        <div class="card-back">
-                            <span class="font-bold text-sm md:text-lg break-words leading-tight px-1 select-none">${word}</span>
-                        </div>
-                    </div>
-                `;
-
-                card.addEventListener('click', () => flipCard(card));
-                gameGrid.appendChild(card);
-            });
+        function addInputRow(wordVal = "", clueVal = "") {
+            const div = document.createElement('div');
+            div.className = "flex gap-2 items-start";
+            div.innerHTML = `
+                <div class="flex-1 space-y-1">
+                    <input type="text" placeholder="Paraula" value="${wordVal}" class="w-full p-2 text-sm border border-slate-300 rounded uppercase font-bold word-input">
+                    <input type="text" placeholder="Definició o pista..." value="${clueVal}" class="w-full p-2 text-sm border border-slate-300 rounded clue-input">
+                </div>
+                <button onclick="this.parentElement.remove()" class="mt-2 text-slate-400 hover:text-red-500">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                </button>
+            `;
+            document.getElementById('wordsContainer').appendChild(div);
             lucide.createIcons();
         }
 
-        function flipCard(card) {
-            if (isLockBoard) return;
-            if (card.classList.contains('flipped')) return; // No girar si ja està girada
+        // GENERADOR DE MOTS ENCREUATS (Algorisme Simple)
+        function generateCrossword() {
+            // 1. Recollir dades
+            const title = document.getElementById('cwTitle').value;
+            document.getElementById('displayTitle').innerText = title || "Mots Encreuats";
             
-            card.classList.add('flipped');
-            flippedCards.push(card);
-
-            if (flippedCards.length === 2) {
-                moves++;
-                movesDisplay.innerText = moves;
-                checkForMatch();
-            }
-        }
-
-        function checkForMatch() {
-            isLockBoard = true;
-            const [card1, card2] = flippedCards;
-            const match = card1.dataset.word === card2.dataset.word;
-
-            if (match) {
-                disableCards();
-            } else {
-                unflipCards();
-            }
-        }
-
-        function disableCards() {
-            flippedCards.forEach(card => {
-                card.classList.add('matched');
-                // Petita animació de "pulp"
-                setTimeout(() => {
-                    card.querySelector('.card-back').classList.add('scale-105');
-                    setTimeout(() => card.querySelector('.card-back').classList.remove('scale-105'), 200);
-                }, 300);
-            });
-            
-            matchedPairs++;
-            flippedCards = [];
-            isLockBoard = false;
-
-            if (matchedPairs === totalPairs) {
-                handleWin();
-            }
-        }
-
-        function unflipCards() {
-            setTimeout(() => {
-                flippedCards.forEach(card => card.classList.remove('flipped'));
-                flippedCards = [];
-                isLockBoard = false;
-            }, 1000);
-        }
-
-        function handleWin() {
-            stopTimer();
-            confetti({
-                particleCount: 150,
-                spread: 70,
-                origin: { y: 0.6 }
+            const inputs = document.querySelectorAll('#wordsContainer > div');
+            let words = [];
+            inputs.forEach(row => {
+                const w = row.querySelector('.word-input').value.trim().toUpperCase().replace(/[^A-Z]/g, '');
+                const c = row.querySelector('.clue-input').value.trim();
+                if(w && c) words.push({ word: w, clue: c });
             });
 
-            setTimeout(() => {
-                document.getElementById('finalTime').innerText = formatTime(seconds);
-                document.getElementById('finalMoves').innerText = moves;
-                
-                winModal.classList.remove('hidden');
-                winModal.classList.add('flex');
-                // Petit hack per l'animació d'entrada
-                setTimeout(() => {
-                    winModal.classList.remove('opacity-0');
-                    winCard.classList.remove('scale-90');
-                    winCard.classList.add('scale-100');
-                }, 10);
-            }, 500);
-        }
+            if(words.length === 0) return;
 
-        // Ajustar graella en redimensionar finestra
-        window.addEventListener('resize', () => {
-            if (!gamePanel.classList.contains('hidden')) {
-                const items = document.querySelectorAll('.card');
-                if(items.length > 0) {
-                   const optimalCols = Math.ceil(Math.sqrt(items.length));
-                   if (window.innerWidth >= 768) {
-                       gameGrid.style.gridTemplateColumns = `repeat(${optimalCols}, minmax(0, 1fr))`;
-                   } else {
-                       gameGrid.style.gridTemplateColumns = items.length > 12 ? 'repeat(4, 1fr)' : 'repeat(3, 1fr)';
-                       if (items.length <= 6) gameGrid.style.gridTemplateColumns = 'repeat(2, 1fr)';
-                   }
+            // Ordenar per longitud (més llargues primer per millor encaix)
+            words.sort((a, b) => b.word.length - a.word.length);
+
+            // 2. Inicialitzar graella buida (null = buit)
+            let grid = Array(gridSize).fill().map(() => Array(gridSize).fill(null));
+            placedWords = [];
+            
+            // 3. Col·locar la primera paraula al centre
+            const first = words[0];
+            const startRow = Math.floor(gridSize / 2);
+            const startCol = Math.floor((gridSize - first.word.length) / 2);
+            placeWordOnGrid(grid, first, startRow, startCol, 'across');
+            placedWords.push({ ...first, row: startRow, col: startCol, dir: 'across', number: 1 });
+
+            // 4. Intentar col·locar la resta
+            for (let i = 1; i < words.length; i++) {
+                const current = words[i];
+                let placed = false;
+
+                // Buscar interseccions possibles amb paraules ja col·locades
+                // Això és un algorisme greedy simple
+                for (let placedW of placedWords) {
+                    if (placed) break;
+                    
+                    // Comprovar cada lletra de la paraula ja col·locada
+                    for (let j = 0; j < placedW.word.length; j++) {
+                        const charOnBoard = placedW.word[j];
+                        const boardRow = placedW.dir === 'across' ? placedW.row : placedW.row + j;
+                        const boardCol = placedW.dir === 'across' ? placedW.col + j : placedW.col;
+
+                        // Buscar aquesta lletra a la nova paraula
+                        for (let k = 0; k < current.word.length; k++) {
+                            if (current.word[k] === charOnBoard) {
+                                // Intentar creuar perpendicularment
+                                const newDir = placedW.dir === 'across' ? 'down' : 'across';
+                                const newRow = newDir === 'down' ? boardRow - k : boardRow;
+                                const newCol = newDir === 'down' ? boardCol : boardCol - k;
+
+                                if (canPlace(grid, current.word, newRow, newCol, newDir)) {
+                                    placeWordOnGrid(grid, current, newRow, newCol, newDir);
+                                    placedWords.push({ ...current, row: newRow, col: newCol, dir: newDir, number: placedWords.length + 1 });
+                                    placed = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (placed) break;
+                    }
                 }
             }
-        });
+
+            // Notificar si alguna paraula ha quedat fora
+            const errorMsg = document.getElementById('genError');
+            if (placedWords.length < words.length) {
+                errorMsg.classList.remove('hidden');
+                errorMsg.innerText = `S'han col·locat ${placedWords.length} de ${words.length} paraules.`;
+            } else {
+                errorMsg.classList.add('hidden');
+            }
+
+            // Renumerar lògicament (dalt a baix, esquerra a dreta) per ser més "standard"
+            placedWords.sort((a, b) => (a.row - b.row) || (a.col - b.col));
+            placedWords.forEach((w, idx) => w.number = idx + 1);
+
+            gridData = grid;
+            renderInteractiveGrid(grid);
+            renderClues();
+        }
+
+        function canPlace(grid, word, row, col, dir) {
+            if (row < 0 || col < 0) return false;
+            if (dir === 'across') {
+                if (col + word.length > gridSize) return false;
+                // Comprovacions de veïnatge per evitar enganxar paraules incorrectament
+                if (col > 0 && grid[row][col-1] !== null) return false; // Lletra just abans
+                if (col + word.length < gridSize && grid[row][col+word.length] !== null) return false; // Lletra just després
+            } else {
+                if (row + word.length > gridSize) return false;
+                if (row > 0 && grid[row-1][col] !== null) return false;
+                if (row + word.length < gridSize && grid[row+word.length][col] !== null) return false;
+            }
+
+            for (let i = 0; i < word.length; i++) {
+                const r = dir === 'across' ? row : row + i;
+                const c = dir === 'across' ? col + i : col;
+                
+                const cell = grid[r][c];
+                // Si la casella no és buida, ha de coincidir la lletra
+                if (cell !== null && cell !== word[i]) return false;
+                
+                // Si la casella és buida, no pot tenir veïns perpendiculars (tret que sigui intersecció, que ja hem validat a dalt)
+                // Aquesta part es pot simplificar: només permetre col·locar si casella és null o mateixa lletra
+                // Per fer-ho bé caldria comprovar veïns adjacents per no crear paraules de 2 lletres no desitjades
+                if (cell === null) {
+                    if (dir === 'across') {
+                        if ((r > 0 && grid[r-1][c] !== null) || (r < gridSize-1 && grid[r+1][c] !== null)) return false;
+                    } else {
+                        if ((c > 0 && grid[r][c-1] !== null) || (c < gridSize-1 && grid[r][c+1] !== null)) return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        function placeWordOnGrid(grid, item, row, col, dir) {
+            for (let i = 0; i < item.word.length; i++) {
+                const r = dir === 'across' ? row : row + i;
+                const c = dir === 'across' ? col + i : col;
+                grid[r][c] = item.word[i];
+            }
+        }
+
+        // RENDERITZAT INTERACTIU
+        function renderInteractiveGrid(grid) {
+            const container = document.getElementById('cwGrid');
+            container.innerHTML = '';
+            
+            // Calcular bounds per retallar la graella visualment i no mostrar espai buit
+            let minR = gridSize, maxR = 0, minC = gridSize, maxC = 0;
+            let hasContent = false;
+            for(let r=0; r<gridSize; r++){
+                for(let c=0; c<gridSize; c++){
+                    if(grid[r][c] !== null) {
+                        hasContent = true;
+                        if(r < minR) minR = r;
+                        if(r > maxR) maxR = r;
+                        if(c < minC) minC = c;
+                        if(c > maxC) maxC = c;
+                    }
+                }
+            }
+            if(!hasContent) { minR=0; maxR=5; minC=0; maxC=5; }
+
+            const displayRows = maxR - minR + 1;
+            const displayCols = maxC - minC + 1;
+
+            container.style.gridTemplateColumns = `repeat(${displayCols}, minmax(0, 1fr))`;
+            
+            for (let r = minR; r <= maxR; r++) {
+                for (let c = minC; c <= maxC; c++) {
+                    const char = grid[r][c];
+                    const cellDiv = document.createElement('div');
+                    
+                    if (char === null) {
+                        cellDiv.className = "cw-cell black-cell";
+                    } else {
+                        cellDiv.className = "cw-cell";
+                        
+                        // Buscar si aquesta casella és l'inici d'alguna paraula per posar número
+                        const startWord = placedWords.find(w => w.row === r && w.col === c);
+                        if (startWord) {
+                            const numSpan = document.createElement('span');
+                            numSpan.className = "cw-number";
+                            numSpan.innerText = startWord.number;
+                            cellDiv.appendChild(numSpan);
+                        }
+
+                        const input = document.createElement('input');
+                        input.type = "text";
+                        input.maxLength = 1;
+                        input.className = "cell-input";
+                        input.dataset.letter = char; // Solució guardada
+                        input.dataset.row = r;
+                        input.dataset.col = c;
+                        
+                        // Logica de navegació i focus
+                        input.onfocus = () => highlightWord(r, c);
+                        input.onkeydown = (e) => handleKey(e, r, c, minR, maxR, minC, maxC);
+                        input.oninput = (e) => handleInput(e, r, c, minR, maxR, minC, maxC);
+
+                        cellDiv.appendChild(input);
+                    }
+                    container.appendChild(cellDiv);
+                }
+            }
+        }
+
+        function renderClues() {
+            const acrossList = document.getElementById('cluesAcross');
+            const downList = document.getElementById('cluesDown');
+            acrossList.innerHTML = '';
+            downList.innerHTML = '';
+
+            placedWords.forEach(w => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span class="font-bold text-teal-600">${w.number}.</span> ${w.clue}`;
+                
+                if (w.dir === 'across') acrossList.appendChild(li);
+                else downList.appendChild(li);
+            });
+        }
+
+        // INTERACCIÓ DE L'USUARI
+        let currentDirection = 'across'; // 'across' o 'down'
+
+        function highlightWord(row, col) {
+            // Netejar highlights previs
+            document.querySelectorAll('.cw-cell').forEach(c => c.classList.remove('active-word'));
+
+            // Trobar quina paraula passa per aquí en la direcció actual
+            // Això és simplificat, idealment canvia direcció si cliquem 2 cops
+            const cell = document.querySelector(`input[data-row="${row}"][data-col="${col}"]`).parentElement;
+            cell.classList.add('active-word');
+        }
+
+        function handleInput(e, r, c, minR, maxR, minC, maxC) {
+            const val = e.target.value.toUpperCase();
+            e.target.value = val;
+            
+            if (val) {
+                // Moure focus al següent
+                moveFocus(r, c, 1, minR, maxR, minC, maxC);
+            }
+        }
+
+        function handleKey(e, r, c, minR, maxR, minC, maxC) {
+            if (e.key === 'Backspace' && e.target.value === '') {
+                moveFocus(r, c, -1, minR, maxR, minC, maxC);
+            } else if (e.key === 'ArrowRight') {
+                moveFocus(r, c, 1, minR, maxR, minC, maxC, 'across');
+            } else if (e.key === 'ArrowLeft') {
+                moveFocus(r, c, -1, minR, maxR, minC, maxC, 'across');
+            } else if (e.key === 'ArrowDown') {
+                moveFocus(r, c, 1, minR, maxR, minC, maxC, 'down');
+            } else if (e.key === 'ArrowUp') {
+                moveFocus(r, c, -1, minR, maxR, minC, maxC, 'down');
+            }
+        }
+
+        function moveFocus(r, c, step, minR, maxR, minC, maxC, forceDir = null) {
+            // Lògica simple per trobar el següent input en la graella visual
+            // Busquem inputs en el DOM que coincideixin amb coordenades
+            
+            // Determinar direcció
+            let dr = 0, dc = 0;
+            const dir = forceDir || currentDirection;
+            
+            if (dir === 'across') dc = step;
+            else dr = step;
+
+            let nextR = r + dr;
+            let nextC = c + dc;
+            
+            let nextInput = document.querySelector(`input[data-row="${nextR}"][data-col="${nextC}"]`);
+            if (nextInput) {
+                nextInput.focus();
+            }
+        }
+
+        function checkAnswers() {
+            const inputs = document.querySelectorAll('.cell-input');
+            let errors = 0;
+            inputs.forEach(inp => {
+                if (inp.value && inp.value !== inp.dataset.letter) {
+                    inp.style.color = 'red';
+                    errors++;
+                } else if (inp.value === inp.dataset.letter) {
+                    inp.style.color = 'green';
+                }
+            });
+            if (errors === 0 && Array.from(inputs).every(i => i.value)) {
+                alert("Felicitats! Has completat els mots encreuats correctament.");
+            }
+        }
+
+        // --- IMPRESSIÓ ---
+        function printCrossword() {
+            const title = document.getElementById('cwTitle').value;
+            
+            // Generar HTML per a la impressió
+            // Graella buida sense valors
+            let gridHtml = document.getElementById('cwGrid').outerHTML;
+            
+            // Netejar els inputs de la graella HTML per a impressió
+            // Ho fem substituint els inputs per espais buits, mantenint els números
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = gridHtml;
+            const inputs = tempDiv.querySelectorAll('input');
+            inputs.forEach(inp => inp.remove()); // Treure inputs, deixar cel·la buida
+            const cells = tempDiv.querySelectorAll('.cw-cell');
+            cells.forEach(c => {
+                 // Assegurar estils d'impressió inline
+                 c.style.border = "1px solid black";
+                 c.style.width = "40px";
+                 c.style.height = "40px";
+                 if(c.classList.contains('black-cell')) c.style.border = "none";
+            });
+
+            // Llistes de pistes
+            const acrossHtml = document.getElementById('cluesAcross').innerHTML;
+            const downHtml = document.getElementById('cluesDown').innerHTML;
+
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>${title} - Imprimir</title>
+                    <style>
+                        body { font-family: sans-serif; padding: 40px; }
+                        .header { display: flex; justify-content: space-between; margin-bottom: 40px; border-bottom: 2px solid #333; padding-bottom: 20px; }
+                        .field { width: 40%; }
+                        .field-label { font-weight: bold; text-transform: uppercase; font-size: 0.8rem; color: #666; }
+                        .field-line { border-bottom: 1px solid #999; height: 30px; }
+                        
+                        h1 { text-align: center; text-transform: uppercase; margin-bottom: 30px; font-size: 2rem; }
+                        
+                        .grid-container { display: flex; justify-content: center; margin-bottom: 40px; }
+                        #cwGrid { display: grid; gap: 0; border: 2px solid black; width: fit-content; }
+                        /* Heretem les columnes inline del style original del grid */
+                        
+                        .cw-cell { 
+                            position: relative; 
+                            background: white; 
+                            display: flex;
+                        }
+                        .cw-number { position: absolute; top: 2px; left: 2px; font-size: 10px; }
+                        
+                        .clues-container { display: flex; gap: 40px; }
+                        .clues-col { flex: 1; }
+                        h3 { border-bottom: 1px solid #000; padding-bottom: 5px; margin-bottom: 10px; text-transform: uppercase; font-size: 0.9rem; }
+                        ul { list-style: none; padding: 0; font-size: 0.9rem; }
+                        li { margin-bottom: 8px; }
+                        
+                        @media print {
+                            body { -webkit-print-color-adjust: exact; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <div class="field">
+                            <div class="field-label">Nom de l'alumne</div>
+                            <div class="field-line"></div>
+                        </div>
+                        <div class="field">
+                            <div class="field-label">Data</div>
+                            <div class="field-line"></div>
+                        </div>
+                    </div>
+
+                    <h1>${title}</h1>
+
+                    <div class="grid-container">
+                        ${tempDiv.innerHTML}
+                    </div>
+
+                    <div class="clues-container">
+                        <div class="clues-col">
+                            <h3>Horitzontals</h3>
+                            <ul>${acrossHtml}</ul>
+                        </div>
+                        <div class="clues-col">
+                            <h3>Verticals</h3>
+                            <ul>${downHtml}</ul>
+                        </div>
+                    </div>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            // Esperar que carregui estils i imatges
+            setTimeout(() => {
+                printWindow.print();
+            }, 500);
+        }
 
     </script>
 </body>
