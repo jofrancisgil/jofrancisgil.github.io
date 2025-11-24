@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Grups de Classe</title>
+    <!-- Tailwind CSS per a estils ràpids i bonics -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Icones Lucide -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Animació suau per a les targetes */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-card {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen font-sans">
+
+    <!-- Notificació Toast (oculta per defecte) -->
+    <div id="toast" class="fixed top-5 right-5 z-50 transform transition-all duration-300 translate-x-full opacity-0">
+        <div class="bg-emerald-600 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2">
+            <!-- Embolcall per a la icona per evitar que es perdi en regenerar-se -->
+            <span id="toast-icon-wrapper" class="flex items-center justify-center">
+                <i data-lucide="check-circle" class="w-5 h-5"></i>
+            </span>
+            <span id="toast-msg">Acció completada</span>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 py-8 max-w-5xl">
+        
+        <!-- Capçalera -->
+        <header class="text-center mb-10">
+            <div class="inline-flex items-center justify-center p-3 bg-indigo-100 text-indigo-700 rounded-full mb-4">
+                <i data-lucide="users" class="w-8 h-8"></i>
+            </div>
+            <h1 class="text-4xl font-bold text-slate-900 mb-2">Generador de Grups</h1>
+            <p class="text-slate-500 text-lg">Organitza la teva classe en segons de manera aleatòria</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Panell de Control (Esquerra) -->
+            <div class="lg:col-span-1 space-y-6">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <label class="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
+                        <i data-lucide="user-plus" class="w-4 h-4"></i>
+                        Llista d'Alumnes
+                    </label>
+                    <textarea 
+                        id="studentList" 
+                        class="w-full h-48 p-4 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all resize-none text-sm"
+                        placeholder="Escriu els noms aquí (un per línia)...&#10;Anna&#10;Pol&#10;Laia&#10;Marc"
+                    ></textarea>
+                    <div class="flex justify-between items-center mt-2 text-xs text-slate-400">
+                        <span id="studentCount">0 alumnes detectats</span>
+                        <button onclick="clearList()" class="text-red-500 hover:text-red-700 hover:underline">Esborrar tot</button>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <label class="block text-sm font-semibold text-slate-700 mb-4">Configuració</label>
+                    
+                    <!-- Selector de Mètode -->
+                    <div class="flex bg-slate-100 p-1 rounded-lg mb-4">
+                        <button onclick="setMode('count')" id="btn-mode-count" class="flex-1 py-2 text-sm font-medium rounded-md bg-white shadow text-indigo-700 transition-all">
+                            Per núm. grups
+                        </button>
+                        <button onclick="setMode('size')" id="btn-mode-size" class="flex-1 py-2 text-sm font-medium rounded-md text-slate-500 hover:text-slate-700 transition-all">
+                            Per mida grup
+                        </button>
+                    </div>
+
+                    <!-- Input Dinàmic -->
+                    <div class="mb-6">
+                        <label id="inputLabel" class="block text-xs uppercase tracking-wider text-slate-500 font-bold mb-2">
+                            Nombre total de grups
+                        </label>
+                        <div class="flex items-center">
+                            <button onclick="adjustValue(-1)" class="w-10 h-10 bg-slate-100 hover:bg-slate-200 rounded-l-lg flex items-center justify-center text-slate-600">
+                                <i data-lucide="minus" class="w-4 h-4"></i>
+                            </button>
+                            <input type="number" id="groupValue" value="4" min="1" class="flex-1 h-10 text-center border-y border-slate-200 focus:outline-none font-bold text-slate-700">
+                            <button onclick="adjustValue(1)" class="w-10 h-10 bg-slate-100 hover:bg-slate-200 rounded-r-lg flex items-center justify-center text-slate-600">
+                                <i data-lucide="plus" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button onclick="generateGroups()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-200 transform hover:-translate-y-0.5 transition-all flex justify-center items-center gap-2">
+                        <i data-lucide="sparkles" class="w-5 h-5"></i>
+                        Generar Grups
+                    </button>
+                </div>
+            </div>
+
+            <!-- Àrea de Resultats (Dreta) -->
+            <div class="lg:col-span-2">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold text-slate-800">Resultats</h2>
+                    <div class="flex gap-2" id="actionButtons" style="display: none;">
+                        <!-- Botó Nou: Tornar a generar -->
+                        <button onclick="generateGroups()" class="p-2 bg-indigo-50 border border-indigo-200 text-indigo-600 rounded-lg hover:bg-indigo-100 transition-colors mr-2" title="Tornar a generar">
+                            <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+                        </button>
+                        
+                        <button onclick="copyToClipboard()" class="p-2 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 hover:text-indigo-600 transition-colors" title="Copiar al porta-retalls">
+                            <i data-lucide="copy" class="w-5 h-5"></i>
+                        </button>
+                        <button onclick="downloadText()" class="p-2 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 hover:text-indigo-600 transition-colors" title="Descarregar .txt">
+                            <i data-lucide="download" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Contenidor on es mostraran els grups -->
+                <div id="resultsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4 auto-rows-min">
+                    <!-- Estat buit -->
+                    <div class="col-span-1 md:col-span-2 flex flex-col items-center justify-center p-12 text-slate-400 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50/50">
+                        <i data-lucide="layout-grid" class="w-12 h-12 mb-4 opacity-50"></i>
+                        <p>Els grups generats apareixeran aquí</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Inicialització d'icones
+        lucide.createIcons();
+
+        // Variables d'Estat
+        let currentMode = 'count'; // 'count' (núm grups) o 'size' (persones per grup)
+
+        // Referències al DOM
+        const textarea = document.getElementById('studentList');
+        const countDisplay = document.getElementById('studentCount');
+        const groupValueInput = document.getElementById('groupValue');
+        const inputLabel = document.getElementById('inputLabel');
+        const resultsContainer = document.getElementById('resultsContainer');
+
+        // Actualitzar comptador d'alumnes en temps real
+        textarea.addEventListener('input', () => {
+            const students = getStudents();
+            countDisplay.innerText = `${students.length} alumne${students.length !== 1 ? 's' : ''} detectat${students.length !== 1 ? 's' : ''}`;
+        });
+
+        // Canviar mode (Per grups vs Per mida)
+        function setMode(mode) {
+            currentMode = mode;
+            const btnCount = document.getElementById('btn-mode-count');
+            const btnSize = document.getElementById('btn-mode-size');
+
+            if (mode === 'count') {
+                btnCount.className = "flex-1 py-2 text-sm font-medium rounded-md bg-white shadow text-indigo-700 transition-all";
+                btnSize.className = "flex-1 py-2 text-sm font-medium rounded-md text-slate-500 hover:text-slate-700 transition-all";
+                inputLabel.innerText = "NOMBRE TOTAL DE GRUPS";
+                groupValueInput.value = 4;
+            } else {
+                btnSize.className = "flex-1 py-2 text-sm font-medium rounded-md bg-white shadow text-indigo-700 transition-all";
+                btnCount.className = "flex-1 py-2 text-sm font-medium rounded-md text-slate-500 hover:text-slate-700 transition-all";
+                inputLabel.innerText = "ALUMNES PER GRUP";
+                groupValueInput.value = 3;
+            }
+        }
+
+        // Ajustar valor de l'input (+/-)
+        function adjustValue(delta) {
+            let val = parseInt(groupValueInput.value) || 0;
+            val += delta;
+            if (val < 1) val = 1;
+            groupValueInput.value = val;
+        }
+
+        // Netejar llista
+        function clearList() {
+            if(confirm("Segur que vols esborrar la llista?")) {
+                textarea.value = '';
+                countDisplay.innerText = "0 alumnes detectats";
+                resultsContainer.innerHTML = `
+                    <div class="col-span-1 md:col-span-2 flex flex-col items-center justify-center p-12 text-slate-400 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50/50">
+                        <i data-lucide="layout-grid" class="w-12 h-12 mb-4 opacity-50"></i>
+                        <p>Els grups generats apareixeran aquí</p>
+                    </div>
+                `;
+                document.getElementById('actionButtons').style.display = 'none';
+                lucide.createIcons();
+            }
+        }
+
+        // Obtenir array net d'alumnes
+        function getStudents() {
+            return textarea.value
+                .split(/\n|,/) // Separar per salt de línia o coma
+                .map(s => s.trim())
+                .filter(s => s.length > 0);
+        }
+
+        // Algorisme de barreja (Fisher-Yates Shuffle)
+        function shuffle(array) {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex != 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        }
+
+        // GENERAR GRUPS (Funció Principal)
+        function generateGroups() {
+            const students = getStudents();
+            const value = parseInt(groupValueInput.value);
+
+            if (students.length === 0) {
+                showToast("Introdueix almenys un alumne!", true);
+                return;
+            }
+
+            if (value < 1) {
+                showToast("El valor ha de ser com a mínim 1", true);
+                return;
+            }
+
+            // Barrejar alumnes
+            const shuffled = shuffle([...students]);
+            let groups = [];
+
+            if (currentMode === 'count') {
+                // Mode: Nombre fix de grups
+                const numGroups = value;
+                if (numGroups > students.length) {
+                    showToast("No pots fer més grups que alumnes!", true);
+                    return;
+                }
+                
+                // Crear arrays buits
+                for (let i = 0; i < numGroups; i++) groups.push([]);
+                
+                // Repartir alumnes un per un (Deal cards style) per equilibrar
+                shuffled.forEach((student, index) => {
+                    groups[index % numGroups].push(student);
+                });
+
+            } else {
+                // Mode: Mida del grup
+                const size = value;
+                for (let i = 0; i < shuffled.length; i += size) {
+                    groups.push(shuffled.slice(i, i + size));
+                }
+                // Opcional: Si l'últim grup és molt petit (ex: 1 persona), es podria redistribuir, 
+                // però normalment els profes prefereixen veure el "residu" clarament.
+            }
+
+            renderResults(groups);
+            showToast("Grups generats correctament!");
+        }
+
+        // Renderitzar resultats al DOM
+        function renderResults(groups) {
+            resultsContainer.innerHTML = '';
+            document.getElementById('actionButtons').style.display = 'flex';
+
+            const colors = [
+                'border-t-blue-500', 'border-t-emerald-500', 'border-t-purple-500', 
+                'border-t-amber-500', 'border-t-rose-500', 'border-t-cyan-500', 'border-t-indigo-500'
+            ];
+
+            groups.forEach((group, index) => {
+                const colorClass = colors[index % colors.length];
+                let delay = index * 50; // Retard per l'animació en cascada
+
+                let html = `
+                <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-0 overflow-hidden animate-card border-t-4 ${colorClass}" style="animation-delay: ${delay}ms">
+                    <div class="p-4 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
+                        <h3 class="font-bold text-slate-700">Grup ${index + 1}</h3>
+                        <span class="text-xs font-medium bg-white px-2 py-1 rounded-full border border-slate-200 text-slate-500">
+                            ${group.length} membres
+                        </span>
+                    </div>
+                    <ul class="p-4 space-y-2">
+                `;
+
+                group.forEach(student => {
+                    html += `
+                        <li class="flex items-center text-slate-700">
+                            <i data-lucide="user" class="w-4 h-4 mr-2 text-slate-400"></i>
+                            ${student}
+                        </li>
+                    `;
+                });
+
+                html += `</ul></div>`;
+                resultsContainer.innerHTML += html;
+            });
+
+            // Reinicialitzar icones per als nous elements
+            lucide.createIcons();
+        }
+
+        // Copiar al porta-retalls
+        function copyToClipboard() {
+            const students = getStudents(); // Només per comprovar si n'hi ha
+            if (students.length === 0) return;
+
+            // Obtenir el text dels resultats actuals
+            let text = "GRUPS GENERATS:\n\n";
+            const cards = resultsContainer.querySelectorAll('div.bg-white'); // Selector una mica brut però efectiu per l'estructura
+            
+            if (cards.length === 0) return;
+
+            cards.forEach((card) => {
+                const title = card.querySelector('h3').innerText;
+                const members = Array.from(card.querySelectorAll('li')).map(li => li.innerText.trim()).join(', ');
+                text += `${title}: ${members}\n`;
+            });
+
+            navigator.clipboard.writeText(text).then(() => {
+                showToast("Copiat al porta-retalls!");
+            });
+        }
+        
+        // Descarregar com a fitxer de text
+        function downloadText() {
+             const students = getStudents();
+             if (students.length === 0) return;
+
+             let text = "GRUPS DE CLASSE\nGenerat el: " + new Date().toLocaleDateString() + "\n\n";
+             const cards = resultsContainer.querySelectorAll('div.bg-white');
+             
+             cards.forEach((card) => {
+                 const title = card.querySelector('h3').innerText;
+                 const listItems = card.querySelectorAll('li');
+                 text += `${title} (${listItems.length} membres):\n`;
+                 listItems.forEach(li => {
+                     text += ` - ${li.innerText.trim()}\n`;
+                 });
+                 text += "\n";
+             });
+
+             const blob = new Blob([text], { type: 'text/plain' });
+             const anchor = document.createElement('a');
+             anchor.href = window.URL.createObjectURL(blob);
+             anchor.download = 'grups_classe.txt';
+             anchor.click();
+             showToast("Fitxer descarregat!");
+        }
+
+        // Mostrar Toast Notification (CORREGIDA)
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+            const iconWrapper = document.getElementById('toast-icon-wrapper');
+            const bgDiv = toast.querySelector('div'); // The inner div with background color
+
+            toastMsg.innerText = message;
+            
+            // Regenerem el contingut de l'embolcall de la icona per assegurar que Lucide la trobi
+            const iconName = isError ? 'alert-circle' : 'check-circle';
+            iconWrapper.innerHTML = `<i data-lucide="${iconName}" class="w-5 h-5"></i>`;
+
+            if (isError) {
+                bgDiv.classList.remove('bg-emerald-600');
+                bgDiv.classList.add('bg-rose-600');
+            } else {
+                bgDiv.classList.remove('bg-rose-600');
+                bgDiv.classList.add('bg-emerald-600');
+            }
+            
+            // Tornem a executar createIcons perquè converteixi el nou <i>
+            lucide.createIcons();
+
+            toast.classList.remove('translate-x-full', 'opacity-0');
+            
+            setTimeout(() => {
+                toast.classList.add('translate-x-full', 'opacity-0');
+            }, 3000);
+        }
+
+    </script>
+</body>
+</html>

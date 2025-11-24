@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Irregular Verbs Master - UK Edition</title>
+<!-- Viewport meta tag for responsiveness -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  /* --- DESIGN SYSTEM (UNION JACK THEME) --- */
+  :root {
+    /* Union Jack Colors */
+    --union-blue: #012169;
+    --union-red: #C8102E;
+    --union-white: #FFFFFF;
+    
+    --primary: var(--union-blue);
+    --primary-dark: #00154a;
+    --accent: var(--union-red);
+    
+    /* Background: Subtle cool grays/blues to let the flag colors pop */
+    --bg-gradient: linear-gradient(135deg, #f0f4f8 0%, #dbeafe 100%);
+    --card-bg: #ffffff;
+    --text-main: #1f2937;
+    
+    --success: #10b981;
+    --error: #dc2626;
+    --radius: 16px;
+  }
+  
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: var(--bg-gradient);
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    color: var(--text-main);
+  }
+
+  .app-container {
+    background: var(--card-bg);
+    width: 100%;
+    max-width: 900px;
+    border-radius: var(--radius);
+    box-shadow: 0 10px 25px -5px rgba(1, 33, 105, 0.15); /* Blue-ish shadow */
+    padding: 40px;
+    margin-top: 20px;
+    text-align: center;
+    border-top: 8px solid var(--union-red); /* British accent on top */
+  }
+
+  h1 { 
+    color: var(--union-blue); 
+    margin: 0 0 10px 0; 
+    font-size: 2rem; 
+    font-weight: 700;
+  }
+  
+  /* Subtitles or accents in Red */
+  h2, h3 { color: var(--primary); }
+  
+  p { color: #4b5563; margin-bottom: 20px; }
+
+  /* --- CONTROLS --- */
+  select {
+    padding: 12px 20px;
+    font-size: 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    background: #f9fafb;
+    margin-bottom: 20px;
+    cursor: pointer;
+    color: var(--primary);
+    font-weight: 600;
+  }
+  select:focus {
+    border-color: var(--primary);
+    outline: none;
+  }
+
+  button {
+    padding: 14px 28px;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    transition: transform 0.1s, box-shadow 0.2s;
+  }
+  button:active { transform: scale(0.98); }
+
+  .btn-primary {
+    background: var(--union-blue);
+    color: white;
+    box-shadow: 0 4px 10px rgba(1, 33, 105, 0.3);
+  }
+  .btn-primary:hover {
+    background: var(--primary-dark);
+  }
+  
+  .btn-secondary {
+    background: white;
+    border: 2px solid #e5e7eb;
+    color: #6b7280;
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+  .btn-secondary:hover {
+    border-color: var(--union-red);
+    color: var(--union-red);
+  }
+
+  /* --- SCREENS --- */
+  .screen { display: none; }
+  .active { display: block; animation: fadeIn 0.4s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* --- TABLE --- */
+  .table-wrapper {
+    overflow-x: auto;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    margin: 20px 0;
+    background: white;
+  }
+
+  table { width: 100%; border-collapse: collapse; min-width: 600px; }
+  
+  th { 
+    background: var(--union-blue); 
+    color: white; /* White text on blue header */
+    padding: 16px; 
+    font-size: 0.9rem; 
+    text-transform: uppercase; 
+    letter-spacing: 0.05em; 
+  }
+  
+  td { padding: 12px; border-bottom: 1px solid #f3f4f6; }
+  
+  /* Zebra striping for easier reading */
+  tr:nth-child(even) { background-color: #f9fafb; }
+
+  input[type="text"] {
+    width: 100%; padding: 10px; border: 2px solid #e5e7eb;
+    border-radius: 8px; text-align: center; font-size: 15px;
+    transition: border-color 0.2s;
+  }
+  input:focus { border-color: var(--union-red); outline: none; background: #fffafa; }
+
+  .static-text {
+    display: inline-block; padding: 8px 16px; 
+    background: #eff6ff;
+    color: var(--union-blue); 
+    border-radius: 20px; 
+    font-weight: 600; font-size: 14px;
+    border: 1px solid #dbeafe;
+  }
+
+  .correct-input { 
+    border-color: var(--success) !important; 
+    background-color: #ecfdf5 !important; 
+    color: #065f46; 
+  }
+  
+  .wrong-input { 
+    border-color: var(--error) !important; 
+    background-color: #fef2f2 !important; 
+    color: #991b1b; 
+    text-decoration: line-through; 
+  }
+  
+  .correction { 
+    display: block; 
+    color: var(--union-red); /* British Red for corrections */
+    font-size: 0.9rem; 
+    font-weight: 700; 
+    margin-top: 4px; 
+  }
+  
+  .score-badge { 
+    font-size: 3.5rem; 
+    font-weight: 700; 
+    color: var(--union-blue); 
+    margin: 10px 0; 
+  }
+  
+  .score-details {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #4b5563;
+    margin-bottom: 20px;
+    padding: 10px;
+    background: #f3f4f6;
+    border-radius: 8px;
+    display: inline-block;
+  }
+
+  /* Flag Animation */
+  .flag-icon {
+    font-size: 60px;
+    display: inline-block;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
+  }
+</style>
+</head>
+<body>
+
+<div class="app-container">
+
+  <!-- SETUP SCREEN -->
+  <div id="setup-screen" class="screen active">
+    <!-- Changed Book to Union Jack -->
+    <div class="flag-icon">🇬🇧</div>
+    <h1>Irregular Verbs</h1>
+    <p style="color: var(--union-red); font-weight: 600;">British English Practice</p>
+    <p>Select the number of verbs to practice:</p>
+    
+    <select id="verb-count">
+      <option value="5">5 Verbs</option>
+      <option value="10" selected>10 Verbs</option>
+      <option value="15">15 Verbs</option>
+      <option value="20">20 Verbs</option>
+      <option value="30">30 Verbs</option>
+    </select>
+    <br>
+    <button class="btn-primary" id="start-btn" onclick="startGame()">Start Practice 🚀</button>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div id="game-screen" class="screen">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap: wrap; gap: 10px;">
+      <h3 style="margin:0;">Fill in the blanks</h3>
+      <button class="btn-secondary" onclick="resetGame()">Quit / New Game</button>
+    </div>
+
+    <!-- Table gets injected here -->
+    <div id="game-table-slot"></div>
+
+    <button class="btn-primary" onclick="checkAnswers()">Check Answers ✨</button>
+  </div>
+
+  <!-- RESULTS SCREEN -->
+  <div id="result-screen" class="screen">
+    <h2 style="color: var(--union-blue);">Session Complete!</h2>
+    
+    <div class="score-badge" id="score-number">0%</div>
+    
+    <!-- New Detailed Score Section -->
+    <div class="score-details" id="score-details-text">
+      0 Correct &nbsp;|&nbsp; 0 Wrong
+    </div>
+
+    <p id="score-message">Review your answers below.</p>
+    <button class="btn-primary" onclick="resetGame()">Start New Game 🔄</button>
+    
+    <p style="text-align:left; font-weight:600; margin-top:30px; color: var(--union-red);">Corrections & Review:</p>
+    <!-- Table moves here for review -->
+    <div id="review-table-slot"></div>
+  </div>
+
+  <!-- HIDDEN TEMPLATE FOR TABLE STRUCTURE -->
+  <div style="display:none;">
+    <div class="table-wrapper" id="main-table-wrapper">
+      <table id="quiz-table">
+        <thead>
+          <tr><th>Infinitive</th><th>Past Simple</th><th>Past Participle</th><th>Catalan</th></tr>
+        </thead>
+        <tbody id="quiz-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // --- DATA ---
+  const verbsDB = [
+    { i: "be", p1: "was/were", p2: "been", c: "ser / estar" },
+    { i: "become", p1: "became", p2: "become", c: "esdevenir" },
+    { i: "begin", p1: "began", p2: "begun", c: "començar" },
+    { i: "bet", p1: "bet", p2: "bet", c: "apostar" },
+    { i: "bite", p1: "bit", p2: "bitten", c: "mossegar" },
+    { i: "blow", p1: "blew", p2: "blown", c: "bufar" },
+    { i: "break", p1: "broke", p2: "broken", c: "trencar" },
+    { i: "bring", p1: "brought", p2: "brought", c: "portar" },
+    { i: "build", p1: "built", p2: "built", c: "construir" },
+    { i: "burn", p1: "burnt", p2: "burnt", c: "cremar" },
+    { i: "buy", p1: "bought", p2: "bought", c: "comprar" },
+    { i: "catch", p1: "caught", p2: "caught", c: "agafar" },
+    { i: "choose", p1: "chose", p2: "chosen", c: "escollir" },
+    { i: "come", p1: "came", p2: "come", c: "venir" },
+    { i: "cost", p1: "cost", p2: "cost", c: "costar" },
+    { i: "cut", p1: "cut", p2: "cut", c: "tallar" },
+    { i: "deal", p1: "dealt", p2: "dealt", c: "tractar" },
+    { i: "do", p1: "did", p2: "done", c: "fer" },
+    { i: "draw", p1: "drew", p2: "drawn", c: "dibuixar" },
+    { i: "dream", p1: "dreamt", p2: "dreamt", c: "somiar" },
+    { i: "drink", p1: "drank", p2: "drunk", c: "beure" },
+    { i: "drive", p1: "drove", p2: "driven", c: "conduir" },
+    { i: "eat", p1: "ate", p2: "eaten", c: "menjar" },
+    { i: "fall", p1: "fell", p2: "fallen", c: "caure" },
+    { i: "feed", p1: "fed", p2: "fed", c: "alimentar" },
+    { i: "feel", p1: "felt", p2: "felt", c: "sentir" },
+    { i: "fight", p1: "fought", p2: "fought", c: "lluitar" },
+    { i: "find", p1: "found", p2: "found", c: "trobar" },
+    { i: "fly", p1: "flew", p2: "flown", c: "volar" },
+    { i: "forget", p1: "forgot", p2: "forgotten", c: "oblidar" },
+    { i: "forgive", p1: "forgave", p2: "forgiven", c: "perdonar" },
+    { i: "freeze", p1: "froze", p2: "frozen", c: "congelar" },
+    { i: "get", p1: "got", p2: "got", c: "aconseguir" },
+    { i: "give", p1: "gave", p2: "given", c: "donar" },
+    { i: "go", p1: "went", p2: "gone", c: "anar" },
+    { i: "grow", p1: "grew", p2: "grown", c: "créixer" },
+    { i: "hang", p1: "hung", p2: "hung", c: "penjar" },
+    { i: "have", p1: "had", p2: "had", c: "tenir" },
+    { i: "hear", p1: "heard", p2: "heard", c: "sentir (oïda)" },
+    { i: "hide", p1: "hid", p2: "hidden", c: "amagar" },
+    { i: "hit", p1: "hit", p2: "hit", c: "colpejar" },
+    { i: "hold", p1: "held", p2: "held", c: "sostenir" },
+    { i: "hurt", p1: "hurt", p2: "hurt", c: "fer mal" },
+    { i: "keep", p1: "kept", p2: "kept", c: "mantenir" },
+    { i: "know", p1: "knew", p2: "known", c: "saber" },
+    { i: "lay", p1: "laid", p2: "laid", c: "estendre" },
+    { i: "lead", p1: "led", p2: "led", c: "liderar" },
+    { i: "learn", p1: "learnt", p2: "learnt", c: "aprendre" },
+    { i: "leave", p1: "left", p2: "left", c: "marxar" },
+    { i: "lend", p1: "lent", p2: "lent", c: "prestar" },
+    { i: "let", p1: "let", p2: "let", c: "permetre" },
+    { i: "lie", p1: "lay", p2: "lain", c: "jaure" },
+    { i: "light", p1: "lit", p2: "lit", c: "il·luminar" },
+    { i: "lose", p1: "lost", p2: "lost", c: "perdre" },
+    { i: "make", p1: "made", p2: "made", c: "fer" },
+    { i: "mean", p1: "meant", p2: "meant", c: "significar" },
+    { i: "meet", p1: "met", p2: "met", c: "conèixer" },
+    { i: "pay", p1: "paid", p2: "paid", c: "pagar" },
+    { i: "put", p1: "put", p2: "put", c: "posar" },
+    { i: "read", p1: "read", p2: "read", c: "llegir" },
+    { i: "ride", p1: "rode", p2: "ridden", c: "muntar" },
+    { i: "ring", p1: "rang", p2: "rung", c: "trucar" },
+    { i: "rise", p1: "rose", p2: "risen", c: "alçar-se" },
+    { i: "run", p1: "ran", p2: "run", c: "córrer" },
+    { i: "say", p1: "said", p2: "said", c: "dir" },
+    { i: "see", p1: "saw", p2: "seen", c: "veure" },
+    { i: "sell", p1: "sold", p2: "sold", c: "vendre" },
+    { i: "send", p1: "sent", p2: "sent", c: "enviar" },
+    { i: "set", p1: "set", p2: "set", c: "establir" },
+    { i: "shake", p1: "shook", p2: "shaken", c: "sacsejar" },
+    { i: "shine", p1: "shone", p2: "shone", c: "brillar" },
+    { i: "shoot", p1: "shot", p2: "shot", c: "disparar" },
+    { i: "show", p1: "showed", p2: "shown", c: "mostrar" },
+    { i: "shut", p1: "shut", p2: "shut", c: "tancar" },
+    { i: "sing", p1: "sang", p2: "sung", c: "cantar" },
+    { i: "sink", p1: "sank", p2: "sunk", c: "enfonsar-se" },
+    { i: "sit", p1: "sat", p2: "sat", c: "seure" },
+    { i: "sleep", p1: "slept", p2: "slept", c: "dormir" },
+    { i: "speak", p1: "spoke", p2: "spoken", c: "parlar" },
+    { i: "spend", p1: "spent", p2: "spent", c: "gastar" },
+    { i: "stand", p1: "stood", p2: "stood", c: "estar de peu" },
+    { i: "steal", p1: "stole", p2: "stolen", c: "robar" },
+    { i: "stick", p1: "stuck", p2: "stuck", c: "enganxar" },
+    { i: "swim", p1: "swam", p2: "swum", c: "nedar" },
+    { i: "take", p1: "took", p2: "taken", c: "agafar" },
+    { i: "teach", p1: "taught", p2: "taught", c: "ensenyar" },
+    { i: "tear", p1: "tore", p2: "torn", c: "estripar" },
+    { i: "tell", p1: "told", p2: "told", c: "dir" },
+    { i: "think", p1: "thought", p2: "thought", c: "pensar" },
+    { i: "throw", p1: "threw", p2: "thrown", c: "llançar" },
+    { i: "understand", p1: "understood", p2: "understood", c: "entendre" },
+    { i: "wake", p1: "woke", p2: "woken", c: "despertar-se" },
+    { i: "wear", p1: "wore", p2: "worn", c: "portar (roba)" },
+    { i: "win", p1: "won", p2: "won", c: "guanyar" },
+    { i: "write", p1: "wrote", p2: "written", c: "escriure" }
+  ];
+
+  let currentSelection = [];
+
+  // --- LOGIC ---
+  
+  function shuffle(array) {
+    let currentIndex = array.length, randomIndex;
+    while (currentIndex != 0) {
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex--;
+      [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+    }
+    return array;
+  }
+
+  function clean(str) { return str.trim().toLowerCase(); }
+
+  // Change visible screen
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  function startGame() {
+    const count = parseInt(document.getElementById('verb-count').value);
+    
+    // 1. Select Verbs
+    const shuffledDB = shuffle([...verbsDB]);
+    currentSelection = shuffledDB.slice(0, count);
+
+    // 2. Populate Table
+    const tbody = document.getElementById('quiz-body');
+    tbody.innerHTML = '';
+
+    currentSelection.forEach((verbObj, index) => {
+      const tr = document.createElement('tr');
+      // Randomly disable one column (make it the question)
+      // 0=Infinitive, 1=PastSimple, 2=Participle, 3=Catalan (we never ask Catalan usually, but logic allows it)
+      // Let's restrict to 0, 1, 2 so we always show Catalan? 
+      // The original code allowed 0-3. I will keep original logic.
+      const givenIndex = Math.floor(Math.random() * 4); 
+      const data = [verbObj.i, verbObj.p1, verbObj.p2, verbObj.c];
+
+      let rowHTML = '';
+      for (let i = 0; i < 4; i++) {
+        if (i === givenIndex) {
+          rowHTML += `<td><span class="static-text">${data[i]}</span></td>`;
+        } else {
+          rowHTML += `<td><input type="text" data-row="${index}" data-col="${i}" autocomplete="off"></td>`;
+        }
+      }
+      tr.innerHTML = rowHTML;
+      tbody.appendChild(tr);
+    });
+
+    // 3. Move table to Game Screen Slot
+    const wrapper = document.getElementById('main-table-wrapper');
+    const gameSlot = document.getElementById('game-table-slot');
+    gameSlot.appendChild(wrapper);
+
+    // 4. Switch Screen
+    showScreen('game-screen');
+  }
+
+  function checkAnswers() {
+    let score = 0;
+    let totalInputs = 0;
+    const inputs = document.querySelectorAll('#quiz-body input');
+
+    inputs.forEach(input => {
+      totalInputs++;
+      const rowIndex = input.getAttribute('data-row');
+      const colIndex = input.getAttribute('data-col');
+      
+      const verbObj = currentSelection[rowIndex];
+      const data = [verbObj.i, verbObj.p1, verbObj.p2, verbObj.c];
+      const correctAns = data[colIndex];
+      
+      const userAns = clean(input.value);
+      const validAns = clean(correctAns);
+      // Handle alternatives like "was/were"
+      const possibilities = validAns.split('/').map(s => s.trim());
+      
+      const isCorrect = (possibilities.includes(userAns) || userAns === validAns) && userAns !== '';
+
+      input.classList.remove('correct-input', 'wrong-input');
+      // Remove old correction if exists
+      const parent = input.parentElement;
+      if(parent.querySelector('.correction')) parent.querySelector('.correction').remove();
+
+      if (isCorrect) {
+        score++;
+        input.classList.add('correct-input');
+        input.disabled = true;
+      } else {
+        input.classList.add('wrong-input');
+        const corr = document.createElement('span');
+        corr.className = 'correction';
+        corr.innerText = correctAns;
+        parent.appendChild(corr);
+      }
+    });
+
+    // Logic for Detailed Stats
+    const wrongCount = totalInputs - score;
+    
+    // Update Score Badge
+    const percentage = totalInputs === 0 ? 0 : Math.round((score / totalInputs) * 100);
+    document.getElementById('score-number').innerText = percentage + '%';
+    
+    // Update Detailed Text
+    const detailsEl = document.getElementById('score-details-text');
+    detailsEl.innerHTML = `<span style="color:var(--success)">${score} Correct</span> &nbsp;|&nbsp; <span style="color:var(--error)">${wrongCount} Wrong</span>`;
+    
+    // Update Message
+    const msgEl = document.getElementById('score-message');
+    if (percentage === 100) {
+      msgEl.innerText = "Brilliant! Perfect score! 🇬🇧 🏆";
+    } else if (percentage >= 80) {
+      msgEl.innerText = "Great job! Very close.";
+    } else {
+      msgEl.innerText = "Keep practicing! Review your mistakes below.";
+    }
+
+    // Move table to Result Screen Slot
+    const wrapper = document.getElementById('main-table-wrapper');
+    const reviewSlot = document.getElementById('review-table-slot');
+    reviewSlot.appendChild(wrapper);
+
+    showScreen('result-screen');
+  }
+
+  function resetGame() {
+    showScreen('setup-screen');
+    document.getElementById('quiz-body').innerHTML = '';
+  }
+
+</script>
+</body>
+</html>

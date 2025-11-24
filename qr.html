@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Codis QR - Recursos Educatius</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+    <style>
+        :root {
+            --primary: #3498db;
+            --primary-dark: #2980b9;
+            --secondary: #2ecc71;
+            --secondary-dark: #27ae60;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
+            --gray: #95a5a6;
+            --white: #ffffff;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: var(--white);
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+        }
+        
+        h1 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 2.2rem;
+        }
+        
+        .description {
+            color: var(--dark);
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .app-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .input-panel {
+            flex: 1;
+            min-width: 300px;
+            background-color: var(--white);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+        }
+        
+        .output-panel {
+            flex: 1;
+            min-width: 300px;
+            background-color: var(--white);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--gray);
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border 0.3s;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+        
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+        
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            flex: 1;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: var(--white);
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary);
+            color: var(--white);
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--secondary-dark);
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .btn-outline:hover {
+            background-color: var(--primary);
+            color: var(--white);
+        }
+        
+        .qr-container {
+            width: 100%;
+            max-width: 300px;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px dashed var(--gray);
+            border-radius: 5px;
+            margin-bottom: 20px;
+            background-color: var(--light);
+            overflow: hidden;
+        }
+        
+        #qrcode {
+            padding: 10px;
+            background-color: white;
+            max-width: 100%;
+            max-height: 100%;
+        }
+        
+        #qrcode canvas, #qrcode img {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .qr-placeholder {
+            text-align: center;
+            color: var(--gray);
+        }
+        
+        .qr-placeholder i {
+            font-size: 48px;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .usage-examples {
+            background-color: var(--white);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            margin-top: 20px;
+        }
+        
+        .usage-examples h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+        
+        .example-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .example-item {
+            padding: 15px;
+            background-color: var(--light);
+            border-radius: 5px;
+            border-left: 4px solid var(--primary);
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: var(--dark);
+            font-size: 0.9rem;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .status-message {
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            text-align: center;
+        }
+        
+        .status-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        @media (max-width: 768px) {
+            .app-container {
+                flex-direction: column;
+            }
+            
+            .input-panel, .output-panel {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Generador de Codis QR</h1>
+            <p class="description">Crea codis QR personalitzats per als teus recursos educatius. Perfecte per enllaços, textos, i-mails i molt més.</p>
+        </header>
+        
+        <div class="app-container">
+            <div class="input-panel">
+                <div class="form-group">
+                    <label for="content-type">Tipus de contingut:</label>
+                    <select id="content-type">
+                        <option value="url">URL / Enllaç web</option>
+                        <option value="text">Text simple</option>
+                        <option value="email">Correu electrònic</option>
+                        <option value="wifi">Xarxa Wi-Fi</option>
+                        <option value="tel">Telèfon</option>
+                    </select>
+                </div>
+                
+                <div class="form-group" id="url-input">
+                    <label for="url">URL:</label>
+                    <input type="url" id="url" placeholder="https://example.com">
+                </div>
+                
+                <div class="form-group hidden" id="text-input">
+                    <label for="text">Text:</label>
+                    <textarea id="text" placeholder="Escriu el text que vols codificar..."></textarea>
+                </div>
+                
+                <div class="form-group hidden" id="email-input">
+                    <label for="email">Correu electrònic:</label>
+                    <input type="email" id="email" placeholder="exemple@domini.cat">
+                </div>
+                
+                <div class="form-group hidden" id="wifi-input">
+                    <label for="ssid">Nom de la xarxa (SSID):</label>
+                    <input type="text" id="ssid" placeholder="El nom del teu Wi-Fi">
+                    
+                    <label for="password" style="margin-top: 10px;">Contrasenya:</label>
+                    <input type="text" id="password" placeholder="Contrasenya del Wi-Fi">
+                    
+                    <label for="encryption" style="margin-top: 10px;">Tipus de xifrat:</label>
+                    <select id="encryption">
+                        <option value="WPA">WPA/WPA2</option>
+                        <option value="WEP">WEP</option>
+                        <option value="nopass">Sense contrasenya</option>
+                    </select>
+                </div>
+                
+                <div class="form-group hidden" id="tel-input">
+                    <label for="telefon">Número de telèfon:</label>
+                    <input type="tel" id="telefon" placeholder="+34 123 456 789">
+                </div>
+                
+                <div class="form-group">
+                    <label for="size">Mida del codi QR:</label>
+                    <select id="size">
+                        <option value="200">Petit (200x200)</option>
+                        <option value="300" selected>Mitjà (300x300)</option>
+                        <option value="400">Gran (400x400)</option>
+                    </select>
+                </div>
+                
+                <div id="status-message" class="status-message hidden"></div>
+                
+                <div class="button-group">
+                    <button id="generate-btn" class="btn-primary">Generar Codi QR</button>
+                    <button id="download-btn" class="btn-secondary" disabled>Descarregar</button>
+                </div>
+            </div>
+            
+            <div class="output-panel">
+                <div class="qr-container">
+                    <div class="qr-placeholder" id="qr-placeholder">
+                        <i>📱</i>
+                        <p>El teu codi QR apareixerà aquí</p>
+                    </div>
+                    <div id="qrcode"></div>
+                </div>
+                
+                <div class="button-group">
+                    <button id="reset-btn" class="btn-outline">Netejar</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="usage-examples">
+            <h3>Idees per utilitzar codis QR en educació:</h3>
+            <div class="example-list">
+                <div class="example-item">
+                    <strong>Enllaços a recursos</strong>
+                    <p>Vincula materials addicionals, pàgines web o vídeos educatius.</p>
+                </div>
+                <div class="example-item">
+                    <strong>Accés ràpid a tasques</strong>
+                    <p>Col·loca codis QR a les fitxes per accedir a exercicis interactius.</p>
+                </div>
+                <div class="example-item">
+                    <strong>Gimcanes digitals</strong>
+                    <p>Crea jocs de recerca amb pistes amagades en codis QR.</p>
+                </div>
+                <div class="example-item">
+                    <strong>Informació de contacte</strong>
+                    <p>Comparteix fàcilment el teu e-mail o xarxes socials amb les famílies.</p>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Generador de Codis QR - Part dels Recursos Educatius | Fet amb ❤️ per a la comunitat educativa catalana</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const contentType = document.getElementById('content-type');
+            const urlInput = document.getElementById('url-input');
+            const textInput = document.getElementById('text-input');
+            const emailInput = document.getElementById('email-input');
+            const wifiInput = document.getElementById('wifi-input');
+            const telInput = document.getElementById('tel-input');
+            const generateBtn = document.getElementById('generate-btn');
+            const downloadBtn = document.getElementById('download-btn');
+            const resetBtn = document.getElementById('reset-btn');
+            const qrCodeContainer = document.getElementById('qrcode');
+            const qrPlaceholder = document.getElementById('qr-placeholder');
+            const sizeSelect = document.getElementById('size');
+            const statusMessage = document.getElementById('status-message');
+            
+            let currentQRCode = null;
+            
+            // Mostrar/amagar camps segons el tipus de contingut
+            contentType.addEventListener('change', function() {
+                // Amagar tots els camps
+                urlInput.classList.add('hidden');
+                textInput.classList.add('hidden');
+                emailInput.classList.add('hidden');
+                wifiInput.classList.add('hidden');
+                telInput.classList.add('hidden');
+                
+                // Mostrar el camp corresponent
+                switch(this.value) {
+                    case 'url':
+                        urlInput.classList.remove('hidden');
+                        break;
+                    case 'text':
+                        textInput.classList.remove('hidden');
+                        break;
+                    case 'email':
+                        emailInput.classList.remove('hidden');
+                        break;
+                    case 'wifi':
+                        wifiInput.classList.remove('hidden');
+                        break;
+                    case 'tel':
+                        telInput.classList.remove('hidden');
+                        break;
+                }
+                
+                // Amagar missatge d'estat quan es canvia el tipus
+                hideStatusMessage();
+            });
+            
+            // Funció per mostrar missatge d'estat
+            function showStatusMessage(message, isError = false) {
+                statusMessage.textContent = message;
+                statusMessage.className = `status-message ${isError ? 'status-error' : 'status-success'}`;
+                statusMessage.classList.remove('hidden');
+            }
+            
+            // Funció per amagar missatge d'estat
+            function hideStatusMessage() {
+                statusMessage.classList.add('hidden');
+            }
+            
+            // Generar el codi QR
+            generateBtn.addEventListener('click', function() {
+                let content = '';
+                
+                switch(contentType.value) {
+                    case 'url':
+                        content = document.getElementById('url').value.trim();
+                        if (!content) {
+                            showStatusMessage('Si us plau, introdueix una URL vàlida.', true);
+                            return;
+                        }
+                        if (!content.startsWith('http')) {
+                            content = 'https://' + content;
+                        }
+                        break;
+                        
+                    case 'text':
+                        content = document.getElementById('text').value.trim();
+                        if (!content) {
+                            showStatusMessage('Si us plau, introdueix un text.', true);
+                            return;
+                        }
+                        break;
+                        
+                    case 'email':
+                        const email = document.getElementById('email').value.trim();
+                        if (!email) {
+                            showStatusMessage('Si us plau, introdueix una adreça de correu electrònic.', true);
+                            return;
+                        }
+                        content = `mailto:${email}`;
+                        break;
+                        
+                    case 'wifi':
+                        const ssid = document.getElementById('ssid').value.trim();
+                        const password = document.getElementById('password').value;
+                        const encryption = document.getElementById('encryption').value;
+                        
+                        if (!ssid) {
+                            showStatusMessage('Si us plau, introdueix el nom de la xarxa Wi-Fi.', true);
+                            return;
+                        }
+                        
+                        content = `WIFI:S:${ssid};T:${encryption};P:${password};;`;
+                        break;
+                        
+                    case 'tel':
+                        const telefon = document.getElementById('telefon').value.trim();
+                        if (!telefon) {
+                            showStatusMessage('Si us plau, introdueix un número de telèfon.', true);
+                            return;
+                        }
+                        content = `tel:${telefon}`;
+                        break;
+                }
+                
+                // Netejar el codi QR anterior
+                qrCodeContainer.innerHTML = '';
+                
+                // Obtenir la mida seleccionada
+                const size = parseInt(sizeSelect.value);
+                
+                try {
+                    // Generar el nou codi QR amb la llibreria qrcode-generator
+                    const qr = qrcode(0, 'M');
+                    qr.addData(content);
+                    qr.make();
+                    
+                    // Crear element img amb el codi QR
+                    const img = document.createElement('img');
+                    img.src = qr.createDataURL(8, size/10);
+                    img.alt = "Codi QR generat";
+                    
+                    qrCodeContainer.appendChild(img);
+                    
+                    // Amagar el placeholder i mostrar el codi QR
+                    qrPlaceholder.style.display = 'none';
+                    qrCodeContainer.style.display = 'block';
+                    
+                    // Activar el botó de descàrrega
+                    downloadBtn.disabled = false;
+                    currentQRCode = img;
+                    
+                    showStatusMessage('Codi QR generat correctament!');
+                    
+                } catch (error) {
+                    console.error('Error generant el codi QR:', error);
+                    showStatusMessage('Hi ha hagut un error en generar el codi QR. Torna-ho a provar.', true);
+                }
+            });
+            
+            // Descarregar el codi QR
+            downloadBtn.addEventListener('click', function() {
+                if (!currentQRCode) return;
+                
+                const link = document.createElement('a');
+                link.download = 'codi-qr-educatiu.png';
+                link.href = currentQRCode.src;
+                link.click();
+                
+                showStatusMessage('Codi QR descarregat correctament!');
+            });
+            
+            // Netejar tot
+            resetBtn.addEventListener('click', function() {
+                // Restablir els camps de formulari
+                document.getElementById('url').value = '';
+                document.getElementById('text').value = '';
+                document.getElementById('email').value = '';
+                document.getElementById('ssid').value = '';
+                document.getElementById('password').value = '';
+                document.getElementById('telefon').value = '';
+                
+                // Netejar el codi QR
+                qrCodeContainer.innerHTML = '';
+                qrCodeContainer.style.display = 'none';
+                qrPlaceholder.style.display = 'block';
+                
+                // Desactivar el botó de descàrrega
+                downloadBtn.disabled = true;
+                currentQRCode = null;
+                
+                // Amagar missatge d'estat
+                hideStatusMessage();
+            });
+        });
+    </script>
+</body>
+</html>

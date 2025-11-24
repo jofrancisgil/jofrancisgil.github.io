@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Sopes de Lletres</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Inter:wght@400;600;700&display=swap');
+
+        /* Font tipus "escola" per a la sopa de lletres */
+        .font-hand {
+            font-family: 'Patrick Hand', cursive;
+        }
+
+        /* Estats interactius */
+        .selected-cell {
+            background-color: #fef08a !important; /* groc suau */
+            color: #854d0e !important;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen font-sans">
+
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        
+        <!-- Capçalera -->
+        <header class="text-center mb-8">
+            <div class="inline-flex items-center justify-center p-3 bg-indigo-100 text-indigo-700 rounded-full mb-4">
+                <i data-lucide="grid" class="w-8 h-8"></i>
+            </div>
+            <h1 class="text-4xl font-bold text-slate-900 mb-2">Creador de Sopes de Lletres</h1>
+            <p class="text-slate-500">Genera, juga i imprimeix activitats per a l'alumnat</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- CONFIGURACIÓ (Esquerra) -->
+            <div class="lg:col-span-4 space-y-6">
+                
+                <!-- Dades Bàsiques -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Títol de l'Activitat</label>
+                    <input type="text" id="puzzleTitleInput" value="Els Animals de la Selva" 
+                        class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 mb-4">
+
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Paraules (una per línia)</label>
+                    <textarea id="wordList" rows="6"
+                        class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 resize-none uppercase"
+                        placeholder="LLEÓ&#10;TIGRE&#10;ELEFANT"></textarea>
+                    <p class="text-xs text-slate-400 mt-2 text-right">Màxim 15 caràcters per paraula</p>
+                </div>
+
+                <!-- Opcions de Dificultat -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h3 class="font-semibold text-slate-700 mb-4 flex items-center gap-2">
+                        <i data-lucide="settings-2" class="w-4 h-4"></i> Configuració
+                    </h3>
+                    
+                    <div class="space-y-3">
+                        <label class="flex items-center space-x-3 cursor-pointer">
+                            <input type="checkbox" id="dirH" checked class="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500 border-gray-300">
+                            <span class="text-slate-700">Horitzontal <span class="text-slate-400 text-sm">(→)</span></span>
+                        </label>
+                        <label class="flex items-center space-x-3 cursor-pointer">
+                            <input type="checkbox" id="dirV" checked class="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500 border-gray-300">
+                            <span class="text-slate-700">Vertical <span class="text-slate-400 text-sm">(↓)</span></span>
+                        </label>
+                        <label class="flex items-center space-x-3 cursor-pointer">
+                            <input type="checkbox" id="dirD" class="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500 border-gray-300">
+                            <span class="text-slate-700">Diagonal <span class="text-slate-400 text-sm">(↘)</span></span>
+                        </label>
+                        <label class="flex items-center space-x-3 cursor-pointer">
+                            <input type="checkbox" id="dirBack" class="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500 border-gray-300">
+                            <span class="text-slate-700">Invertides <span class="text-slate-400 text-sm">(← ↑)</span></span>
+                        </label>
+                    </div>
+
+                    <div class="mt-6 pt-6 border-t border-slate-100">
+                        <button onclick="generatePuzzle()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-200 transition-all flex justify-center items-center gap-2">
+                            <i data-lucide="wand-2" class="w-5 h-5"></i>
+                            Generar Sopa
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="bg-indigo-50 border border-indigo-100 p-4 rounded-xl text-sm text-indigo-800">
+                    <p class="font-bold flex items-center gap-2 mb-1"><i data-lucide="printer" class="w-4 h-4"></i> Consell d'impressió</p>
+                    <p>En clicar "Imprimir Resultat", s'obrirà una nova finestra amb la versió neta de la fitxa preparada per enviar a la impressora.</p>
+                </div>
+            </div>
+
+            <!-- RESULTAT (Dreta) -->
+            <div class="lg:col-span-8">
+                
+                <!-- Botó d'impressió flotant -->
+                <div class="flex justify-end mb-4">
+                    <button onclick="printPuzzle()" class="px-4 py-2 bg-white border border-slate-300 hover:border-indigo-500 hover:text-indigo-600 text-slate-600 rounded-lg shadow-sm transition-all flex items-center gap-2">
+                        <i data-lucide="printer" class="w-5 h-5"></i>
+                        Imprimir Resultat
+                    </button>
+                </div>
+
+                <!-- Àrea de Visualització (el contingut d'aquí es copiarà a la nova finestra) -->
+                <div id="printableArea" class="bg-white p-8 md:p-12 rounded-xl shadow-lg border border-slate-200 min-h-[800px] relative">
+                    
+                    <!-- Capçalera d'impressió (Nom i Data) - Oculta en pantalla, visible en impressió -->
+                    <div class="hidden print-header mb-8">
+                        <div class="flex justify-between items-end border-b-2 border-slate-800 pb-4 mb-8">
+                            <div>
+                                <h2 class="text-sm font-bold uppercase text-slate-500 mb-1">Nom de l'alumne:</h2>
+                                <div class="h-8 border-b border-slate-300 w-64"></div>
+                            </div>
+                            <div>
+                                <h2 class="text-sm font-bold uppercase text-slate-500 mb-1">Data:</h2>
+                                <div class="h-8 border-b border-slate-300 w-32"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Títol de la Sopa -->
+                    <div class="text-center mb-8">
+                        <h2 id="puzzleTitleDisplay" class="text-3xl font-bold text-slate-800 font-hand uppercase tracking-wide">Títol de la Sopa</h2>
+                        <p class="text-slate-400 text-sm mt-2 screen-only-text">Fes clic a les lletres per marcar-les o imprimeix la fitxa.</p>
+                    </div>
+
+                    <!-- Graella de la Sopa -->
+                    <div class="flex justify-center mb-10">
+                        <div id="gridContainer" class="grid gap-1 p-2 bg-slate-100 rounded-lg border border-slate-200">
+                            <!-- JS generarà la graella aquí -->
+                            <div class="p-10 text-center text-slate-400">
+                                Clica "Generar Sopa" per començar
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Llista de Paraules -->
+                    <div class="mt-8">
+                        <h3 class="text-center text-sm font-bold text-slate-500 uppercase tracking-widest mb-4 border-b border-slate-100 pb-2 w-1/2 mx-auto">Paraules a trobar</h3>
+                        <div id="wordBank" class="flex flex-wrap justify-center gap-x-8 gap-y-2 text-lg font-hand text-slate-700">
+                            <!-- JS posarà les paraules aquí -->
+                        </div>
+                    </div>
+
+                    <!-- Footer d'impressió -->
+                    <div class="hidden print-footer absolute bottom-4 left-0 w-full text-center text-xs text-slate-400">
+                        Generat amb l'App de Sopes de Lletres Interactiva
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        // Configuració
+        const gridSize = 14; 
+        let grid = [];
+        const letters = "ABCÇDEFGHIJKLMNOPQRSTUVWXYZ";
+
+        // Inicialització
+        window.onload = () => {
+            document.getElementById('wordList').value = "GAT\nGOS\nOCELL\nPEIX\nTORTUGA\nHAMSTER";
+            generatePuzzle();
+        }
+
+        function generatePuzzle() {
+            const titleInput = document.getElementById('puzzleTitleInput').value;
+            document.getElementById('puzzleTitleDisplay').innerText = titleInput || "Sopa de Lletres";
+
+            const rawWords = document.getElementById('wordList').value;
+            let words = rawWords.toUpperCase().split('\n')
+                .map(w => w.trim().replace(/[^A-ZÇ]/g, '')) 
+                .filter(w => w.length > 0 && w.length <= gridSize);
+            
+            words.sort((a, b) => b.length - a.length);
+
+            const directions = [];
+            if(document.getElementById('dirH').checked) directions.push([0, 1]);
+            if(document.getElementById('dirV').checked) directions.push([1, 0]);
+            if(document.getElementById('dirD').checked) directions.push([1, 1]);
+            
+            const allowBack = document.getElementById('dirBack').checked;
+            if (allowBack) {
+                if(document.getElementById('dirH').checked) directions.push([0, -1]);
+                if(document.getElementById('dirV').checked) directions.push([-1, 0]);
+                if(document.getElementById('dirD').checked) directions.push([-1, -1]);
+            }
+
+            if (directions.length === 0) {
+                alert("Si us plau, selecciona almenys una direcció.");
+                return;
+            }
+
+            grid = Array(gridSize).fill(null).map(() => Array(gridSize).fill(''));
+            let placedWords = [];
+
+            for (let word of words) {
+                let placed = false;
+                let attempts = 0;
+                while (!placed && attempts < 100) {
+                    const dir = directions[Math.floor(Math.random() * directions.length)];
+                    const startRow = Math.floor(Math.random() * gridSize);
+                    const startCol = Math.floor(Math.random() * gridSize);
+
+                    if (canPlaceWord(word, startRow, startCol, dir)) {
+                        placeWord(word, startRow, startCol, dir);
+                        placed = true;
+                        placedWords.push(word);
+                    }
+                    attempts++;
+                }
+            }
+
+            fillEmptySpaces();
+            renderGrid();
+            renderWordBank(placedWords);
+            
+            if (placedWords.length < words.length) {
+                alert(`No s'han pogut col·locar totes les paraules. Intenta-ho de nou.`);
+            }
+        }
+
+        function canPlaceWord(word, r, c, [dr, dc]) {
+            if (r + dr * (word.length - 1) < 0 || r + dr * (word.length - 1) >= gridSize) return false;
+            if (c + dc * (word.length - 1) < 0 || c + dc * (word.length - 1) >= gridSize) return false;
+
+            for (let i = 0; i < word.length; i++) {
+                const charAtGrid = grid[r + dr * i][c + dc * i];
+                if (charAtGrid !== '' && charAtGrid !== word[i]) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function placeWord(word, r, c, [dr, dc]) {
+            for (let i = 0; i < word.length; i++) {
+                grid[r + dr * i][c + dc * i] = word[i];
+            }
+        }
+
+        function fillEmptySpaces() {
+            for (let r = 0; r < gridSize; r++) {
+                for (let c = 0; c < gridSize; c++) {
+                    if (grid[r][c] === '') {
+                        grid[r][c] = letters.charAt(Math.floor(Math.random() * letters.length));
+                    }
+                }
+            }
+        }
+
+        function renderGrid() {
+            const container = document.getElementById('gridContainer');
+            container.innerHTML = '';
+            container.style.gridTemplateColumns = `repeat(${gridSize}, minmax(0, 1fr))`;
+
+            for (let r = 0; r < gridSize; r++) {
+                for (let c = 0; c < gridSize; c++) {
+                    const cell = document.createElement('div');
+                    cell.innerText = grid[r][c];
+                    cell.className = 'w-8 h-8 md:w-10 md:h-10 flex items-center justify-center font-bold text-lg md:text-xl rounded cursor-pointer transition-colors bg-white hover:bg-indigo-50 border border-slate-200 text-slate-700 select-none font-hand grid-cell';
+                    cell.onclick = function() { this.classList.toggle('selected-cell'); };
+                    container.appendChild(cell);
+                }
+            }
+        }
+
+        function renderWordBank(words) {
+            const container = document.getElementById('wordBank');
+            container.innerHTML = '';
+            words.sort().forEach(word => {
+                const div = document.createElement('div');
+                div.className = 'px-3 py-1 bg-slate-100 rounded-md border border-slate-200 word-item';
+                div.innerText = word;
+                div.onclick = function() {
+                    if(this.style.textDecoration === 'line-through') {
+                        this.style.textDecoration = 'none';
+                        this.style.opacity = '1';
+                    } else {
+                        this.style.textDecoration = 'line-through';
+                        this.style.opacity = '0.5';
+                    }
+                }
+                container.appendChild(div);
+            });
+        }
+
+        // --- NOVA FUNCIÓ D'IMPRESSIÓ ---
+        function printPuzzle() {
+            const title = document.getElementById('puzzleTitleDisplay').innerText;
+            const content = document.getElementById('printableArea').innerHTML;
+            
+            // Obre una finestra nova buida
+            const printWindow = window.open('', '_blank');
+            
+            // Escriu el document complet per imprimir
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>${title} - Imprimir</title>
+                    <script src="https://cdn.tailwindcss.com"><\/script>
+                    <style>
+                        @import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Inter:wght@400;600;700&display=swap');
+                        
+                        body { 
+                            font-family: 'Inter', sans-serif; 
+                            padding: 40px;
+                            background: white;
+                            color: black;
+                        }
+                        
+                        .font-hand { font-family: 'Patrick Hand', cursive; }
+                        
+                        /* Mostrar elements ocults (Capçalera Nom/Data) */
+                        .print-header, .print-footer { display: block !important; }
+                        
+                        /* Amagar elements que no volem al paper (instruccions de pantalla) */
+                        .screen-only-text { display: none !important; }
+
+                        /* Estils nets per a la graella */
+                        .grid-cell {
+                            border: 1px solid #ccc;
+                            background-color: transparent !important; /* Sempre blanc */
+                            color: black !important;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-weight: bold;
+                            font-size: 1.25rem;
+                            width: 2.5rem; height: 2.5rem;
+                            margin: 1px;
+                        }
+                        
+                        #gridContainer {
+                            display: grid;
+                            /* Heretem les columnes inline del JS original */
+                            grid-template-columns: repeat(${gridSize}, minmax(0, 1fr));
+                            gap: 2px;
+                            margin: 0 auto;
+                            width: fit-content;
+                            border: none;
+                            background: transparent;
+                        }
+
+                        /* Neteja visual per estalviar tinta */
+                        .word-item {
+                            border: none;
+                            background: transparent !important;
+                        }
+                        .bg-white, .bg-slate-100 { background: transparent !important; }
+                        .shadow-lg, .shadow-sm { box-shadow: none !important; }
+                        .border { border: none !important; }
+                        .border-b { border-bottom: 1px solid #ccc !important; }
+                        .border-b-2 { border-bottom: 2px solid black !important; }
+                        
+                        /* Assegurar que la graella té una vora externa si es vol, o deixar-la neta */
+                        #gridContainer { border: 2px solid black !important; padding: 5px; }
+
+                    </style>
+                </head>
+                <body>
+                    ${content}
+                    <script>
+                        window.onload = function() {
+                            // Petit retard per assegurar que Tailwind i fonts s'apliquen
+                            setTimeout(function() {
+                                window.print();
+                                // Opcional: window.close();
+                            }, 500);
+                        }
+                    <\/script>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+        }
+
+    </script>
+</body>
+</html>
