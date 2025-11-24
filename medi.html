@@ -2,6 +2,7 @@
 <html lang="ca">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Medi - Jo Recursos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -9,6 +10,7 @@
     <style>body { font-family: 'Inter', sans-serif; } .brand-font { font-family: 'Fredoka', sans-serif; }</style>
 </head>
 <body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
+    
     <nav class="bg-white shadow-md sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 flex justify-between h-20 items-center">
             <a href="index.html" class="flex items-center gap-2 text-gray-600 hover:text-green-600 transition">
@@ -17,11 +19,46 @@
             <span class="text-2xl font-bold text-green-900 brand-font">Medi</span>
         </div>
     </nav>
-    <main class="flex-grow flex items-center justify-center">
-        <div class="text-center text-gray-400">
-            <i class="fas fa-leaf text-6xl mb-4 opacity-50"></i>
-            <p class="text-xl">Pàgina en construcció</p>
+
+    <main class="flex-grow py-12">
+        <div class="max-w-6xl mx-auto px-4 text-center mb-10">
+            <h1 class="text-4xl font-bold text-green-900 mb-4">Coneixement del Medi</h1>
+            <p class="text-gray-600">Explora la natura, la geografia i la societat.</p>
+        </div>
+
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="grid md:grid-cols-3 gap-6">
+                
+                <!-- TARGETA JOC COMARQUES -->
+                <div class="bg-white border rounded-xl p-6 shadow-sm hover:shadow-md transition border-green-200 ring-2 ring-green-50 group">
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="bg-green-100 text-green-800 text-xs font-bold px-3 py-1 rounded-full">Geografia</span>
+                        <i class="fas fa-map-marked-alt text-green-600 text-2xl group-hover:scale-110 transition"></i>
+                    </div>
+                    <h4 class="font-bold text-lg mb-2">Joc de les Comarques</h4>
+                    <p class="text-gray-600 text-sm mb-4">Posa a prova el teu coneixement sobre les comarques i capitals de Catalunya.</p>
+                    
+                    <!-- Enllaç al fitxer comarques.html -->
+                    <a href="comarques.html" class="block w-full text-center bg-green-600 text-white py-2 rounded-lg font-bold hover:bg-green-700 transition shadow-md">
+                        Jugar Ara 🎮
+                    </a>
+                </div>
+
+                <!-- Més recursos -->
+                <div class="bg-gray-50 border border-dashed border-gray-300 rounded-xl p-6 flex flex-col items-center justify-center text-gray-400">
+                    <i class="fas fa-leaf text-4xl mb-2"></i>
+                    <p>Més recursos aviat...</p>
+                </div>
+
+            </div>
         </div>
     </main>
+
+    <footer class="bg-white border-t py-8 mt-auto">
+        <div class="max-w-6xl mx-auto px-4 text-center text-sm text-gray-500">
+            <p>&copy; 2025 Jo Recursos.</p>
+        </div>
+    </footer>
+
 </body>
 </html>
