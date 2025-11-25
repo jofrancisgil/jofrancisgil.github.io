@@ -65,6 +65,15 @@
             text-align: center; font-size: 1.25rem; padding: 0; margin: 0;
             outline: none; color: #1e293b; font-family: 'Inter', sans-serif;
         }
+
+        /* --- ESTILS PENJAT --- */
+        .letter-btn {
+            width: 2.5rem; height: 2.5rem;
+            font-weight: bold; border-radius: 0.5rem;
+            transition: all 0.2s;
+        }
+        .letter-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .hangman-drawing { stroke: #4b5563; stroke-width: 4; fill: none; stroke-linecap: round; }
     </style>
 </head>
 <body class="bg-purple-50 text-gray-800 min-h-screen flex flex-col">
@@ -89,7 +98,7 @@
                 <p class="text-gray-600">Aprèn jugant amb aquestes activitats interactives.</p>
             </div>
 
-            <div class="grid md:grid-cols-3 gap-6">
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                 
                 <!-- Targeta Sopa de Lletres -->
                 <div class="bg-white border rounded-xl p-6 shadow-sm hover:shadow-md transition border-purple-200 ring-2 ring-purple-50 group flex flex-col h-full">
@@ -127,6 +136,19 @@
                     <p class="text-gray-600 text-sm mb-6 flex-grow">Resol les definicions per completar la graella de paraules.</p>
                     <button onclick="openGame('mots')" class="w-full bg-teal-600 text-white py-2 rounded-lg font-bold hover:bg-teal-700 transition shadow-md mt-auto">
                         Jugar Ara ✏️
+                    </button>
+                </div>
+
+                <!-- Targeta Penjat -->
+                <div class="bg-white border rounded-xl p-6 shadow-sm hover:shadow-md transition border-red-200 ring-2 ring-red-50 group flex flex-col h-full">
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="bg-red-100 text-red-800 text-xs font-bold px-3 py-1 rounded-full">Lletres</span>
+                        <i data-lucide="hash" class="text-red-600 w-8 h-8 group-hover:scale-110 transition"></i>
+                    </div>
+                    <h4 class="font-bold text-lg mb-2">El Penjat</h4>
+                    <p class="text-gray-600 text-sm mb-6 flex-grow">Endevina la paraula oculta abans que s'acabi el dibuix.</p>
+                    <button onclick="openGame('penjat')" class="w-full bg-red-600 text-white py-2 rounded-lg font-bold hover:bg-red-700 transition shadow-md mt-auto">
+                        Jugar Ara 🎨
                     </button>
                 </div>
 
@@ -302,6 +324,71 @@
             </div>
         </div>
 
+        <!-- PANTALLA 5: APP PENJAT -->
+        <div id="app-penjat" class="hidden-app max-w-4xl mx-auto px-4 w-full">
+            <div class="bg-white p-8 rounded-2xl shadow-lg border border-red-100">
+                <div class="flex justify-between items-center mb-6 border-b pb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 bg-red-100 rounded-lg"><i data-lucide="hash" class="text-red-600 w-6 h-6"></i></div>
+                        <h2 class="text-2xl font-bold text-red-900">El Penjat</h2>
+                    </div>
+                    <button onclick="closeGame()" class="text-gray-500 hover:text-red-500 font-bold flex items-center gap-1 transition px-4 py-2 rounded hover:bg-gray-100">
+                        <i data-lucide="x" class="w-5 h-5"></i> Tancar
+                    </button>
+                </div>
+
+                <!-- Setup Penjat -->
+                <div id="penjatSetup" class="max-w-lg mx-auto text-center py-8">
+                    <div class="bg-red-50 p-6 rounded-2xl mb-6">
+                        <label class="block text-left text-sm font-bold mb-2 text-red-800">Paraula o Frase per endevinar:</label>
+                        <input type="text" id="penjatWord" class="w-full border-2 border-red-200 rounded-xl p-4 text-lg focus:outline-none focus:border-red-500 transition uppercase" placeholder="ESCRIU AQUI...">
+                        <p class="text-xs text-red-500 mt-2 text-left">Amaga la pantalla mentre escrius!</p>
+                    </div>
+                    <button onclick="startPenjat()" class="w-full bg-red-600 text-white py-3 rounded-xl font-bold text-xl shadow-lg hover:bg-red-700 transform hover:-translate-y-1 transition flex items-center justify-center gap-2">
+                        <i data-lucide="play" class="w-6 h-6"></i> Començar Partida
+                    </button>
+                </div>
+
+                <!-- Joc Penjat Actiu -->
+                <div id="penjatGame" class="hidden">
+                    <div class="flex flex-col md:flex-row gap-8 items-center justify-center mb-8">
+                        <!-- Dibuix -->
+                        <div class="w-48 h-48 bg-red-50 rounded-xl flex items-center justify-center border-2 border-red-100">
+                            <svg id="hangmanSvg" width="150" height="150" viewBox="0 0 100 100" class="hangman-drawing">
+                                <!-- Base -->
+                                <line x1="10" y1="90" x2="90" y2="90" />
+                                <line x1="30" y1="90" x2="30" y2="10" />
+                                <line x1="30" y1="10" x2="70" y2="10" />
+                                <line x1="70" y1="10" x2="70" y2="20" />
+                                <!-- Parts del cos (amagades per defecte) -->
+                                <circle id="part-0" cx="70" cy="30" r="10" class="hidden" /> <!-- Cap -->
+                                <line id="part-1" x1="70" y1="40" x2="70" y2="70" class="hidden" /> <!-- Cos -->
+                                <line id="part-2" x1="70" y1="50" x2="50" y2="40" class="hidden" /> <!-- Braç E -->
+                                <line id="part-3" x1="70" y1="50" x2="90" y2="40" class="hidden" /> <!-- Braç D -->
+                                <line id="part-4" x1="70" y1="70" x2="50" y2="85" class="hidden" /> <!-- Cama E -->
+                                <line id="part-5" x1="70" y1="70" x2="90" y2="85" class="hidden" /> <!-- Cama D -->
+                            </svg>
+                        </div>
+                        
+                        <!-- Paraula -->
+                        <div class="flex-1 text-center">
+                            <div id="penjatDisplay" class="text-4xl font-mono font-bold text-slate-800 tracking-widest mb-4 min-h-[3rem]">_ _ _ _</div>
+                            <p id="penjatStatus" class="text-red-600 font-bold"></p>
+                        </div>
+                    </div>
+
+                    <!-- Teclat -->
+                    <div id="penjatKeyboard" class="flex flex-wrap justify-center gap-2 max-w-2xl mx-auto"></div>
+                    
+                    <div class="text-center mt-8">
+                        <button onclick="restartPenjat()" class="text-sm font-bold text-red-600 hover:text-red-800 flex items-center gap-1 bg-white px-4 py-2 rounded-full shadow border border-red-200 hover:shadow-md mx-auto">
+                            <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Nova Paraula
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <footer class="bg-white border-t py-8 mt-auto">
@@ -317,10 +404,13 @@
         function openGame(gameId) {
             // 1. Amagar Menú
             document.getElementById('games-menu').style.display = 'none';
-            // 2. Tancar TOTS els jocs per evitar superposicions (Important!)
+            // 2. Tancar TOTS els jocs
+            document.querySelectorAll('.hidden-app').forEach(el => el.classList.add('hidden-app'));
             document.getElementById('app-sopa').classList.add('hidden-app');
             document.getElementById('app-memory').classList.add('hidden-app');
             document.getElementById('app-mots').classList.add('hidden-app');
+            document.getElementById('app-penjat').classList.add('hidden-app');
+            
             // 3. Obrir el joc desitjat
             document.getElementById('app-' + gameId).classList.remove('hidden-app');
             
@@ -335,6 +425,7 @@
             document.getElementById('app-sopa').classList.add('hidden-app');
             document.getElementById('app-memory').classList.add('hidden-app');
             document.getElementById('app-mots').classList.add('hidden-app');
+            document.getElementById('app-penjat').classList.add('hidden-app');
             document.getElementById('games-menu').style.display = 'block';
             stopMemTimer();
             window.scrollTo(0,0);
@@ -354,10 +445,13 @@
                 if(word.length > size) return;
                 let placed = false, attempts = 0;
                 while(!placed && attempts < 100) {
-                    const dir = Math.random() > 0.5 ? [0,1] : [1,0];
+                    const dir = Math.random() > 0.5 ? [0,1] : [1,0]; // Només horitzontal i vertical per senzillesa
                     const r = Math.floor(Math.random() * size);
                     const c = Math.floor(Math.random() * size);
+                    
+                    // Check bounds
                     if (r + dir[0]*(word.length-1) < size && c + dir[1]*(word.length-1) < size) {
+                        // Check collisions
                         let clear = true;
                         for(let i=0; i<word.length; i++) {
                             if(grid[r + dir[0]*i][c + dir[1]*i] !== '' && grid[r + dir[0]*i][c + dir[1]*i] !== word[i]) clear = false;
@@ -397,7 +491,7 @@
             w.document.close();
         }
 
-        // --- 2. MEMORY ---
+        // --- 2. MEMORY INTERACTIU ---
         let memCards = [], memFlipped = [], memSolved = 0, memMoves = 0, memTimer, memSecs = 0;
         
         function startMemory() {
@@ -657,7 +751,6 @@
         function cwPrint() {
             const title = document.getElementById('cwTitle').value;
             const gridHtml = document.getElementById('cwGrid').outerHTML;
-            // Netejar inputs per impressió
             const temp = document.createElement('div'); temp.innerHTML=gridHtml;
             temp.querySelectorAll('input').forEach(i => i.remove());
             temp.querySelectorAll('.cw-cell').forEach(c => {
@@ -668,6 +761,86 @@
             const w = window.open('','_blank');
             w.document.write(`<html><head><style>body{font-family:sans-serif;padding:40px;} .grid{display:grid;gap:0;margin-bottom:40px;} .cw-cell{position:relative;display:flex;}</style></head><body><h1>${title}</h1><div class="grid" style="${document.getElementById('cwGrid').style.cssText}">${temp.innerHTML}</div></body></html>`);
             w.document.close();
+        }
+
+        // --- 4. PENJAT (HANGMAN) ---
+        let pWord = "", pGuessed = [], pErrors = 0;
+        const MAX_ERRORS = 6;
+
+        function startPenjat() {
+            const input = document.getElementById('penjatWord');
+            pWord = input.value.trim().toUpperCase().replace(/[^A-ZÇÑ]/g, '');
+            
+            if(pWord.length < 2) return alert("Escriu una paraula!");
+            
+            input.value = '';
+            pGuessed = [];
+            pErrors = 0;
+            
+            document.getElementById('penjatSetup').classList.add('hidden');
+            document.getElementById('penjatGame').classList.remove('hidden');
+            document.getElementById('penjatStatus').innerText = "";
+            
+            // Reset Drawing
+            for(let i=0; i<6; i++) document.getElementById('part-'+i).classList.add('hidden');
+            
+            renderPenjat();
+            renderKeyboard();
+        }
+
+        function restartPenjat() {
+            document.getElementById('penjatGame').classList.add('hidden');
+            document.getElementById('penjatSetup').classList.remove('hidden');
+        }
+
+        function renderPenjat() {
+            const display = pWord.split('').map(char => pGuessed.includes(char) ? char : '_').join(' ');
+            document.getElementById('penjatDisplay').innerText = display;
+            
+            if(!display.includes('_')) {
+                document.getElementById('penjatStatus').innerText = "HAS GUANYAT! 🎉";
+                document.getElementById('penjatStatus').className = "text-green-600 font-bold text-xl";
+                confetti();
+                disableKeyboard();
+            }
+        }
+
+        function renderKeyboard() {
+            const keys = "ABCÇDEFGHIJKLMNÑOPQRSTUVWXYZ".split('');
+            const container = document.getElementById('penjatKeyboard');
+            container.innerHTML = '';
+            
+            keys.forEach(key => {
+                const btn = document.createElement('button');
+                btn.innerText = key;
+                btn.className = "letter-btn w-10 h-10 bg-white border border-slate-300 rounded hover:bg-slate-100 font-bold text-slate-700";
+                btn.onclick = () => guessLetter(key, btn);
+                container.appendChild(btn);
+            });
+        }
+
+        function guessLetter(letter, btn) {
+            btn.disabled = true;
+            if(pWord.includes(letter)) {
+                pGuessed.push(letter);
+                btn.classList.add('bg-green-100', 'text-green-700', 'border-green-300');
+                renderPenjat();
+            } else {
+                pErrors++;
+                btn.classList.add('bg-red-100', 'text-red-700', 'border-red-300');
+                document.getElementById('part-'+(pErrors-1)).classList.remove('hidden');
+                
+                if(pErrors >= MAX_ERRORS) {
+                    document.getElementById('penjatStatus').innerText = `HAS PERDUT! Era: ${pWord}`;
+                    document.getElementById('penjatStatus').className = "text-red-600 font-bold text-xl";
+                    disableKeyboard();
+                }
+            }
+        }
+
+        function disableKeyboard() {
+            const btns = document.querySelectorAll('.letter-btn');
+            btns.forEach(b => b.disabled = true);
         }
 
     </script>
