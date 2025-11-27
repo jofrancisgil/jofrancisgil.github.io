@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classroom Taboo! (1-10 Teams)</title>
+    <style>
+        :root {
+            --primary: #FF6B6B;
+            --secondary: #4ECDC4;
+            --accent: #FFE66D;
+            --purple: #6C5CE7;
+            --dark: #2C3E50;
+            --light: #F7F9FC;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--dark);
+            color: var(--dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            color: var(--light);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin: 5px 0 15px 0;
+            text-align: center;
+            font-size: 1.8em;
+        }
+
+        /* --- Timer Display --- */
+        .timer-container {
+            background: rgba(0,0,0,0.2);
+            padding: 5px 25px;
+            border-radius: 50px;
+            margin-bottom: 15px;
+        }
+
+        .timer-display {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: var(--light);
+            font-variant-numeric: tabular-nums;
+            line-height: 1;
+        }
+
+        .timer-warning {
+            color: var(--primary);
+            animation: pulse 1s infinite;
+        }
+
+        /* --- Scoreboard (Smart Grid) --- */
+        .scoreboard {
+            display: flex;
+            flex-wrap: wrap; /* Allows wrapping for many teams */
+            gap: 10px;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 800px;
+            justify-content: center;
+        }
+
+        .team-score-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 15px;
+            border-radius: 8px;
+            text-align: center;
+            color: var(--light);
+            min-width: 80px; /* Ensures they don't get too small */
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .team-score-box.active-turn {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: var(--accent);
+            transform: scale(1.1);
+            z-index: 2;
+            box-shadow: 0 0 15px rgba(255, 230, 109, 0.5);
+        }
+
+        .score-val {
+            font-size: 1.5em;
+            font-weight: bold;
+            display: block;
+        }
+
+        .team-name {
+            font-size: 0.8em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.8;
+        }
+
+        /* --- Game Card Area --- */
+        .game-container {
+            background-color: var(--light);
+            width: 100%;
+            max-width: 500px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            overflow: hidden;
+            text-align: center;
+            position: relative;
+            min-height: 500px;
+        }
+
+        .card-area {
+            padding: 30px;
+            min-height: 380px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-bottom: 5px solid var(--secondary);
+            position: relative;
+        }
+
+        .guess-word {
+            font-size: 2.8em;
+            color: var(--primary);
+            font-weight: 800;
+            text-transform: uppercase;
+            margin: 10px 0 20px 0;
+            line-height: 1.1;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+        }
+
+        .forbidden-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            width: 100%;
+        }
+
+        .forbidden-item {
+            font-size: 1.4em;
+            color: #555;
+            background: #eee;
+            margin: 6px auto;
+            padding: 10px;
+            border-radius: 8px;
+            width: 90%;
+            font-weight: 600;
+        }
+
+        .forbidden-label {
+            font-size: 0.9em;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        /* --- Controls --- */
+        .controls {
+            display: flex;
+            padding: 20px;
+            gap: 10px;
+            background: #f0f0f0;
+        }
+
+        button {
+            flex: 1;
+            padding: 15px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.1s;
+        }
+
+        button:active { transform: scale(0.98); }
+
+        #btn-correct { background-color: var(--secondary); color: white; }
+        #btn-skip { background-color: var(--primary); color: white; }
+        
+        .big-btn { 
+            width: 100%; 
+            margin-top: 20px; 
+            font-size: 1.5em; 
+            background-color: var(--accent); 
+            color: var(--dark); 
+            padding: 20px;
+        }
+
+        /* --- Overlays & Inputs --- */
+        .hidden { display: none !important; }
+        
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(44, 62, 80, 0.98);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            z-index: 10;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* Input Styling */
+        .input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            background: white;
+            padding: 10px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        input[type=number] {
+            font-size: 2em;
+            width: 80px;
+            text-align: center;
+            border: none;
+            outline: none;
+            color: var(--dark);
+            font-weight: bold;
+        }
+
+        .start-btn {
+            background: var(--secondary);
+            color: white;
+            padding: 10px 30px;
+            font-size: 1.2em;
+            border-radius: 10px;
+        }
+
+        .card-count {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 0.8em;
+            color: #aaa;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Classroom Taboo!</h1>
+
+    <div class="timer-container">
+        <div class="timer-display" id="timer">60</div>
+    </div>
+
+    <div class="scoreboard" id="scoreboard">
+        </div>
+
+    <div class="game-container">
+        
+        <div id="setup-overlay" class="overlay">
+            <h2>Game Setup</h2>
+            <p>How many groups are playing?</p>
+            <div class="input-group">
+                <input type="number" id="team-input" value="2" min="1" max="10">
+                <button class="start-btn" onclick="readInputAndStart()">GO</button>
+            </div>
+            <p style="font-size: 0.8em; opacity: 0.7; margin-top: 10px;">(Enter 1 - 10)</p>
+        </div>
+
+        <div id="turn-overlay" class="overlay hidden">
+            <h2 id="overlay-msg">Ready?</h2>
+            <p>Up Next:</p>
+            <h1 id="current-team-display" style="color: var(--accent); font-size: 3em; margin: 10px 0;">TEAM 1</h1>
+            <button class="big-btn" id="btn-start-turn" onclick="startTimer()">START TIMER</button>
+        </div>
+
+        <div class="card-area">
+            <div class="card-count" id="card-counter">Cards left: 100</div>
+            <div class="guess-word" id="main-word">READY?</div>
+            <span class="forbidden-label">Don't say these words!</span>
+            <ul class="forbidden-list" id="forbidden-list">
+                <li class="forbidden-item">---</li>
+                <li class="forbidden-item">---</li>
+                <li class="forbidden-item">---</li>
+            </ul>
+        </div>
+
+        <div class="controls">
+            <button id="btn-skip" onclick="handleSkip()">SKIP / TABOO</button>
+            <button id="btn-correct" onclick="handleCorrect()">CORRECT (+1)</button>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA: 100 Words ---
+        const deck = [
+            // Set 1: Basics
+            { word: "HOMEWORK", bad: ["School", "Teacher", "Assignment", "Class"] },
+            { word: "PIZZA", bad: ["Cheese", "Pepperoni", "Slice", "Food"] },
+            { word: "MINECRAFT", bad: ["Blocks", "Build", "Game", "Creeper"] },
+            { word: "SUMMER", bad: ["Hot", "Season", "Vacation", "Sun"] },
+            { word: "LIBRARY", bad: ["Books", "Quiet", "Read", "School"] },
+            { word: "TIKTOK", bad: ["App", "Video", "Dance", "Phone"] },
+            { word: "DENTIST", bad: ["Teeth", "Doctor", "Mouth", "Braces"] },
+            { word: "SOCCER", bad: ["Ball", "Kick", "Goal", "Sport"] },
+            { word: "HALLOWEEN", bad: ["Candy", "Costume", "October", "Ghost"] },
+            { word: "YOUTUBE", bad: ["Watch", "Video", "Subscribe", "Stream"] },
+            { word: "PENCIL", bad: ["Write", "Lead", "Eraser", "Sharpener"] },
+            { word: "DOG", bad: ["Puppy", "Bark", "Pet", "Animal"] },
+            { word: "IPHONE", bad: ["Apple", "Call", "Text", "Mobile"] },
+            { word: "SPONGEBOB", bad: ["Square", "Pants", "Patrick", "Cartoon"] },
+            { word: "RECESS", bad: ["Play", "Break", "Outside", "Playground"] },
+            { word: "ICE CREAM", bad: ["Cold", "Cone", "Scoop", "Vanilla"] },
+            { word: "CHRISTMAS", bad: ["Tree", "Santa", "Presents", "December"] },
+            { word: "BUS", bad: ["Yellow", "School", "Ride", "Driver"] },
+            { word: "SNEAKERS", bad: ["Shoes", "Feet", "Run", "Laces"] },
+            { word: "SHARK", bad: ["Ocean", "Fish", "Teeth", "Jaws"] },
+            { word: "DISNEY", bad: ["Mickey", "Mouse", "World", "Movies"] },
+            { word: "GUITAR", bad: ["Music", "Strings", "Instrument", "Play"] },
+            { word: "ZOMBIE", bad: ["Dead", "Brain", "Monster", "Walking"] },
+            { word: "NETFLIX", bad: ["Movies", "TV", "Watch", "Stream"] },
+            { word: "BATMAN", bad: ["Hero", "Robin", "Joker", "Cave"] },
+
+            // Set 2: Pop Culture & Characters
+            { word: "TAYLOR SWIFT", bad: ["Singer", "Songs", "Eras", "Pop"] },
+            { word: "HARRY POTTER", bad: ["Wizard", "Hogwarts", "Magic", "Glasses"] },
+            { word: "ROBLOX", bad: ["Game", "Create", "Avatar", "Blocks"] },
+            { word: "FORTNITE", bad: ["Battle", "Royale", "Skins", "Dance"] },
+            { word: "MARVEL", bad: ["Heroes", "Avengers", "Comics", "Iron Man"] },
+            { word: "SPIDER-MAN", bad: ["Web", "Peter Parker", "Hero", "Climb"] },
+            { word: "BARBIE", bad: ["Doll", "Pink", "Ken", "Toy"] },
+            { word: "STAR WARS", bad: ["Jedi", "Force", "Lightsaber", "Yoda"] },
+            { word: "POKEMON", bad: ["Pikachu", "Cards", "Catch", "Ball"] },
+            { word: "SUPER MARIO", bad: ["Luigi", "Nintendo", "Jump", "Plumber"] },
+
+            // Set 3: School Items & Subjects
+            { word: "MATH", bad: ["Numbers", "Add", "Subtract", "Calculator"] },
+            { word: "SCIENCE", bad: ["Experiment", "Lab", "Chemicals", "Biology"] },
+            { word: "HISTORY", bad: ["Past", "War", "Dates", "Timeline"] },
+            { word: "GYM", bad: ["Sports", "Exercise", "Run", "PE"] },
+            { word: "CAFETERIA", bad: ["Lunch", "Food", "Tray", "Eat"] },
+            { word: "PRINCIPAL", bad: ["Office", "Leader", "School", "Rules"] },
+            { word: "LOCKER", bad: ["Combination", "Books", "Hallway", "Metal"] },
+            { word: "BACKPACK", bad: ["Bag", "Shoulders", "Carry", "Books"] },
+            { word: "TEACHER", bad: ["Learn", "Class", "Grade", "Instructor"] },
+            { word: "NOTEBOOK", bad: ["Paper", "Write", "Spiral", "Notes"] },
+
+            // Set 4: Food
+            { word: "HAMBURGER", bad: ["McDonalds", "Meat", "Bun", "Fries"] },
+            { word: "TACO", bad: ["Mexican", "Shell", "Meat", "Cheese"] },
+            { word: "SPAGHETTI", bad: ["Noodles", "Pasta", "Sauce", "Italian"] },
+            { word: "CHOCOLATE", bad: ["Candy", "Sweet", "Bar", "Brown"] },
+            { word: "POPCORN", bad: ["Movie", "Butter", "Kernel", "Corn"] },
+            { word: "SODA", bad: ["Drink", "Coke", "Pepsi", "Bubbles"] },
+            { word: "CEREAL", bad: ["Breakfast", "Milk", "Bowl", "Spoon"] },
+            { word: "WATERMELON", bad: ["Fruit", "Red", "Seeds", "Summer"] },
+            { word: "DONUT", bad: ["Round", "Glaze", "Sprinkle", "Hole"] },
+            { word: "FRENCH FRIES", bad: ["Potato", "Ketchup", "Salt", "Fast Food"] },
+
+            // Set 5: Animals
+            { word: "ELEPHANT", bad: ["Trunk", "Big", "Africa", "Ears"] },
+            { word: "GIRAFFE", bad: ["Neck", "Tall", "Spots", "Africa"] },
+            { word: "LION", bad: ["King", "Roar", "Mane", "Cat"] },
+            { word: "PENGUIN", bad: ["Bird", "Ice", "Waddle", "Tuxedo"] },
+            { word: "SNAKE", bad: ["Slither", "Hiss", "Reptile", "Venom"] },
+            { word: "DINOSAUR", bad: ["T-Rex", "Extinct", "Fossil", "Jurassic"] },
+            { word: "MONKEY", bad: ["Banana", "Climb", "Tree", "Jungle"] },
+            { word: "CAT", bad: ["Meow", "Kitten", "Whiskers", "Purr"] },
+            { word: "BUTTERFLY", bad: ["Caterpillar", "Wings", "Fly", "Insect"] },
+            { word: "SPIDER", bad: ["Web", "Eight", "Legs", "Bug"] },
+
+            // Set 6: Sports & Activities
+            { word: "BASKETBALL", bad: ["Hoop", "Dunk", "NBA", "Jordan"] },
+            { word: "BASEBALL", bad: ["Bat", "Home Run", "Mitt", "Pitch"] },
+            { word: "SWIMMING", bad: ["Pool", "Water", "Dive", "Stroke"] },
+            { word: "DANCE", bad: ["Music", "Moves", "Ballet", "Hip Hop"] },
+            { word: "CAMPING", bad: ["Tent", "Fire", "Woods", "Smores"] },
+            { word: "FISHING", bad: ["Pole", "Hook", "Water", "Catch"] },
+            { word: "SKATEBOARD", bad: ["Wheels", "Ramp", "Trick", "Tony Hawk"] },
+            { word: "BICYCLE", bad: ["Ride", "Wheels", "Pedal", "Helmet"] },
+            { word: "VIDEO GAMES", bad: ["Controller", "Screen", "Play", "Console"] },
+            { word: "PIANO", bad: ["Keys", "Music", "Play", "Instrument"] },
+
+            // Set 7: People & Careers
+            { word: "DOCTOR", bad: ["Sick", "Hospital", "Medicine", "Nurse"] },
+            { word: "POLICE", bad: ["Officer", "Badge", "Arrest", "Sirens"] },
+            { word: "FIREFIGHTER", bad: ["Truck", "Hose", "Fire", "Red"] },
+            { word: "CHEF", bad: ["Cook", "Kitchen", "Hat", "Food"] },
+            { word: "ASTRONAUT", bad: ["Space", "Rocket", "Moon", "NASA"] },
+            { word: "ARTIST", bad: ["Paint", "Draw", "Brush", "Canvas"] },
+            { word: "YOUTUBER", bad: ["Video", "Camera", "Channel", "Views"] },
+            { word: "PRESIDENT", bad: ["White House", "USA", "Leader", "Vote"] },
+            { word: "VET", bad: ["Animal", "Doctor", "Pet", "Sick"] },
+            { word: "PILOT", bad: ["Plane", "Fly", "Airport", "Sky"] },
+
+            // Set 8: Objects & Misc
+            { word: "AIRPLANE", bad: ["Fly", "Wings", "Travel", "Airport"] },
+            { word: "CAR", bad: ["Drive", "Wheel", "Road", "Engine"] },
+            { word: "BOAT", bad: ["Water", "Sail", "Ocean", "Float"] },
+            { word: "TRAIN", bad: ["Tracks", "Choo-choo", "Ride", "Station"] },
+            { word: "BED", bad: ["Sleep", "Pillow", "Blanket", "Night"] },
+            { word: "TOILET", bad: ["Bathroom", "Flush", "Potty", "Restroom"] },
+            { word: "TELEVISION", bad: ["Watch", "Remote", "Show", "Screen"] },
+            { word: "MONEY", bad: ["Dollar", "Cash", "Coin", "Buy"] },
+            { word: "SUNGLASSES", bad: ["Eyes", "Bright", "Sun", "Wear"] },
+            { word: "UMBRELLA", bad: ["Rain", "Wet", "Open", "Cover"] },
+            { word: "CLOCK", bad: ["Time", "Tick", "Tock", "Watch"] },
+            { word: "CAMERA", bad: ["Picture", "Photo", "Smile", "Cheese"] },
+            { word: "GHOST", bad: ["Boo", "Halloween", "Spirit", "Scary"] },
+            { word: "ALIEN", bad: ["Space", "UFO", "Green", "Planet"] },
+            { word: "BIRTHDAY", bad: ["Cake", "Party", "Candles", "Age"] }
+        ];
+
+        // --- GAME STATE ---
+        let totalTeams = 2;
+        let currentTeamIndex = 0; 
+        let teamScores = [];
+        let timer = 60;
+        let intervalId = null;
+        let currentCard = null;
+        let usedIndices = [];
+
+        // --- ELEMENTS ---
+        const elSetupOverlay = document.getElementById('setup-overlay');
+        const elTurnOverlay = document.getElementById('turn-overlay');
+        const elOverlayMsg = document.getElementById('overlay-msg');
+        const elCurrentTeamDisplay = document.getElementById('current-team-display');
+        const elTimer = document.getElementById('timer');
+        const elScoreboard = document.getElementById('scoreboard');
+        const elMainWord = document.getElementById('main-word');
+        const elList = document.getElementById('forbidden-list');
+        const elCounter = document.getElementById('card-counter');
+
+        // --- FUNCTIONS ---
+
+        // 1. Read input and start
+        function readInputAndStart() {
+            const inputVal = document.getElementById('team-input').value;
+            let num = parseInt(inputVal);
+            
+            // Validation
+            if (isNaN(num) || num < 1) num = 1;
+            if (num > 10) num = 10;
+            
+            initGame(num);
+        }
+
+        // 2. Initialize Game
+        function initGame(numTeams) {
+            totalTeams = numTeams;
+            teamScores = new Array(numTeams).fill(0);
+            
+            // Generate Scoreboard
+            elScoreboard.innerHTML = '';
+            for(let i = 0; i < numTeams; i++) {
+                const div = document.createElement('div');
+                div.className = 'team-score-box';
+                div.id = `score-box-${i}`;
+                div.innerHTML = `
+                    <div class="team-name">TEAM ${i + 1}</div>
+                    <span class="score-val" id="score-val-${i}">0</span>
+                `;
+                elScoreboard.appendChild(div);
+            }
+
+            elSetupOverlay.classList.add('hidden');
+            showTurnOverlay("Get Ready!");
+        }
+
+        // 3. Show "Ready" screen
+        function showTurnOverlay(msg) {
+            elTurnOverlay.classList.remove('hidden');
+            elOverlayMsg.innerText = msg;
+            elCurrentTeamDisplay.innerText = `TEAM ${currentTeamIndex + 1}`;
+            document.getElementById('btn-start-turn').innerText = `START TEAM ${currentTeamIndex + 1}`;
+            
+            highlightActiveTeam();
+        }
+
+        // 4. Highlight active team
+        function highlightActiveTeam() {
+            for(let i=0; i<totalTeams; i++) {
+                document.getElementById(`score-box-${i}`).classList.remove('active-turn');
+            }
+            document.getElementById(`score-box-${currentTeamIndex}`).classList.add('active-turn');
+        }
+
+        // 5. Start Timer
+        function startTimer() {
+            elTurnOverlay.classList.add('hidden');
+            
+            timer = 60;
+            elTimer.innerText = timer;
+            elTimer.classList.remove('timer-warning');
+
+            nextCard();
+
+            intervalId = setInterval(() => {
+                timer--;
+                elTimer.innerText = timer;
+                if(timer <= 10) elTimer.classList.add('timer-warning');
+                
+                if (timer <= 0) {
+                    endTurn();
+                }
+            }, 1000);
+        }
+
+        // 6. End Turn
+        function endTurn() {
+            clearInterval(intervalId);
+            intervalId = null;
+            
+            // Move to next team
+            currentTeamIndex = (currentTeamIndex + 1) % totalTeams;
+            
+            showTurnOverlay("TIME'S UP!");
+        }
+
+        // 7. Draw Card
+        function nextCard() {
+            if (usedIndices.length === deck.length) {
+                alert("Deck reshuffled!");
+                usedIndices = [];
+            }
+
+            let idx;
+            do {
+                idx = Math.floor(Math.random() * deck.length);
+            } while (usedIndices.includes(idx));
+            
+            usedIndices.push(idx);
+            currentCard = deck[idx];
+            
+            elMainWord.innerText = currentCard.word;
+            elList.innerHTML = ''; 
+            currentCard.bad.forEach(badWord => {
+                const li = document.createElement('li');
+                li.className = 'forbidden-item';
+                li.innerText = badWord;
+                elList.appendChild(li);
+            });
+            
+            elCounter.innerText = `Cards left: ${deck.length - usedIndices.length}`;
+        }
+
+        // 8. Buttons
+        function handleCorrect() {
+            if (!intervalId) return; 
+            
+            teamScores[currentTeamIndex]++;
+            document.getElementById(`score-val-${currentTeamIndex}`).innerText = teamScores[currentTeamIndex];
+            
+            nextCard();
+        }
+
+        function handleSkip() {
+            if (!intervalId) return;
+            nextCard();
+        }
+
+    </script>
+</body>
+</html>
