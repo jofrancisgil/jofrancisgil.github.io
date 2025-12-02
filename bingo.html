@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bingo Personalitzable</title>
+    <style>
+        /* Estils Generals */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f4f8;
+            text-align: center;
+            padding: 20px;
+            user-select: none;
+            color: #2c3e50;
+        }
+
+        h1 { margin-bottom: 10px; }
+
+        /* PANELL DE CONFIGURACIÓ */
+        .config-panel {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            display: inline-flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            border: 1px solid #e1e8ed;
+        }
+
+        .config-group {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        select, input {
+            padding: 5px 10px;
+            border: 1px solid #bdc3c7;
+            border-radius: 5px;
+            font-size: 1em;
+            color: #2c3e50;
+        }
+
+        input[type="number"] { width: 60px; }
+
+        #btn-apply {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        #btn-apply:hover { background-color: #2980b9; }
+
+        /* ZONA DE LA BOLA ACTUAL */
+        #current-ball-container {
+            margin: 20px auto;
+            width: 160px;
+            height: 160px;
+            background: radial-gradient(circle at 30% 30%, #e74c3c, #c0392b);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            color: white;
+            font-size: 4.5em; /* Una mica més petit per si surten nombres de 3 xifres */
+            font-weight: 800;
+            border: 6px solid #fff;
+            position: relative;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+        }
+
+        .shaking {
+            animation: agitar 0.5s infinite;
+            background: radial-gradient(circle at 30% 30%, #f1c40f, #f39c12) !important;
+        }
+
+        @keyframes agitar {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+
+        /* CONTROLS DEL JOC */
+        .controls { margin-bottom: 25px; }
+
+        button.game-btn {
+            padding: 12px 30px;
+            font-size: 1.1em;
+            cursor: pointer;
+            border: none;
+            border-radius: 50px;
+            margin: 5px;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+        }
+
+        button.game-btn:active { transform: translateY(2px); box-shadow: none; }
+        button.game-btn:disabled { background-color: #bdc3c7; cursor: not-allowed; transform: none; }
+
+        #btn-draw { background-color: #27ae60; color: white; }
+        #btn-draw:hover { background-color: #2ecc71; }
+
+        #btn-reset { background-color: #95a5a6; color: white; }
+        #btn-reset:hover { background-color: #7f8c8d; }
+
+        .info-panel {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            color: #34495e;
+        }
+
+        /* GRAELLA DEL TAULER */
+        #board {
+            display: grid;
+            /* Ara fem servir auto-fill per adaptar-se a qualsevol quantitat d'elements */
+            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+            gap: 8px;
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+
+        .number-cell {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #ecf0f1;
+            border-radius: 8px;
+            font-weight: bold;
+            color: #bdc3c7;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+        }
+
+        .number-cell.drawn {
+            background-color: #3498db;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .number-cell.last-drawn {
+            background-color: #e74c3c;
+            transform: scale(1.15);
+            z-index: 2;
+            box-shadow: 0 0 15px rgba(231, 76, 60, 0.4);
+        }
+        
+        @media (max-width: 600px) {
+            #board { grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 4px; padding: 10px; }
+            #current-ball-container { width: 120px; height: 120px; font-size: 3em; }
+            .config-panel { flex-direction: column; align-items: stretch; }
+            .config-group { justify-content: space-between; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Bingo & Sorteig</h1>
+
+    <!-- PANELL DE CONFIGURACIÓ -->
+    <div class="config-panel">
+        <div class="config-group">
+            <label for="game-mode">Tipus:</label>
+            <select id="game-mode" onchange="toggleInputs()">
+                <option value="numbers">Nombres</option>
+                <option value="letters">Lletres (A-Z)</option>
+            </select>
+        </div>
+
+        <div class="config-group" id="range-inputs">
+            <label>De:</label>
+            <input type="number" id="min-val" value="1" min="0">
+            <label>a:</label>
+            <input type="number" id="max-val" value="90" min="1">
+        </div>
+
+        <button id="btn-apply" onclick="aplicarConfiguracio()">Aplicar i Reiniciar</button>
+    </div>
+
+    <div class="info-panel">
+        Restants: <strong id="remaining-count">-</strong>
+    </div>
+
+    <!-- Bola gegant -->
+    <div id="current-ball-container">
+        <span id="current-number">-</span>
+    </div>
+
+    <!-- Controls de Joc -->
+    <div class="controls">
+        <button id="btn-draw" class="game-btn" onclick="iniciarSorteig()">TREURE BOLA</button>
+        <button id="btn-reset" class="game-btn" onclick="reiniciarJoc()">REINICIAR</button>
+    </div>
+
+    <!-- Tauler -->
+    <div id="board"></div>
+
+    <script>
+        // Variables d'estat
+        let bolesDisponibles = []; // Les que queden per sortir
+        let totesLesBoles = [];    // Totes les opcions possibles (per pintar el tauler)
+        let esAnimant = false;
+        let modeActual = 'numbers'; // 'numbers' o 'letters'
+
+        // Inicialització
+        window.onload = () => {
+            aplicarConfiguracio();
+        };
+
+        // Funció per mostrar/amagar inputs de rang segons el mode
+        function toggleInputs() {
+            const mode = document.getElementById('game-mode').value;
+            const rangeInputs = document.getElementById('range-inputs');
+            if (mode === 'letters') {
+                rangeInputs.style.display = 'none';
+            } else {
+                rangeInputs.style.display = 'flex';
+            }
+        }
+
+        // Configura el joc segons els inputs i reinicia
+        function aplicarConfiguracio() {
+            modeActual = document.getElementById('game-mode').value;
+            totesLesBoles = [];
+
+            if (modeActual === 'numbers') {
+                const min = parseInt(document.getElementById('min-val').value);
+                const max = parseInt(document.getElementById('max-val').value);
+
+                if (min >= max) {
+                    alert("El valor mínim ha de ser més petit que el màxim!");
+                    return;
+                }
+                
+                // Limitar per seguretat (per no penjar el navegador amb 1 milió de boles)
+                if ((max - min) > 500) {
+                    alert("El rang és massa gran. Màxim 500 elements.");
+                    return;
+                }
+
+                for (let i = min; i <= max; i++) {
+                    totesLesBoles.push(i);
+                }
+            } else if (modeActual === 'letters') {
+                // Generar lletres de la A a la Z (ASCII 65-90)
+                for (let i = 65; i <= 90; i++) {
+                    totesLesBoles.push(String.fromCharCode(i));
+                }
+            }
+
+            crearTauler();
+            reiniciarJoc();
+        }
+
+        function crearTauler() {
+            const board = document.getElementById('board');
+            board.innerHTML = '';
+            
+            totesLesBoles.forEach(valor => {
+                const cell = document.createElement('div');
+                cell.className = 'number-cell';
+                cell.id = `cell-${valor}`; // ID únic
+                cell.innerText = valor;
+                board.appendChild(cell);
+            });
+        }
+
+        function reiniciarJoc() {
+            if(esAnimant) return;
+
+            // Clonem l'array original per tenir les boles disponibles
+            bolesDisponibles = [...totesLesBoles];
+
+            document.getElementById('current-number').innerText = '-';
+            document.getElementById('remaining-count').innerText = bolesDisponibles.length;
+            
+            // Netejar classes visuals
+            const cells = document.querySelectorAll('.number-cell');
+            cells.forEach(cell => {
+                cell.classList.remove('drawn');
+                cell.classList.remove('last-drawn');
+            });
+
+            document.getElementById('btn-draw').disabled = false;
+        }
+
+        function iniciarSorteig() {
+            if (bolesDisponibles.length === 0) {
+                alert("Ja han sortit tots els elements!");
+                return;
+            }
+            if (esAnimant) return;
+
+            esAnimant = true;
+            const btnDraw = document.getElementById('btn-draw');
+            const ballContainer = document.getElementById('current-ball-container');
+            const ballText = document.getElementById('current-number');
+            
+            btnDraw.disabled = true;
+            ballContainer.classList.add('shaking');
+
+            // ANIMACIÓ VISUAL ("Teatre")
+            let comptador = 0;
+            const intervalBombo = setInterval(() => {
+                // Mostrem un element aleatori de la llista TOTAL només per l'efecte
+                const randomIndex = Math.floor(Math.random() * totesLesBoles.length);
+                ballText.innerText = totesLesBoles[randomIndex];
+                comptador++;
+            }, 60);
+
+            // PARAR I TREURE EL RESULTAT REAL
+            setTimeout(() => {
+                clearInterval(intervalBombo);
+                ballContainer.classList.remove('shaking');
+                
+                treureBolaReal();
+                
+                esAnimant = false;
+                if (bolesDisponibles.length > 0) {
+                    btnDraw.disabled = false;
+                }
+            }, 1500); 
+        }
+
+        function treureBolaReal() {
+            // 1. Triar índex aleatori de les DISPONIBLES
+            const indexAleatori = Math.floor(Math.random() * bolesDisponibles.length);
+            const bolaSorgida = bolesDisponibles[indexAleatori];
+
+            // 2. Eliminar de la llista de disponibles
+            bolesDisponibles.splice(indexAleatori, 1);
+
+            // 3. Actualitzar bola gran i comptador
+            document.getElementById('current-number').innerText = bolaSorgida;
+            document.getElementById('remaining-count').innerText = bolesDisponibles.length;
+
+            // 4. Actualitzar Tauler
+            // Treure marca "últim" de l'anterior
+            const anteriorLast = document.querySelector('.last-drawn');
+            if (anteriorLast) anteriorLast.classList.remove('last-drawn');
+
+            // Marcar el nou
+            const cell = document.getElementById(`cell-${bolaSorgida}`);
+            if (cell) {
+                cell.classList.add('drawn');
+                cell.classList.add('last-drawn');
+                
+                // Fer scroll automàtic si el tauler és molt llarg i estem al mòbil
+                // cell.scrollIntoView({behavior: "smooth", block: "center"});
+            }
+        }
+    </script>
+</body>
+</html>
