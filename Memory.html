@@ -34,7 +34,7 @@
             position: absolute;
             width: 100%;
             height: 100%;
-            -webkit-backface-visibility: hidden;
+            -webkit-backface-visibility: hidden; /* Safari */
             backface-visibility: hidden;
             border-radius: 0.75rem;
             display: flex;
@@ -47,6 +47,9 @@
         .card-front {
             background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
             color: white;
+            /* CORRECCIÓ: Assegurem que la tapa estigui per sobre del text inicialment */
+            z-index: 2;
+            transform: rotateY(0deg); /* Defineix explícitament la rotació inicial */
         }
         
         /* La part del davant (contingut/text) - Gira 180 graus per defecte */
@@ -56,6 +59,7 @@
             transform: rotateY(180deg);
             border: 2px solid #e2e8f0;
             padding: 0.5rem;
+            z-index: 1;
         }
 
         .matched .card-back {
