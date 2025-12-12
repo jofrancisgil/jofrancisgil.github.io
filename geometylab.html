@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratori de Geometria: Polígons i Políedres</title>
+    <!-- Importem Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        /* ESTILS CSS VIBRANTS */
+        :root {
+            --grad-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --grad-secondary: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
+            --grad-accent: linear-gradient(to right, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
+            --text-dark: #2d3436;
+            --glass-bg: rgba(255, 255, 255, 0.95);
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            /* Fons animat divertit */
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: var(--text-dark);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        h1 { 
+            color: white; 
+            margin-bottom: 5px; 
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            font-size: 2.5em;
+        }
+        p.subtitle { color: rgba(255,255,255,0.9); margin-top: 0; font-size: 1.1em; }
+
+        .app-container {
+            background: var(--glass-bg);
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 1100px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Pestanyes */
+        .tabs { display: flex; background: white; border-bottom: 1px solid #eee; }
+        .tab-btn {
+            flex: 1; padding: 20px; border: none; background: none;
+            color: #b2bec3; font-size: 1.2em; cursor: pointer; transition: 0.3s; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+        .tab-btn:hover { color: #6c5ce7; background: #f8f9fa; }
+        .tab-btn.active { 
+            color: #6c5ce7; 
+            border-bottom: 4px solid #6c5ce7;
+            background: linear-gradient(to bottom, #fff 0%, #f1f2f6 100%);
+        }
+
+        .content-area {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 30px;
+            gap: 30px;
+        }
+
+        /* Panell Visual */
+        .display-panel {
+            flex: 2; min-width: 300px; height: 550px;
+            background-color: #ffffff; border-radius: 15px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
+            border: 1px solid #dfe6e9; position: relative;
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        /* Panell Controls */
+        .controls-panel { flex: 1; min-width: 300px; display: flex; flex-direction: column; gap: 20px; }
+
+        .control-card {
+            background: #fff; border: none;
+            border-radius: 12px; padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+        .control-card:hover { transform: translateY(-2px); }
+        
+        .control-card h3 { 
+            margin-top: 0; 
+            background: -webkit-linear-gradient(45deg, #6c5ce7, #a29bfe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 1.2em; border-bottom: 2px solid #f1f2f6; padding-bottom: 10px;
+        }
+
+        label { display: block; font-weight: bold; margin-bottom: 10px; color: #636e72; font-size: 0.95em; }
+        
+        /* Custom Range Slider - ARA MÉS FOSC I VISIBLE */
+        input[type=range] {
+            -webkit-appearance: none; width: 100%; background: transparent; cursor: pointer;
+        }
+        
+        /* La barra (track) ara és grisa fosc */
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%; height: 8px; 
+            background: #636e72; /* Gris fosc per contrastar amb el fons blanc */
+            border-radius: 4px;
+        }
+        
+        /* El botó (thumb) */
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; height: 24px; width: 24px; border-radius: 50%;
+            background: #6c5ce7; margin-top: -8px; 
+            border: 3px solid #ffffff; /* Vora blanca per separar de la línia fosca */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+
+        /* Suport per a Firefox */
+        input[type=range]::-moz-range-track {
+            width: 100%; height: 8px; background: #636e72; border-radius: 4px;
+        }
+        input[type=range]::-moz-range-thumb {
+            height: 24px; width: 24px; border: 3px solid #ffffff; border-radius: 50%;
+            background: #6c5ce7;
+        }
+
+        /* Botons d'opcions */
+        .option-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .btn-option {
+            padding: 12px; border: 2px solid #dfe6e9; background: white;
+            color: #b2bec3; border-radius: 10px; cursor: pointer; transition: 0.2s;
+            font-size: 1em; font-weight: bold;
+        }
+        .btn-option:hover { border-color: #6c5ce7; color: #6c5ce7; }
+        .btn-option.active { 
+            background: var(--grad-primary); 
+            color: white; border: none;
+            box-shadow: 0 4px 10px rgba(118, 75, 162, 0.3);
+        }
+
+        .platonic-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+        .btn-platonic {
+            padding: 8px; background: #dfe6e9; color: #636e72; border: none;
+            border-radius: 8px; font-size: 0.85em; cursor: pointer; font-weight: 600;
+            transition: 0.2s;
+        }
+        .btn-platonic:hover { background: #b2bec3; color: white; }
+
+        /* Estadístiques */
+        .stats-card {
+            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+            padding: 20px; border-radius: 12px; 
+            border-left: 6px solid #00b894;
+        }
+        .stat-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 1em; }
+        .stat-val { font-weight: 800; color: #2d3436; }
+        .euler-check { 
+            font-size: 0.85em; color: white; background: #00b894; 
+            padding: 5px 10px; border-radius: 15px; text-align: center; margin-top: 10px; font-weight: bold;
+        }
+
+        /* Instruccions 2D */
+        .hint-text {
+            font-size: 0.9em; color: #6c5ce7; background: #ececf9; padding: 8px 15px;
+            border-radius: 20px; margin-top: 15px; display: inline-block; font-weight: 600;
+        }
+
+        /* Visibilitat modes */
+        .mode-2d-only { display: block; }
+        .mode-3d-only { display: none; }
+        body.mode-3d .mode-2d-only { display: none; }
+        body.mode-3d .mode-3d-only { display: block; }
+
+    </style>
+</head>
+<body class="mode-2d">
+
+    <h1>GeoLab Interactiu</h1>
+    <p class="subtitle">Explora, deforma i construeix polígons</p>
+
+    <div class="app-container">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="setMode('2d')">🎨 2D: Polígons</button>
+            <button class="tab-btn" onclick="setMode('3d')">🧊 3D: Volums</button>
+        </div>
+
+        <div class="content-area">
+            <div class="display-panel" id="canvasContainer"></div>
+
+            <div class="controls-panel">
+                
+                <!-- CONTROL: Base Polígon (Comú o 2D) -->
+                <div class="control-card" id="baseControls">
+                    <h3>Base Geomètrica</h3>
+                    <label>Costats: <span id="sidesVal" style="color:#6c5ce7; font-size:1.2em;">4</span></label>
+                    <input type="range" id="sidesRange" min="3" max="15" value="4">
+                    <div id="shapeName" style="font-weight:800; color: #2d3436; margin-top:5px; font-size:1.1em;">Quadrat</div>
+                    
+                    <div style="margin-top: 20px;">
+                        <label>Mida / Radi:</label>
+                        <input type="range" id="radiusRange" min="1" max="5" step="0.1" value="3">
+                    </div>
+
+                    <div class="mode-2d-only" style="text-align:center;">
+                        <div class="hint-text">✨ Arrossega els punts!</div>
+                    </div>
+                </div>
+
+                <!-- CONTROL: Opcions 3D -->
+                <div class="control-card mode-3d-only">
+                    <h3>Construcció 3D</h3>
+                    
+                    <label style="margin-bottom:10px">Transformar en:</label>
+                    <div class="option-grid">
+                        <button class="btn-option active" id="btnPrism" onclick="set3DType('prism')">Prisma</button>
+                        <button class="btn-option" id="btnPyramid" onclick="set3DType('pyramid')">Piràmide</button>
+                    </div>
+
+                    <div id="heightControl" style="margin-top: 20px;">
+                        <label>Alçada:</label>
+                        <input type="range" id="heightRange" min="1" max="8" step="0.5" value="4">
+                    </div>
+
+                    <div style="margin-top: 25px;">
+                        <label>Sòlids Platònics (Regulars):</label>
+                        <div class="platonic-grid">
+                            <button class="btn-platonic" onclick="setPlatonic('tetrahedron')">Tetraedre (4)</button>
+                            <button class="btn-platonic" onclick="setPlatonic('cube')">Cub (6)</button>
+                            <button class="btn-platonic" onclick="setPlatonic('octahedron')">Octaedre (8)</button>
+                            <button class="btn-platonic" onclick="setPlatonic('dodecahedron')">Dodec. (12)</button>
+                            <button class="btn-platonic" onclick="setPlatonic('icosahedron')">Icos. (20)</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ESTADÍSTIQUES -->
+                <div class="stats-card">
+                    <!-- Stats 2D -->
+                    <div class="mode-2d-only">
+                        <div class="stat-row"><span>Perímetre:</span><span id="perimVal" class="stat-val">0</span></div>
+                        <div class="stat-row"><span>Àrea:</span><span id="areaVal" class="stat-val">0</span></div>
+                        <div class="stat-row" style="font-size:0.8em; color:#636e72; margin-top:5px; border-top:1px solid #ddd; padding-top:5px;">*Càlcul dinàmic activat</div>
+                    </div>
+                    
+                    <!-- Stats 3D -->
+                    <div class="mode-3d-only">
+                        <div class="stat-row"><span>Figura:</span><span id="name3D" class="stat-val">...</span></div>
+                        <div style="display:flex; justify-content:space-between; margin-top:10px;">
+                            <div style="text-align:center">
+                                <div style="font-size:0.8em; color:#636e72">Cares</div>
+                                <div id="facesVal" style="font-weight:bold; font-size:1.2em; color:#6c5ce7">0</div>
+                            </div>
+                            <div style="text-align:center">
+                                <div style="font-size:0.8em; color:#636e72">Vèrtexs</div>
+                                <div id="verticesVal" style="font-weight:bold; font-size:1.2em; color:#e17055">0</div>
+                            </div>
+                            <div style="text-align:center">
+                                <div style="font-size:0.8em; color:#636e72">Arestes</div>
+                                <div id="edgesVal" style="font-weight:bold; font-size:1.2em; color:#00b894">0</div>
+                            </div>
+                        </div>
+                        <div class="euler-check">Euler: C + V - A = 2 ✅</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /** ESTAT **/
+        const state = {
+            mode: '2d',
+            sides: 4,
+            radius: 3,
+            height: 4,
+            type3D: 'prism',
+            platonicShape: 'cube',
+            vertices2D: [],
+            isDraggingVertex: -1
+        };
+
+        // DOM Elements
+        const container = document.getElementById('canvasContainer');
+        const sidesInput = document.getElementById('sidesRange');
+        const radiusInput = document.getElementById('radiusRange');
+        const heightInput = document.getElementById('heightRange');
+        const heightControlDiv = document.getElementById('heightControl');
+        const baseControlsDiv = document.getElementById('baseControls');
+        
+        const texts = {
+            sides: document.getElementById('sidesVal'),
+            name: document.getElementById('shapeName'),
+            perim: document.getElementById('perimVal'),
+            area: document.getElementById('areaVal'),
+            name3D: document.getElementById('name3D'),
+            faces: document.getElementById('facesVal'),
+            vertices: document.getElementById('verticesVal'),
+            edges: document.getElementById('edgesVal')
+        };
+
+        /** INICIALITZACIÓ 2D **/
+        const canvas2D = document.createElement('canvas');
+        canvas2D.width = 800; canvas2D.height = 550;
+        const ctx = canvas2D.getContext('2d');
+
+        canvas2D.addEventListener('mousedown', onMouseDown);
+        canvas2D.addEventListener('mousemove', onMouseMove);
+        canvas2D.addEventListener('mouseup', onMouseUp);
+        canvas2D.addEventListener('touchstart', onTouchStart, {passive: false});
+        canvas2D.addEventListener('touchmove', onTouchMove, {passive: false});
+        canvas2D.addEventListener('touchend', onMouseUp);
+
+        /** INICIALITZACIÓ 3D (THREE.JS) **/
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xffffff); // Blanc per agafar bé les llums de colors
+        
+        const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+        camera.position.set(0, 6, 14);
+        camera.lookAt(0, 0, 0);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        
+        // IL·LUMINACIÓ VIBRANT (Tipus estudi fotogràfic)
+        scene.add(new THREE.AmbientLight(0xffffff, 0.4)); // Llum base
+        
+        // Llum blava des de l'esquerra
+        const blueLight = new THREE.DirectionalLight(0x00f2fe, 0.8);
+        blueLight.position.set(-5, 5, 5);
+        scene.add(blueLight);
+
+        // Llum rosa/taronja des de la dreta
+        const pinkLight = new THREE.DirectionalLight(0xff0080, 0.8);
+        pinkLight.position.set(5, 5, 5);
+        scene.add(pinkLight);
+
+        // Material 3D - Blanc brillant per reflectir els colors de les llums
+        const matSolid = new THREE.MeshPhysicalMaterial({ 
+            color: 0xffffff, 
+            roughness: 0.2,
+            metalness: 0.1,
+            clearcoat: 0.5,
+            clearcoatRoughness: 0.1,
+            transparent: true, 
+            opacity: 0.95, 
+            side: THREE.DoubleSide 
+        });
+        
+        const matLine = new THREE.LineBasicMaterial({ color: 0x2d3436, linewidth: 2 });
+
+        let mesh3D = null;
+        let edges3D = null;
+
+        /** FUNCIONS **/
+
+        function init() {
+            generateRegularVertices();
+            updateUI();
+            container.appendChild(canvas2D);
+            draw2D();
+            animate();
+        }
+
+        function generateRegularVertices() {
+            state.sides = parseInt(sidesInput.value);
+            state.radius = parseFloat(radiusInput.value);
+            
+            const n = state.sides;
+            const r = state.radius * 45; 
+            const w = canvas2D.width;
+            const h = canvas2D.height;
+            const cx = w/2, cy = h/2;
+
+            state.vertices2D = [];
+            const angleStep = (Math.PI*2)/n;
+            const startAngle = -Math.PI/2;
+            
+            for(let i=0; i<n; i++){
+                const ang = startAngle + i*angleStep;
+                state.vertices2D.push({
+                    x: cx + r*Math.cos(ang),
+                    y: cy + r*Math.sin(ang)
+                });
+            }
+        }
+
+        function updateFromSliders() {
+            state.height = parseFloat(heightInput.value);
+            generateRegularVertices();
+            updateUI();
+            
+            if (state.mode === '2d') {
+                draw2D();
+                calcStats2D();
+            } else {
+                draw3D();
+            }
+        }
+
+        function updateUI() {
+            texts.sides.textContent = state.sides;
+            texts.name.textContent = getPolyName(state.sides);
+        }
+
+        /** 2D - ARA AMB GRADIANT I ESTIL NEÓ **/
+        function draw2D() {
+            const w = canvas2D.width;
+            const h = canvas2D.height;
+            const cx = w/2, cy = h/2;
+
+            ctx.clearRect(0,0,w,h);
+            
+            // Graella subtil
+            ctx.strokeStyle = '#f5f6fa'; ctx.lineWidth=1;
+            for(let i=0;i<w;i+=50){ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i,h);ctx.stroke();}
+            for(let i=0;i<h;i+=50){ctx.beginPath();ctx.moveTo(0,i);ctx.lineTo(w,i);ctx.stroke();}
+
+            if(state.vertices2D.length < 3) return;
+
+            // Omplir amb Gradiant Vibrant
+            // Creem un gradiant que cobreixi l'àrea
+            const gradient = ctx.createLinearGradient(0, 0, w, h);
+            gradient.addColorStop(0, "rgba(79, 172, 254, 0.4)"); // Cyan light
+            gradient.addColorStop(1, "rgba(0, 242, 254, 0.1)"); // Cyan dark
+
+            ctx.beginPath();
+            ctx.moveTo(state.vertices2D[0].x, state.vertices2D[0].y);
+            for(let i=1; i<state.vertices2D.length; i++){
+                ctx.lineTo(state.vertices2D[i].x, state.vertices2D[i].y);
+            }
+            ctx.closePath();
+            
+            // Omplert i Ombra
+            ctx.fillStyle = gradient;
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = "rgba(79, 172, 254, 0.5)";
+            ctx.fill();
+            
+            // Contorn
+            ctx.shadowBlur = 0;
+            ctx.lineWidth = 4; 
+            ctx.strokeStyle = '#0984e3'; 
+            ctx.stroke();
+
+            // Punts de Control (Vèrtexs)
+            for(let i=0; i<state.vertices2D.length; i++){
+                const v = state.vertices2D[i];
+                ctx.beginPath(); 
+                ctx.arc(v.x, v.y, 8, 0, Math.PI*2); 
+                
+                ctx.fillStyle = (i === state.isDraggingVertex) ? '#ff7675' : '#74b9ff'; 
+                ctx.fill();
+                ctx.strokeStyle = 'white'; ctx.lineWidth = 3; ctx.stroke();
+            }
+        }
+
+        function calcStats2D() {
+            let area = 0;
+            let perim = 0;
+            const vs = state.vertices2D;
+            const n = vs.length;
+
+            for(let i=0; i<n; i++) {
+                const j = (i + 1) % n;
+                const dx = vs[j].x - vs[i].x;
+                const dy = vs[j].y - vs[i].y;
+                perim += Math.sqrt(dx*dx + dy*dy);
+                area += (vs[i].x * vs[j].y) - (vs[j].x * vs[i].y);
+            }
+            area = Math.abs(area) / 2;
+            const factor = 45; 
+            texts.perim.textContent = (perim / factor).toFixed(2) + " u";
+            texts.area.textContent = (area / (factor * factor)).toFixed(2) + " u²";
+        }
+
+        /** EVENTS 2D **/
+        function getMousePos(evt) {
+            const rect = canvas2D.getBoundingClientRect();
+            const scaleX = canvas2D.width / rect.width;
+            const scaleY = canvas2D.height / rect.height;
+            return { x: (evt.clientX - rect.left) * scaleX, y: (evt.clientY - rect.top) * scaleY };
+        }
+
+        function onMouseDown(e) {
+            const pos = getMousePos(e);
+            state.isDraggingVertex = -1;
+            for(let i=0; i<state.vertices2D.length; i++){
+                const v = state.vertices2D[i];
+                const dist = Math.sqrt((pos.x-v.x)**2 + (pos.y-v.y)**2);
+                if(dist < 20) { state.isDraggingVertex = i; draw2D(); break; }
+            }
+        }
+        function onMouseMove(e) {
+            if(state.isDraggingVertex !== -1) {
+                const pos = getMousePos(e);
+                const margin = 20;
+                let x = Math.max(margin, Math.min(canvas2D.width - margin, pos.x));
+                let y = Math.max(margin, Math.min(canvas2D.height - margin, pos.y));
+                state.vertices2D[state.isDraggingVertex] = {x, y};
+                draw2D();
+                calcStats2D();
+                texts.name.textContent = getPolyName(state.sides) + " (Deformat)";
+                texts.name.style.color = "#e17055";
+            }
+        }
+        function onMouseUp(e) { state.isDraggingVertex = -1; draw2D(); }
+        function onTouchStart(e) { if(e.touches.length===1){const t=e.touches[0];canvas2D.dispatchEvent(new MouseEvent("mousedown",{clientX:t.clientX,clientY:t.clientY}));}}
+        function onTouchMove(e) { if(e.touches.length===1){e.preventDefault();const t=e.touches[0];canvas2D.dispatchEvent(new MouseEvent("mousemove",{clientX:t.clientX,clientY:t.clientY}));}}
+
+
+        /** 3D **/
+        function draw3D() {
+            if(mesh3D) scene.remove(mesh3D);
+            if(edges3D) scene.remove(edges3D);
+
+            let geo;
+            let name3D = "";
+            let faces=0, vertices=0, edges=0;
+            const n = parseInt(sidesInput.value); 
+
+            if (state.type3D === 'prism') {
+                geo = new THREE.CylinderGeometry(state.radius, state.radius, state.height, n);
+                name3D = n === 4 ? (Math.abs(state.height - state.radius*2) < 0.5 ? "Cub" : "Prisma Quadrangular") 
+                       : n > 12 ? "Cilindre" 
+                       : `Prisma ${getPolyName(n)}`;
+                faces = n + 2; vertices = n * 2; edges = n * 3;
+            } else if (state.type3D === 'pyramid') {
+                geo = new THREE.CylinderGeometry(0, state.radius, state.height, n);
+                name3D = n === 4 ? "Piràmide Quadrangular" : n === 3 ? "Tetraedre" : n > 12 ? "Con" : `Piràmide ${getPolyName(n)}`;
+                faces = n + 1; vertices = n + 1; edges = n * 2;
+            } else if (state.type3D === 'platonic') {
+                const r = state.radius;
+                switch(state.platonicShape) {
+                    case 'tetrahedron': geo = new THREE.TetrahedronGeometry(r); name3D="Tetraedre"; faces=4; vertices=4; edges=6; break;
+                    case 'cube': geo = new THREE.BoxGeometry(r*1.5, r*1.5, r*1.5); name3D="Cub"; faces=6; vertices=8; edges=12; break;
+                    case 'octahedron': geo = new THREE.OctahedronGeometry(r); name3D="Octaedre"; faces=8; vertices=6; edges=12; break;
+                    case 'dodecahedron': geo = new THREE.DodecahedronGeometry(r); name3D="Dodecaedre"; faces=12; vertices=20; edges=30; break;
+                    case 'icosahedron': geo = new THREE.IcosahedronGeometry(r); name3D="Icosaedre"; faces=20; vertices=12; edges=30; break;
+                }
+            }
+
+            mesh3D = new THREE.Mesh(geo, matSolid);
+            const edgeGeo = new THREE.EdgesGeometry(geo);
+            edges3D = new THREE.LineSegments(edgeGeo, matLine);
+            
+            scene.add(mesh3D);
+            scene.add(edges3D);
+
+            texts.name3D.textContent = name3D;
+            texts.faces.textContent = faces;
+            texts.vertices.textContent = vertices;
+            texts.edges.textContent = edges;
+        }
+
+        function getPolyName(n) {
+            const names = { 
+                3: "Triangle", 
+                4: "Quadrat", 
+                5: "Pentàgon", 
+                6: "Hexàgon", 
+                7: "Heptàgon", 
+                8: "Octàgon", 
+                9: "Enneàgon", 
+                10: "Decàgon", 
+                11: "Hendecàgon", 
+                12: "Dodecàgon", 
+                13: "Tridecàgon", 
+                14: "Tetradecàgon", 
+                15: "Pentadecàgon",
+                20: "Icosàgon"
+            };
+            if(names[n]) return names[n];
+            if(n > 15) return "Polígon amb molts costats";
+            return "Polígon regular";
+        }
+
+        function setMode(m) {
+            state.mode = m;
+            document.body.className = m === '2d' ? 'mode-2d' : 'mode-3d';
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            container.innerHTML = '';
+            if(m === '2d') { container.appendChild(canvas2D); calcStats2D(); } 
+            else { container.appendChild(renderer.domElement); onResize(); draw3D(); }
+        }
+
+        function set3DType(type) {
+            state.type3D = type;
+            document.getElementById('btnPrism').className = type === 'prism' ? 'btn-option active' : 'btn-option';
+            document.getElementById('btnPyramid').className = type === 'pyramid' ? 'btn-option active' : 'btn-option';
+            
+            if(type === 'platonic') { heightControlDiv.style.opacity = '0.3'; baseControlsDiv.style.opacity = '0.3'; } 
+            else { heightControlDiv.style.opacity = '1'; baseControlsDiv.style.opacity = '1'; document.querySelectorAll('.btn-platonic').forEach(b => b.style.background = "#dfe6e9"); }
+            updateFromSliders();
+        }
+
+        function setPlatonic(shape) {
+            set3DType('platonic');
+            state.platonicShape = shape;
+            document.getElementById('btnPrism').className = 'btn-option';
+            document.getElementById('btnPyramid').className = 'btn-option';
+            updateFromSliders();
+        }
+
+        sidesInput.addEventListener('input', updateFromSliders);
+        radiusInput.addEventListener('input', updateFromSliders);
+        heightInput.addEventListener('input', updateFromSliders);
+
+        function animate() {
+            requestAnimationFrame(animate);
+            if(state.mode === '3d' && mesh3D) {
+                mesh3D.rotation.y += 0.005; mesh3D.rotation.x += 0.002;
+                if(edges3D) { edges3D.rotation.y = mesh3D.rotation.y; edges3D.rotation.x = mesh3D.rotation.x; }
+                renderer.render(scene, camera);
+            }
+        }
+        
+        function onResize() {
+            if(state.mode === '3d') {
+                const w = container.clientWidth; const h = container.clientHeight;
+                renderer.setSize(w, h); camera.aspect = w/h; camera.updateProjectionMatrix();
+            }
+        }
+        window.addEventListener('resize', onResize);
+
+        init();
+
+    </script>
+</body>
+</html>
