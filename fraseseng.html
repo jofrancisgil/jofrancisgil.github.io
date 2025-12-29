@@ -52,7 +52,7 @@
             background-size: 24px 24px;
         }
         
-        /* 3D Button Effect classes not in standard Tailwind */
+        /* 3D Button Effect classes */
         .btn-3d-blue {
             background-color: #3B82F6;
             color: white;
@@ -96,6 +96,28 @@
             transform: translateY(2px);
             border-bottom: 2px solid #CBD5E1;
         }
+        
+        /* Language Toggle Button */
+        .lang-btn {
+            font-size: 0.8rem;
+            font-weight: 800;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+        .lang-btn.active {
+            background-color: #3B82F6;
+            color: white;
+            box-shadow: 0 2px 5px rgba(59, 130, 246, 0.3);
+        }
+        .lang-btn:not(.active) {
+            color: #94A3B8;
+        }
+        .lang-btn:not(.active):hover {
+            color: #475569;
+            background-color: #F1F5F9;
+        }
 
         /* Card container shadow */
         .game-card {
@@ -108,6 +130,91 @@
 
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
+
+        // --- TRANSLATIONS ---
+        const translations = {
+            en: {
+                title1: "Order",
+                title2: "Sentence",
+                teacherZone: "Teacher's Zone",
+                teacherDesc: "Type the sentence for students to reorder.",
+                placeholder: "Ex: The cat is under the table.",
+                wordsCount: "words",
+                startGame: "START GAME",
+                dropZoneEmptyTitle: "👇",
+                dropZoneEmptyDesc: "Tap words below to build the sentence here",
+                wordBank: "WORD BANK",
+                hint: "Hint",
+                hintUsed: "Used",
+                clear: "Clear",
+                reset: "Reset",
+                replay: "Replay",
+                next: "Next",
+                time: "Time",
+                hints: "Hints",
+                allPlaced: "All words placed",
+                awesome: "Awesome!",
+                crushed: "You crushed it!",
+                footer: "CLASSROOM ACTIVITY",
+                alertHintUsed: "Hint already used",
+                alertWrong: "Some placed words are incorrect. Please check them before asking for a hint!",
+                tooltipMaxHint: "Add the next correct word (Max 1 use)"
+            },
+            ca: {
+                title1: "Ordena",
+                title2: "Frase",
+                teacherZone: "Zona del Mestre",
+                teacherDesc: "Escriu la frase perquè els alumnes l'ordenin.",
+                placeholder: "Ex: El gat és sota la taula.",
+                wordsCount: "paraules",
+                startGame: "COMENÇAR JOC",
+                dropZoneEmptyTitle: "👇",
+                dropZoneEmptyDesc: "Toca les paraules de baix per construir la frase aquí",
+                wordBank: "BANC DE PARAULES",
+                hint: "Pista",
+                hintUsed: "Usada",
+                clear: "Netejar",
+                reset: "Reiniciar",
+                replay: "Tornar-hi",
+                next: "Següent",
+                time: "Temps",
+                hints: "Pistes",
+                allPlaced: "Totes les paraules col·locades",
+                awesome: "Fantàstic!",
+                crushed: "Ho has clavat!",
+                footer: "ACTIVITAT D'AULA",
+                alertHintUsed: "Ja has utilitzat la pista",
+                alertWrong: "Algunes paraules no són correctes. Revisa-les abans de demanar pista!",
+                tooltipMaxHint: "Afegeix la següent paraula correcta (Màxim 1 ús)"
+            },
+            es: {
+                title1: "Ordena",
+                title2: "Frase",
+                teacherZone: "Zona del Profe",
+                teacherDesc: "Escribe la frase para que los alumnos la ordenen.",
+                placeholder: "Ej: El gato está bajo la mesa.",
+                wordsCount: "palabras",
+                startGame: "EMPEZAR JUEGO",
+                dropZoneEmptyTitle: "👇",
+                dropZoneEmptyDesc: "Toca las palabras de abajo para construir la frase aquí",
+                wordBank: "BANCO DE PALABRAS",
+                hint: "Pista",
+                hintUsed: "Usada",
+                clear: "Borrar",
+                reset: "Reiniciar",
+                replay: "Repetir",
+                next: "Siguiente",
+                time: "Tiempo",
+                hints: "Pistas",
+                allPlaced: "Todas las palabras colocadas",
+                awesome: "¡Fantástico!",
+                crushed: "¡Lo has bordado!",
+                footer: "ACTIVIDAD DE AULA",
+                alertHintUsed: "Pista ya utilizada",
+                alertWrong: "Algunas palabras son incorrectas. ¡Revísalas antes de pedir pista!",
+                tooltipMaxHint: "Añade la siguiente palabra correcta (Máximo 1 uso)"
+            }
+        };
 
         // --- ICONS (Rounded style) ---
         const Icons = {
@@ -171,6 +278,7 @@
 
         // --- MAIN APP COMPONENT ---
         function App() {
+          const [language, setLanguage] = useState('ca'); // Default to Catalan based on user request
           const [gameState, setGameState] = useState('setup'); 
           const [originalSentence, setOriginalSentence] = useState('');
           const [wordBank, setWordBank] = useState([]); 
@@ -179,6 +287,7 @@
           const [elapsedTime, setElapsedTime] = useState(0);
           const [hintsUsed, setHintsUsed] = useState(0);
           
+          const t = translations[language]; // Helper for current language texts
           const timerRef = useRef(null);
 
           useEffect(() => {
@@ -243,7 +352,7 @@
               selectWord(wordInBank.id);
               setHintsUsed(h => h + 1);
             } else {
-              alert("Some placed words are incorrect. Please check them before asking for a hint!");
+              alert(t.alertWrong);
             }
           };
 
@@ -290,18 +399,27 @@
                         </button>
                      )}
                     <h1 className="text-3xl font-display font-black text-slate-800 tracking-tight flex items-center gap-3">
-                      <span className="text-blue-500">Order</span>
+                      <span className="text-blue-500">{t.title1}</span>
                       <span className="text-slate-300">/</span>
-                      <span className="text-red-500">Sentence</span>
+                      <span className="text-red-500">{t.title2}</span>
                     </h1>
                   </div>
                   
-                  {gameState === 'playing' && (
-                    <div className="flex items-center gap-3 text-slate-700 font-bold text-xl bg-white px-5 py-3 rounded-2xl shadow-sm border border-slate-200">
-                      <Icons.Clock size={24} className="text-blue-500" />
-                      <span className="font-mono">{formatTime(elapsedTime)}</span>
-                    </div>
-                  )}
+                  <div className="flex items-center gap-4">
+                      {gameState === 'playing' && (
+                        <div className="hidden md:flex items-center gap-3 text-slate-700 font-bold text-xl bg-white px-5 py-3 rounded-2xl shadow-sm border border-slate-200">
+                          <Icons.Clock size={24} className="text-blue-500" />
+                          <span className="font-mono">{formatTime(elapsedTime)}</span>
+                        </div>
+                      )}
+
+                      {/* Language Switcher */}
+                      <div className="flex bg-white rounded-lg p-1 border border-slate-200 shadow-sm">
+                          <button onClick={() => setLanguage('ca')} className={`lang-btn ${language === 'ca' ? 'active' : ''}`}>CA</button>
+                          <button onClick={() => setLanguage('es')} className={`lang-btn ${language === 'es' ? 'active' : ''}`}>ES</button>
+                          <button onClick={() => setLanguage('en')} className={`lang-btn ${language === 'en' ? 'active' : ''}`}>EN</button>
+                      </div>
+                  </div>
                 </div>
 
                 {/* Content Area */}
@@ -316,8 +434,8 @@
                         <div className="inline-block p-4 bg-blue-50 rounded-full mb-2">
                            <span className="text-4xl">👩‍🏫</span>
                         </div>
-                        <h2 className="text-4xl font-display font-black text-slate-800">Teacher's Zone</h2>
-                        <p className="text-slate-500 text-lg font-medium">Type the sentence for students to reorder.</p>
+                        <h2 className="text-4xl font-display font-black text-slate-800">{t.teacherZone}</h2>
+                        <p className="text-slate-500 text-lg font-medium">{t.teacherDesc}</p>
                       </div>
                       
                       <div className="relative group">
@@ -325,12 +443,12 @@
                         <textarea
                           value={originalSentence}
                           onChange={(e) => setOriginalSentence(e.target.value)}
-                          placeholder="Ex: The cat is under the table."
+                          placeholder={t.placeholder}
                           className="relative w-full h-48 p-8 text-2xl font-bold rounded-3xl border-2 border-transparent focus:border-blue-400 focus:ring-0 transition-all outline-none resize-none shadow-sm bg-white text-slate-700 placeholder-slate-300 leading-relaxed"
                           autoFocus
                         />
                         <div className="absolute bottom-6 right-6 text-slate-400 font-bold bg-slate-100 px-3 py-1 rounded-lg text-sm">
-                          {originalSentence.trim().split(/\s+/).filter(w => w.length > 0).length} words
+                          {originalSentence.trim().split(/\s+/).filter(w => w.length > 0).length} {t.wordsCount}
                         </div>
                       </div>
 
@@ -339,7 +457,7 @@
                         disabled={!originalSentence.trim()}
                         className="w-full py-5 text-xl font-display font-black rounded-2xl shadow-lg transition-all flex items-center justify-center gap-3 btn-3d-blue disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        <Icons.Play fill="currentColor" /> START GAME
+                        <Icons.Play fill="currentColor" /> {t.startGame}
                       </button>
                     </div>
                   )}
@@ -348,12 +466,20 @@
                   {gameState === 'playing' && (
                     <div className="w-full flex flex-col h-full gap-8 animate-fadeIn">
                       
+                      {/* Mobile Timer (Visible only on small screens) */}
+                      <div className="md:hidden flex justify-center">
+                         <div className="flex items-center gap-3 text-slate-700 font-bold text-lg bg-slate-50 px-4 py-2 rounded-xl border border-slate-200">
+                          <Icons.Clock size={20} className="text-blue-500" />
+                          <span className="font-mono">{formatTime(elapsedTime)}</span>
+                        </div>
+                      </div>
+
                       {/* Drop Zone (Answer) */}
                       <div className="flex-1 bg-slate-50 rounded-3xl p-8 flex flex-wrap content-start gap-4 transition-all min-h-[200px] border-2 border-dashed border-slate-200">
                          {placedWords.length === 0 && (
                            <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 pointer-events-none select-none text-center gap-3">
-                             <div className="text-4xl opacity-50">👇</div>
-                             <p className="font-bold text-lg">Tap words below to build the sentence here</p>
+                             <div className="text-4xl opacity-50">{t.dropZoneEmptyTitle}</div>
+                             <p className="font-bold text-lg">{t.dropZoneEmptyDesc}</p>
                            </div>
                          )}
                          {placedWords.map((word) => (
@@ -370,19 +496,20 @@
                       {/* Controls */}
                       <div className="flex flex-col md:flex-row justify-between items-center px-2 gap-4">
                         <div className="text-sm font-black text-slate-400 uppercase tracking-widest font-display">
-                          Word Bank
+                          {t.wordBank}
                         </div>
                         <div className="flex flex-wrap justify-center gap-3">
                            <button 
                             onClick={useHint}
                             disabled={hintsUsed >= 1}
+                            title={hintsUsed >= 1 ? t.alertHintUsed : t.tooltipMaxHint}
                             className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition-all border-b-4 ${
                               hintsUsed >= 1 
                                 ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed' 
                                 : 'bg-yellow-100 text-yellow-700 border-yellow-200 hover:bg-yellow-200 active:border-b-0 active:translate-y-1'
                             }`}
                            >
-                             <Icons.HelpCircle size={20} /> Hint
+                             <Icons.HelpCircle size={20} /> {t.hint} {hintsUsed >= 1 ? `(${t.hintUsed})` : ''}
                            </button>
 
                            <button 
@@ -392,14 +519,14 @@
                             }}
                             className="flex items-center gap-2 px-5 py-2.5 bg-slate-100 text-slate-600 rounded-xl font-bold text-sm border-b-4 border-slate-200 hover:bg-slate-200 active:border-b-0 active:translate-y-1 transition-all"
                            >
-                             <Icons.Eraser size={20} /> Clear
+                             <Icons.Eraser size={20} /> {t.clear}
                            </button>
 
                            <button 
                             onClick={replaySameSentence}
                             className="flex items-center gap-2 px-5 py-2.5 bg-blue-50 text-blue-600 rounded-xl font-bold text-sm border-b-4 border-blue-100 hover:bg-blue-100 active:border-b-0 active:translate-y-1 transition-all"
                            >
-                             <Icons.RefreshCw size={20} /> Reset
+                             <Icons.RefreshCw size={20} /> {t.reset}
                            </button>
                         </div>
                       </div>
@@ -417,7 +544,7 @@
                         ))}
                         {wordBank.length === 0 && (
                           <div className="text-slate-300 font-bold text-xl italic flex items-center gap-3 bg-slate-50 px-6 py-3 rounded-full">
-                            <Icons.CheckCircle size={24} /> All words placed
+                            <Icons.CheckCircle size={24} /> {t.allPlaced}
                           </div>
                         )}
                       </div>
@@ -437,9 +564,9 @@
                       
                       <div className="space-y-3">
                         <h2 className="text-5xl md:text-6xl font-display font-black text-slate-800 tracking-tight">
-                          Awesome!
+                          {t.awesome}
                         </h2>
-                        <p className="text-2xl font-bold text-slate-500">You crushed it!</p>
+                        <p className="text-2xl font-bold text-slate-500">{t.crushed}</p>
                       </div>
 
                       <div className="bg-blue-50 p-8 rounded-3xl border-2 border-blue-100 space-y-6">
@@ -447,11 +574,11 @@
                         
                         <div className="flex justify-center gap-12 pt-4">
                           <div className="flex flex-col items-center gap-1">
-                            <span className="text-sm font-bold text-slate-400 uppercase tracking-widest">Time</span>
+                            <span className="text-sm font-bold text-slate-400 uppercase tracking-widest">{t.time}</span>
                             <span className="font-mono text-3xl font-black text-slate-700">{formatTime(elapsedTime)}</span>
                           </div>
                           <div className="flex flex-col items-center gap-1">
-                            <span className="text-sm font-bold text-slate-400 uppercase tracking-widest">Hints</span>
+                            <span className="text-sm font-bold text-slate-400 uppercase tracking-widest">{t.hints}</span>
                             <span className={`text-3xl font-black ${hintsUsed > 0 ? 'text-red-400' : 'text-green-500'}`}>{hintsUsed}</span>
                           </div>
                         </div>
@@ -462,13 +589,13 @@
                           onClick={replaySameSentence}
                           className="px-8 py-4 rounded-2xl font-black text-lg flex items-center gap-3 btn-3d-white text-slate-600"
                         >
-                          <Icons.RotateCcw size={24} /> Replay
+                          <Icons.RotateCcw size={24} /> {t.replay}
                         </button>
                         <button
                           onClick={resetGame}
                           className="px-8 py-4 rounded-2xl font-black text-lg flex items-center gap-3 btn-3d-blue shadow-lg shadow-blue-200"
                         >
-                          Next <Icons.ArrowRight size={24} />
+                          {t.next} <Icons.ArrowRight size={24} />
                         </button>
                       </div>
                     </div>
@@ -478,7 +605,7 @@
                 
                 {/* Footer */}
                 <div className="p-4 text-center bg-slate-50 border-t border-slate-100">
-                   <p className="text-sm font-bold text-slate-400">CLASSROOM ACTIVITY</p>
+                   <p className="text-sm font-bold text-slate-400">{t.footer}</p>
                 </div>
               </div>
 
