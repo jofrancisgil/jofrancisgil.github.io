@@ -3,191 +3,206 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestió - Jo Recursos</title>
+    <title>Eines de Gestió - Jo Recursos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;600&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;600&family=Inter:wght@300;400;600&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
         body { font-family: 'Inter', sans-serif; }
         h1, h2, h3, .brand-font { font-family: 'Fredoka', sans-serif; }
-        .hidden-app { display: none !important; }
-        .qr-hidden { display: none; }
-        
-        /* Estils QR App */
-        .qr-app-wrapper {
-            --qr-primary: #3498db; --qr-dark: #2c3e50; --qr-light: #ecf0f1;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); padding: 30px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+
+        /* --- ESTILS DE TARGETES --- */
+        .card {
+            border-radius: 15px;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 240px;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            color: #333; 
         }
-        .qr-app-wrapper .panel { background: white; padding: 25px; border-radius: 10px; flex: 1; min-width: 300px; }
-        .qr-app-wrapper input, .qr-app-wrapper select, .qr-app-wrapper textarea { width: 100%; padding: 12px; border: 1px solid #bdc3c7; border-radius: 6px; margin-bottom: 15px; }
-        .qr-app-wrapper button { width: 100%; padding: 12px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; margin-bottom: 10px; }
-        .btn-gen { background: #3498db; color: white; } .btn-dl { background: #2ecc71; color: white; } .btn-exit { background: #e74c3c; color: white; margin-top: 20px; }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #444;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: color 0.3s ease;
+        }
+
+        .card:hover .card-icon {
+            color: #000;
+        }
+        
+        .card-icon svg {
+            width: 48px;
+            height: 48px;
+        }
+
+        .card h3 {
+            margin: 10px 0;
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #1a1a1a;
+            font-family: 'Fredoka', sans-serif;
+        }
+
+        .card p {
+            font-size: 1em;
+            line-height: 1.4;
+            color: #555;
+            margin: 0;
+            font-weight: 500;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* --- GRADIENTS EINES (Escala de Grisos i Blancs Trencats) --- */
+        
+        .grad-tool-silver { background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); }
+        .grad-tool-bone { background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%); }
+        .grad-tool-metal { background: linear-gradient(135deg, #cfd9df 0%, #e2ebf0 100%); }
+        .grad-tool-cloud { background: linear-gradient(135deg, #e6e9f0 0%, #eef1f5 100%); }
+
+        /* Gradient Fosc per a contrast */
+        .grad-tool-dark { 
+            background: linear-gradient(135deg, #434343 0%, #000000 100%); 
+            color: white !important;
+        }
+        .grad-tool-dark .card-icon { color: #eee !important; }
+        .grad-tool-dark h3 { color: white !important; }
+        .grad-tool-dark p { color: #ccc !important; }
+
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
 
+    <!-- Navegació -->
     <nav class="bg-white shadow-md sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 flex justify-between h-20 items-center">
-            <a href="index.html" class="flex items-center gap-2 text-gray-600 hover:text-orange-600 transition">
-                <i class="fas fa-arrow-left"></i> Tornar a l'Inici
+            <a href="index.html" class="logo flex items-center">
+                 <img src="img/logo-nofons.png" alt="Logo" class="h-16 w-auto mr-2">
             </a>
-            <span class="text-2xl font-bold text-orange-900 brand-font">Gestió d'Aula</span>
+
+            <div class="hidden md:flex items-center gap-2">
+                <a href="matematiques.html" class="px-5 py-2 rounded-full font-bold text-gray-600 hover:bg-gray-100 transition flex items-center gap-2">
+                    <i class="fas fa-calculator"></i> Matemàtiques
+                </a>
+                <a href="llengues.html" class="px-5 py-2 rounded-full font-bold text-gray-600 hover:bg-gray-100 transition flex items-center gap-2">
+                    <i class="fas fa-comments"></i> Llengües
+                </a>
+                <a href="medi.html" class="px-5 py-2 rounded-full font-bold text-gray-600 hover:bg-gray-100 transition flex items-center gap-2">
+                    <i class="fas fa-globe-europe"></i> Medi
+                </a>
+                <a href="jocs.html" class="px-5 py-2 rounded-full font-bold text-gray-600 hover:bg-gray-100 transition flex items-center gap-2">
+                    <i class="fas fa-gamepad"></i> Jocs
+                </a>
+                <a href="gestio.html" class="px-5 py-2 rounded-full font-bold transition bg-gray-700 text-white shadow-md flex items-center gap-2">
+                    <i class="fas fa-tools"></i> Gestió
+                </a>
+            </div>
+            
+            <div class="md:hidden text-gray-600">
+                <i class="fas fa-bars text-2xl"></i>
+            </div>
         </div>
     </nav>
 
     <main class="flex-grow py-12">
-        <div class="max-w-7xl mx-auto px-4">
+        <div class="max-w-6xl mx-auto px-4">
             
-            <!-- MENÚ D'EINES -->
-            <div id="gestio-resources-list">
-                <!-- Canviat de md:grid-cols-3 a sm:grid-cols-2 lg:grid-cols-4 per encabir 4 items -->
-                <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    
-                    <!-- TARGETA CAIXA D'EINES -->
-                    <div class="bg-white border rounded-xl p-6 shadow-sm hover:shadow-md transition border-slate-200 ring-2 ring-slate-50 flex flex-col h-full">
-                        <div class="flex justify-between items-start mb-4">
-                            <span class="bg-slate-100 text-slate-800 text-xs font-bold px-3 py-1 rounded-full">Utilitats</span>
-                            <i class="fas fa-toolbox text-slate-600 text-2xl"></i>
-                        </div>
-                        <h4 class="font-bold text-lg mb-2">Caixa d'Eines</h4>
-                        <p class="text-gray-600 text-sm mb-6 flex-grow">Daus, monedes, sorteig de noms i temporitzador personalitzable.</p>
-                        <a href="eines.html" class="block w-full text-center bg-slate-600 text-white py-2 rounded-lg font-bold hover:bg-slate-700 transition shadow-md mt-auto">
-                            Obrir Eines 🛠️
-                        </a>
-                    </div>
-
-                    <!-- TARGETA QR -->
-                    <div class="bg-white border rounded-xl p-6 shadow-sm hover:shadow-md transition border-orange-200 ring-2 ring-orange-50 flex flex-col h-full">
-                        <div class="flex justify-between items-start mb-4">
-                            <span class="bg-orange-100 text-orange-800 text-xs font-bold px-3 py-1 rounded-full">TIC</span>
-                            <i class="fas fa-qrcode text-gray-700 text-2xl"></i>
-                        </div>
-                        <h4 class="font-bold text-lg mb-2">Generador de Codis QR</h4>
-                        <p class="text-gray-600 text-sm mb-6 flex-grow">Crea codis QR per a enllaços, textos o Wi-Fi.</p>
-                        <button onclick="openQrApp()" class="w-full bg-orange-600 text-white py-2 rounded-lg font-bold hover:bg-orange-700 transition shadow-md mt-auto">
-                            Obrir Generador 🚀
-                        </button>
-                    </div>
-
-                    <!-- TARGETA GRUPS -->
-                    <div class="bg-white border rounded-xl p-6 shadow-sm hover:shadow-md transition border-indigo-200 ring-2 ring-indigo-50 flex flex-col h-full">
-                        <div class="flex justify-between items-start mb-4">
-                            <span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-3 py-1 rounded-full">Organització</span>
-                            <i class="fas fa-users text-indigo-600 text-2xl"></i>
-                        </div>
-                        <h4 class="font-bold text-lg mb-2">Generador de Grups</h4>
-                        <p class="text-gray-600 text-sm mb-6 flex-grow">Crea grups aleatoris d'alumnes en segons.</p>
-                        <a href="grups.html" class="block w-full text-center bg-indigo-600 text-white py-2 rounded-lg font-bold hover:bg-indigo-700 transition shadow-md mt-auto">
-                            Obrir Generador 🚀
-                        </a>
-                    </div>
-
-                    <!-- TARGETA RÚBRIQUES IA -->
-                    <div class="bg-white border rounded-xl p-6 shadow-sm hover:shadow-md transition border-purple-200 ring-2 ring-purple-50 flex flex-col h-full">
-                        <div class="flex justify-between items-start mb-4">
-                            <span class="bg-purple-100 text-purple-800 text-xs font-bold px-3 py-1 rounded-full">IA & Avaluació</span>
-                            <i class="fas fa-robot text-purple-600 text-2xl"></i>
-                        </div>
-                        <h4 class="font-bold text-lg mb-2">Generador de rúbriques educatives amb IA</h4>
-                        <p class="text-gray-600 text-sm mb-6 flex-grow">Crea rúbriques d'avaluació detallades i personalitzades automàticament.</p>
-                        <a href="https://gemini.google.com/share/ca225424a3fe" target="_blank" class="block w-full text-center bg-purple-600 text-white py-2 rounded-lg font-bold hover:bg-purple-700 transition shadow-md mt-auto">
-                            Obrir l'Eina 🤖
-                        </a>
-                    </div>
-
-                    <!-- TARGETA INFORMES IA (NOVA) -->
-                    <div class="bg-white border rounded-xl p-6 shadow-sm hover:shadow-md transition border-blue-200 ring-2 ring-blue-50 flex flex-col h-full">
-                        <div class="flex justify-between items-start mb-4">
-                            <span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full">IA & Redacció</span>
-                            <i class="fas fa-magic text-blue-600 text-2xl"></i>
-                        </div>
-                        <h4 class="font-bold text-lg mb-2">Generador d'informes amb IA</h4>
-                        <p class="text-gray-600 text-sm mb-6 flex-grow">Redacta informes d'alumnes i comentaris d'avaluació ràpidament amb intel·ligència artificial.</p>
-                        <a href="https://gemini.google.com/share/67a77bf01572" target="_blank" class="block w-full text-center bg-blue-600 text-white py-2 rounded-lg font-bold hover:bg-blue-700 transition shadow-md mt-auto">
-                            Obrir l'Eina ✨
-                        </a>
-                    </div>
-
-                </div>
+            <div class="text-center mb-12">
+                <h1 class="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gray-700 to-black mb-4">
+                    <i class="fas fa-tools mr-2 text-gray-600"></i> Eines de Gestió i IA
+                </h1>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                    Potencia la teva productivitat amb eines d'organització i generadors amb intel·ligència artificial.
+                </p>
             </div>
 
-            <!-- APP QR (EMBEGIDA) -->
-            <div id="qr-generator-app" class="qr-app-wrapper hidden-app">
-                <h2 class="text-2xl font-bold text-center mb-6 text-slate-700">Generador QR</h2>
-                <div class="flex flex-wrap gap-8">
-                    <div class="panel">
-                        <label class="block font-bold mb-2">Tipus:</label>
-                        <select id="qr-content-type">
-                            <option value="url">URL / Web</option>
-                            <option value="text">Text</option>
-                            <option value="wifi">Wi-Fi</option>
-                        </select>
-                        
-                        <div id="qr-group-url"> <input type="url" id="qr-url" placeholder="https://exemple.cat"> </div>
-                        <div id="qr-group-text" class="qr-hidden"> <textarea id="qr-text" placeholder="Missatge..."></textarea> </div>
-                        <div id="qr-group-wifi" class="qr-hidden"> 
-                            <input type="text" id="qr-ssid" placeholder="Nom Wi-Fi"> 
-                            <input type="text" id="qr-pass" placeholder="Contrasenya"> 
-                        </div>
-                        
-                        <div id="qr-status" class="p-2 rounded text-center mb-4 hidden"></div>
-                        <button onclick="generateQR()" class="btn-gen">Generar</button>
-                        <button id="qr-dl-btn" class="btn-dl" disabled>Descarregar</button>
-                    </div>
-                    <div class="panel flex flex-col items-center justify-center bg-white">
-                        <div id="qr-output"></div>
-                        <p id="qr-placeholder" class="text-gray-400 text-center mt-4">El codi apareixerà aquí</p>
-                    </div>
-                </div>
-                <button onclick="closeQrApp()" class="btn-exit">Tancar</button>
-            </div>
+            <!-- Graella de Recursos -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                
+                <!-- Informes IA -->
+                <a href="https://gemini.google.com/" target="_blank" class="card grad-tool-metal">
+                    <div class="card-icon"><i class="fas fa-file-alt"></i></div>
+                    <h3>Informes IA</h3>
+                    <p>Generació d'informes i documents educatius.</p>
+                </a>
 
+                <!-- Rúbriques IA -->
+                <a href="https://gemini.google.com/app" target="_blank" class="card grad-tool-silver">
+                    <div class="card-icon"><i class="fas fa-clipboard-list"></i></div>
+                    <h3>Rúbriques IA</h3>
+                    <p>Creació automàtica de rúbriques d'avaluació.</p>
+                </a>
+
+                <!-- Generador Comprensions -->
+                <a href="https://gemini.google.com/share/1ccab9f21b39" target="_blank" class="card grad-tool-bone">
+                    <div class="card-icon"><i class="fas fa-book-reader"></i></div>
+                    <h3>Generador Comprensions</h3>
+                    <p>Eina per generar preguntes de comprensió lectora.</p>
+                </a>
+
+                <!-- Generador de Grups -->
+                <a href="grups.html" class="card grad-tool-cloud">
+                    <div class="card-icon"><i class="fas fa-users"></i></div>
+                    <h3>Generador de Grups</h3>
+                    <p>Crea equips de treball aleatoris de manera ràpida i justa.</p>
+                </a>
+
+                <!-- Generador QR -->
+                <a href="qr.html" class="card grad-tool-dark">
+                    <div class="card-icon"><i class="fas fa-qrcode"></i></div>
+                    <h3>Generador QR</h3>
+                    <p>Crea codis QR personalitzats per a enllaços i textos.</p>
+                </a>
+
+                <!-- Rellotge i Cronòmetre -->
+                <a href="rellotge.html" class="card grad-tool-metal">
+                    <div class="card-icon"><i class="fas fa-stopwatch"></i></div>
+                    <h3>Rellotge d'Aula</h3>
+                    <p>Visualitza l'hora o fes servir el cronòmetre per a les activitats.</p>
+                </a>
+
+            </div>
         </div>
     </main>
 
+    <footer class="bg-gradient-to-r from-gray-100 to-gray-200 border-t border-gray-300 mt-20 py-10">
+        <div class="max-w-4xl mx-auto text-center px-4">
+            <p class="text-gray-600 mb-4 font-medium">Creat per Jo Francis Gil</p>
+            <div class="flex justify-center items-center gap-2 opacity-80">
+                <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">
+                    <img alt="Llicència de Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" />
+                </a>
+            </div>
+            <p class="text-xs text-gray-500 mt-2">
+                Obra sota llicència <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" class="text-gray-700 hover:underline">CC BY-NC-SA 4.0</a>.
+            </p>
+        </div>
+    </footer>
+
     <script>
-        // Navegació App QR
-        function openQrApp() { document.getElementById('gestio-resources-list').style.display = 'none'; document.getElementById('qr-generator-app').classList.remove('hidden-app'); }
-        function closeQrApp() { document.getElementById('qr-generator-app').classList.add('hidden-app'); document.getElementById('gestio-resources-list').style.display = 'block'; }
-
-        // Lògica App QR
-        const qrType = document.getElementById('qr-content-type');
-        qrType.addEventListener('change', function() {
-            ['url','text','wifi'].forEach(t => document.getElementById('qr-group-'+t).classList.add('qr-hidden'));
-            document.getElementById('qr-group-'+this.value).classList.remove('qr-hidden');
-        });
-
-        function generateQR() {
-            let content = '';
-            const type = qrType.value;
-            if(type === 'url') content = document.getElementById('qr-url').value;
-            else if(type === 'text') content = document.getElementById('qr-text').value;
-            else if(type === 'wifi') content = `WIFI:S:${document.getElementById('qr-ssid').value};T:WPA;P:${document.getElementById('qr-pass').value};;`;
-
-            if(!content) return alert("Omple els camps!");
-
-            const qr = qrcode(0, 'M');
-            qr.addData(content);
-            qr.make();
-            const img = document.createElement('img');
-            img.src = qr.createDataURL(8, 0);
-            
-            const out = document.getElementById('qr-output');
-            out.innerHTML = '';
-            out.appendChild(img);
-            document.getElementById('qr-placeholder').style.display='none';
-            
-            const dlBtn = document.getElementById('qr-dl-btn');
-            dlBtn.disabled = false;
-            dlBtn.onclick = () => {
-                const a = document.createElement('a');
-                a.href = img.src;
-                a.download = 'qr-code.png';
-                a.click();
-            };
-        }
+        lucide.createIcons();
     </script>
 </body>
 </html>
