@@ -6,827 +6,207 @@
     <title>Jocs - Jo Recursos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;600&family=Inter:wght@300;400;600&family=Nunito:wght@400;700;900&family=Patrick+Hand&display=swap" rel="stylesheet">
-    <!-- Icones Lucide -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;600&family=Inter:wght@300;400;600&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
     <style>
         body { font-family: 'Inter', sans-serif; }
         h1, h2, h3, .brand-font { font-family: 'Fredoka', sans-serif; }
+
+        /* --- ESTILS DE TARGETES --- */
+        .card {
+            border-radius: 15px;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-decoration: none;
+            color: white !important;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 240px;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: rgba(255, 255, 255, 0.95);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
         
-        /* Utilitat crítica per amagar seccions */
-        .hidden-app { display: none !important; }
+        .card-icon svg {
+            width: 48px;
+            height: 48px;
+        }
+
+        .card h3 {
+            margin: 10px 0;
+            font-size: 1.5em;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            font-family: 'Fredoka', sans-serif;
+        }
+
+        .card p {
+            font-size: 1em;
+            line-height: 1.4;
+            opacity: 0.95;
+            margin: 0;
+            font-weight: 500;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* --- GRADIENTS JOCS (Violetes i Granats) --- */
         
-        /* --- ESTILS SOPA DE LLETRES --- */
-        .font-hand { font-family: 'Patrick Hand', cursive; }
-        .sopa-cell { 
-            width: 2.5rem; height: 2.5rem; 
-            display: flex; align-items: center; justify-content: center; 
-            border: 1px solid #e2e8f0; 
-            font-family: 'Patrick Hand', cursive; font-size: 1.25rem; 
-            cursor: pointer; user-select: none; 
-            background-color: white; transition: background-color 0.2s;
-        }
-        .sopa-cell:hover { background-color: #f3e8ff; }
-        .sopa-cell.selected-cell { background-color: #fef08a !important; color: #854d0e !important; font-weight: bold; }
+        /* Violeta Elèctric */
+        .grad-jocs-violet { background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); }
+        
+        /* Granat Intens (Sang de Bou) */
+        .grad-jocs-garnet { background: linear-gradient(135deg, #800000 0%, #cc0000 100%); }
+        
+        /* Baia (Berry) - Barreja porpra/vermell */
+        .grad-jocs-berry { background: linear-gradient(135deg, #C04848 0%, #480048 100%); }
+        
+        /* Rosa Fosc / Magenta */
+        .grad-jocs-magenta { background: linear-gradient(135deg, #ef32d9 0%, #89fffd 100%); }
+        
+        /* Vi (Wine) */
+        .grad-jocs-wine { background: linear-gradient(135deg, #5b1a37 0%, #8c2a52 100%); }
 
-        /* --- ESTILS MEMORY --- */
-        .perspective-1000 { perspective: 1000px; }
-        .mem-card { position: relative; width: 100%; height: 6rem; cursor: pointer; transform-style: preserve-3d; transition: transform 0.6s; }
-        .mem-card.flipped { transform: rotateY(180deg); }
-        .mem-face { 
-            position: absolute; width: 100%; height: 100%; 
-            backface-visibility: hidden; -webkit-backface-visibility: hidden; 
-            border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; 
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); 
-        }
-        .mem-front { background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); color: white; }
-        .mem-back { background-color: white; color: #1e293b; transform: rotateY(180deg); border: 2px solid #fdba74; padding: 0.5rem; font-weight: bold; text-align: center; font-size: 0.9rem; }
-        .mem-card.matched .mem-back { background-color: #dcfce7; border-color: #22c55e; color: #15803d; }
-        @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-        .animate-pop { animation: popIn 0.3s ease-out forwards; }
+        /* Pruna (Plum) */
+        .grad-jocs-plum { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
 
-        /* --- ESTILS MOTS ENCREUATS --- */
-        .cw-cell {
-            width: 2.5rem; height: 2.5rem;
-            border: 1px solid #cbd5e1;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: bold; text-transform: uppercase;
-            position: relative; background: white;
-            transition: all 0.2s; cursor: pointer;
-        }
-        .cw-cell:focus-within { background-color: #e0e7ff; border-color: #6366f1; }
-        .cw-cell.active-word { background-color: #fef9c3; }
-        .cw-cell.black-cell { background-color: transparent; border: none; }
-        .cw-number { position: absolute; top: 1px; left: 2px; font-size: 0.6rem; color: #64748b; pointer-events: none; }
-        .cell-input {
-            width: 100%; height: 100%; border: none; background: transparent;
-            text-align: center; font-size: 1.25rem; padding: 0; margin: 0;
-            outline: none; color: #1e293b; font-family: 'Inter', sans-serif;
-        }
-
-        /* --- ESTILS PENJAT --- */
-        .key-btn {
-            transition: all 0.2s;
-            touch-action: manipulation;
-        }
-        .key-btn:active { transform: scale(0.95); }
-        .key-btn:disabled { cursor: not-allowed; opacity: 0.8; transform: none; }
-        .key-correct { background-color: #22c55e !important; color: white !important; border-color: #16a34a !important; }
-        .key-wrong { background-color: #ef4444 !important; color: white !important; border-color: #dc2626 !important; opacity: 0.4 !important; }
-        .letter-reveal {
-            animation: popInLetter 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        @keyframes popInLetter {
-            from { opacity: 0; transform: translateY(10px) scale(0.5); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
     </style>
 </head>
-<body class="bg-purple-50 text-gray-800 min-h-screen flex flex-col">
-    
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
+
     <!-- Navegació -->
     <nav class="bg-white shadow-md sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 flex justify-between h-20 items-center">
-            <a href="index.html" class="flex items-center gap-2 text-gray-600 hover:text-purple-600 transition">
-                <i class="fas fa-arrow-left"></i> Tornar a l'Inici
+            <!-- Logo / Enllaç Inici -->
+            <a href="index.html" class="logo flex items-center">
+                 <img src="img/logo-nofons.png" alt="Logo" class="h-16 w-auto mr-2">
             </a>
-            <span class="text-2xl font-bold text-purple-900 brand-font">Zona de Jocs</span>
+
+            <!-- Menú Principal -->
+            <div class="hidden md:flex items-center gap-2">
+                <a href="matematiques.html" class="px-5 py-2 rounded-full font-bold text-gray-600 hover:bg-gray-100 transition flex items-center gap-2">
+                    <i class="fas fa-calculator"></i> Matemàtiques
+                </a>
+                <a href="llengues.html" class="px-5 py-2 rounded-full font-bold text-gray-600 hover:bg-gray-100 transition flex items-center gap-2">
+                    <i class="fas fa-comments"></i> Llengües
+                </a>
+                <a href="medi.html" class="px-5 py-2 rounded-full font-bold text-gray-600 hover:bg-gray-100 transition flex items-center gap-2">
+                    <i class="fas fa-globe-europe"></i> Medi
+                </a>
+                <a href="jocs.html" class="px-5 py-2 rounded-full font-bold transition bg-purple-700 text-white shadow-md flex items-center gap-2">
+                    <i class="fas fa-gamepad"></i> Jocs
+                </a>
+                <a href="gestio.html" class="px-5 py-2 rounded-full font-bold text-gray-600 hover:bg-gray-100 transition flex items-center gap-2">
+                    <i class="fas fa-tools"></i> Eines
+                </a>
+            </div>
+            
+            <div class="md:hidden text-gray-600">
+                <i class="fas fa-bars text-2xl"></i>
+            </div>
         </div>
     </nav>
 
-    <!-- Contingut Principal -->
     <main class="flex-grow py-12">
-        
-        <!-- PANTALLA 1: MENÚ DE JOCS -->
-        <div id="games-menu" class="max-w-6xl mx-auto px-4">
-            <div class="text-center mb-10">
-                <h1 class="text-4xl font-bold text-purple-900 mb-4">Jocs Educatius</h1>
-                <p class="text-gray-600">Aprèn jugant amb aquestes activitats interactives.</p>
+        <div class="max-w-6xl mx-auto px-4">
+            
+            <!-- Encapçalament de Pàgina -->
+            <div class="text-center mb-12">
+                <h1 class="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-800 to-rose-700 mb-4">
+                    <i class="fas fa-dice mr-2 text-purple-700"></i> Zona de Jocs
+                </h1>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                    Aprèn jugant amb aquesta col·lecció d'activitats interactives i passatemps educatius.
+                </p>
             </div>
 
-            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Graella de Recursos -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 
-                <!-- Targeta Sopa de Lletres -->
-                <div class="bg-white border rounded-xl p-6 shadow-sm hover:shadow-md transition border-purple-200 ring-2 ring-purple-50 group flex flex-col h-full">
-                    <div class="flex justify-between items-start mb-4">
-                        <span class="bg-purple-100 text-purple-800 text-xs font-bold px-3 py-1 rounded-full">Vocabulari</span>
-                        <i data-lucide="grid" class="text-purple-600 w-8 h-8 group-hover:scale-110 transition"></i>
-                    </div>
-                    <h4 class="font-bold text-lg mb-2">Sopa de Lletres</h4>
-                    <p class="text-gray-600 text-sm mb-6 flex-grow">Genera sopes de lletres personalitzades per trobar paraules amagades.</p>
-                    <button onclick="openGame('sopa')" class="w-full bg-purple-600 text-white py-2 rounded-lg font-bold hover:bg-purple-700 transition shadow-md mt-auto">
-                        Jugar Ara 🎮
-                    </button>
-                </div>
+                <!-- Memory -->
+                <a href="memory-pictures.html" class="card grad-jocs-violet">
+                    <div class="card-icon"><i class="fas fa-brain"></i></div>
+                    <h3>Memory Visual</h3>
+                    <p>Exercita la memòria trobant les parelles d'imatges.</p>
+                </a>
 
-                <!-- Targeta Memory -->
-                <div class="bg-white border rounded-xl p-6 shadow-sm hover:shadow-md transition border-orange-200 ring-2 ring-orange-50 group flex flex-col h-full">
-                    <div class="flex justify-between items-start mb-4">
-                        <span class="bg-orange-100 text-orange-800 text-xs font-bold px-3 py-1 rounded-full">Memòria</span>
-                        <i data-lucide="brain-circuit" class="text-orange-600 w-8 h-8 group-hover:scale-110 transition"></i>
-                    </div>
-                    <h4 class="font-bold text-lg mb-2">Memory Interactiu</h4>
-                    <p class="text-gray-600 text-sm mb-6 flex-grow">Entrena la memòria trobant les parelles de paraules idèntiques.</p>
-                    <button onclick="openGame('memory')" class="w-full bg-orange-600 text-white py-2 rounded-lg font-bold hover:bg-orange-700 transition shadow-md mt-auto">
-                        Jugar Ara 🧠
-                    </button>
-                </div>
+                <!-- El Penjat -->
+                <a href="penjat.html" class="card grad-jocs-garnet">
+                    <div class="card-icon"><i class="fas fa-user-injured"></i></div>
+                    <h3>El Penjat</h3>
+                    <p>Endevina la paraula lletra per lletra abans que sigui massa tard.</p>
+                </a>
 
-                <!-- Targeta Mots Encreuats -->
-                <div class="bg-white border rounded-xl p-6 shadow-sm hover:shadow-md transition border-teal-200 ring-2 ring-teal-50 group flex flex-col h-full">
-                    <div class="flex justify-between items-start mb-4">
-                        <span class="bg-teal-100 text-teal-800 text-xs font-bold px-3 py-1 rounded-full">Llengua</span>
-                        <i data-lucide="pen-tool" class="text-teal-600 w-8 h-8 group-hover:scale-110 transition"></i>
-                    </div>
-                    <h4 class="font-bold text-lg mb-2">Mots Encreuats</h4>
-                    <p class="text-gray-600 text-sm mb-6 flex-grow">Resol les definicions per completar la graella de paraules.</p>
-                    <button onclick="openGame('mots')" class="w-full bg-teal-600 text-white py-2 rounded-lg font-bold hover:bg-teal-700 transition shadow-md mt-auto">
-                        Jugar Ara ✏️
-                    </button>
-                </div>
+                <!-- Sopa de Lletres -->
+                <a href="sopa.html" class="card grad-jocs-berry">
+                    <div class="card-icon"><i class="fas fa-search"></i></div>
+                    <h3>Sopa de Lletres</h3>
+                    <p>Busca les paraules amagades dins de la graella.</p>
+                </a>
 
-                <!-- Targeta Penjat -->
-                <div class="bg-white border rounded-xl p-6 shadow-sm hover:shadow-md transition border-red-200 ring-2 ring-red-50 group flex flex-col h-full">
-                    <div class="flex justify-between items-start mb-4">
-                        <span class="bg-red-100 text-red-800 text-xs font-bold px-3 py-1 rounded-full">Lletres</span>
-                        <i data-lucide="skull" class="text-red-600 w-8 h-8 group-hover:scale-110 transition"></i>
-                    </div>
-                    <h4 class="font-bold text-lg mb-2">El Penjat</h4>
-                    <p class="text-gray-600 text-sm mb-6 flex-grow">Endevina la paraula oculta abans que s'acabi el dibuix.</p>
-                    <button onclick="openGame('penjat')" class="w-full bg-red-600 text-white py-2 rounded-lg font-bold hover:bg-red-700 transition shadow-md mt-auto">
-                        Jugar Ara 💀
-                    </button>
-                </div>
+                <!-- Sudokus -->
+                <a href="sudokus.html" class="card grad-jocs-plum">
+                    <div class="card-icon"><i class="fas fa-border-all"></i></div>
+                    <h3>Sudokus</h3>
+                    <p>Resol sudokus de diferents nivells de dificultat.</p>
+                </a>
 
-                <!-- Targeta Xifres i Lletres -->
-                <div class="bg-white border rounded-xl p-6 shadow-sm hover:shadow-md transition border-blue-200 ring-2 ring-blue-50 group flex flex-col h-full">
-                    <div class="flex justify-between items-start mb-4">
-                        <span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full">Agilitat Mental</span>
-                        <i data-lucide="calculator" class="text-blue-600 w-8 h-8 group-hover:scale-110 transition"></i>
-                    </div>
-                    <h4 class="font-bold text-lg mb-2">Xifres i Lletres</h4>
-                    <p class="text-gray-600 text-sm mb-6 flex-grow">Calcula el número exacte i troba la paraula més llarga.</p>
-                    <a href="xifresilletres.html" class="w-full bg-blue-600 text-white py-2 rounded-lg font-bold hover:bg-blue-700 transition shadow-md mt-auto text-center block">
-                        Jugar Ara 🔢
-                    </a>
-                </div>
+                <!-- Bingo -->
+                <a href="bingo.html" class="card grad-jocs-wine">
+                    <div class="card-icon"><i class="fas fa-th-large"></i></div>
+                    <h3>Bingo</h3>
+                    <p>Genera cartrons per jugar al bingo a l'aula.</p>
+                </a>
 
-                <!-- Targeta Bingo (NOVA) -->
-                <div class="bg-white border rounded-xl p-6 shadow-sm hover:shadow-md transition border-pink-200 ring-2 ring-pink-50 group flex flex-col h-full">
-                    <div class="flex justify-between items-start mb-4">
-                        <span class="bg-pink-100 text-pink-800 text-xs font-bold px-3 py-1 rounded-full">Atzar</span>
-                        <i data-lucide="ticket" class="text-pink-600 w-8 h-8 group-hover:scale-110 transition"></i>
-                    </div>
-                    <h4 class="font-bold text-lg mb-2">Bingo Educatiu</h4>
-                    <p class="text-gray-600 text-sm mb-6 flex-grow">Generador de números i lletres per jugar a Bingo a l'aula.</p>
-                    <a href="bingo.html" class="w-full bg-pink-600 text-white py-2 rounded-lg font-bold hover:bg-pink-700 transition shadow-md mt-auto text-center block">
-                        Jugar Ara 🎰
-                    </a>
-                </div>
+                <!-- Caixes -->
+                <a href="caixes.html" class="card grad-jocs-magenta">
+                    <div class="card-icon"><i class="fas fa-box-open"></i></div>
+                    <h3>Caixes Màgiques</h3>
+                    <p>Descobreix què hi ha amagat resolent l'enigma.</p>
+                </a>
 
             </div>
         </div>
-
-        <!-- PANTALLA 2: APP SOPA DE LLETRES -->
-        <div id="app-sopa" class="hidden-app max-w-6xl mx-auto px-4 w-full">
-            <div class="bg-white p-8 rounded-2xl shadow-lg border border-purple-100">
-                <div class="flex justify-between items-center mb-6 border-b pb-4">
-                    <div class="flex items-center gap-3">
-                        <div class="p-2 bg-purple-100 rounded-lg"><i data-lucide="grid" class="text-purple-600 w-6 h-6"></i></div>
-                        <h2 class="text-2xl font-bold text-purple-900">Sopa de Lletres</h2>
-                    </div>
-                    <button onclick="closeGame()" class="text-gray-500 hover:text-red-500 font-bold flex items-center gap-1 transition px-4 py-2 rounded hover:bg-gray-100">
-                        <i data-lucide="x" class="w-5 h-5"></i> Tancar
-                    </button>
-                </div>
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                    <div class="lg:col-span-4 space-y-4 bg-purple-50 p-6 rounded-xl h-fit">
-                        <div><label class="block text-sm font-bold text-gray-700 mb-1">Títol:</label><input type="text" id="sopaTitle" value="Els Animals" class="w-full border border-purple-200 p-2 rounded"></div>
-                        <div><label class="block text-sm font-bold text-gray-700 mb-1">Paraules (una per línia):</label><textarea id="sopaWords" class="w-full border border-purple-200 p-2 rounded h-40 uppercase font-mono">GAT&#10;GOS&#10;OCELL&#10;PEIX&#10;TORTUGA&#10;DOFIN</textarea></div>
-                        <div class="pt-2 flex flex-col gap-2"><button onclick="generateSopa()" class="w-full bg-purple-600 text-white py-2 rounded-lg font-bold hover:bg-purple-700 shadow-md">Generar</button><button onclick="printSopa()" class="w-full bg-white border-2 border-purple-600 text-purple-600 py-2 rounded-lg font-bold hover:bg-purple-50">Imprimir</button></div>
-                    </div>
-                    <div class="lg:col-span-8 text-center" id="sopaArea">
-                        <div class="bg-white border-2 border-purple-100 rounded-xl p-8 shadow-sm inline-block">
-                            <h2 id="sopaDisplayTitle" class="text-3xl font-hand font-bold mb-6 text-purple-900 uppercase tracking-widest">Els Animals</h2>
-                            <div id="sopaGrid" class="inline-grid gap-0 border-2 border-slate-800 bg-slate-800"></div>
-                            <div id="sopaWordBank" class="flex flex-wrap justify-center gap-4 mt-8 font-hand text-xl max-w-lg mx-auto text-slate-600"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- PANTALLA 3: APP MEMORY -->
-        <div id="app-memory" class="hidden-app max-w-4xl mx-auto px-4 w-full">
-            <div class="bg-white p-8 rounded-2xl shadow-lg border border-orange-100">
-                <div class="flex justify-between items-center mb-6 border-b pb-4">
-                    <div class="flex items-center gap-3"><div class="p-2 bg-orange-100 rounded-lg"><i data-lucide="brain-circuit" class="text-orange-600 w-6 h-6"></i></div><h2 class="text-2xl font-bold text-orange-900">Memory Interactiu</h2></div>
-                    <button onclick="closeGame()" class="text-gray-500 hover:text-red-500 font-bold flex items-center gap-1 transition px-4 py-2 rounded hover:bg-gray-100"><i data-lucide="x" class="w-5 h-5"></i> Tancar</button>
-                </div>
-                <div id="memorySetup" class="max-w-lg mx-auto text-center py-8">
-                    <div class="bg-orange-50 p-6 rounded-2xl mb-6"><label class="block text-left text-sm font-bold mb-2 text-orange-800">Paraules (separades per comes):</label><textarea id="memoryWords" class="w-full border-2 border-orange-200 rounded-xl p-4 h-32 text-lg" placeholder="GOS, GAT, OCELL, PEIX, TORTUGA, DOFIN"></textarea></div>
-                    <button onclick="startMemory()" class="w-full bg-orange-600 text-white py-3 rounded-xl font-bold text-xl shadow-lg hover:bg-orange-700 transform hover:-translate-y-1 transition flex items-center justify-center gap-2"><i data-lucide="play" class="w-6 h-6"></i> Començar</button>
-                </div>
-                <div id="memoryGame" class="hidden">
-                    <div class="flex justify-between items-center mb-6 bg-orange-50 p-4 rounded-xl border border-orange-100">
-                        <div class="flex gap-6 text-orange-900"><span class="font-bold flex items-center gap-2"><i data-lucide="move" class="w-4 h-4"></i> Moviments: <span id="memMoves" class="text-xl">0</span></span><span class="font-bold flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4"></i> Temps: <span id="memTime" class="text-xl font-mono">00:00</span></span></div>
-                        <button onclick="restartMemory()" class="text-sm font-bold text-orange-600 hover:text-orange-800 flex items-center gap-1"><i data-lucide="rotate-ccw" class="w-4 h-4"></i> Reiniciar</button>
-                    </div>
-                    <div id="memGrid" class="grid gap-3 perspective-1000"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- PANTALLA 4: APP MOTS ENCREUATS -->
-        <div id="app-mots" class="hidden-app max-w-7xl mx-auto px-4 w-full">
-            <div class="bg-white p-8 rounded-2xl shadow-lg border border-teal-100">
-                <div class="flex justify-between items-center mb-6 border-b pb-4">
-                    <div class="flex items-center gap-3"><div class="p-2 bg-teal-100 rounded-lg"><i data-lucide="pen-tool" class="text-teal-600 w-6 h-6"></i></div><h2 class="text-2xl font-bold text-teal-900">Mots Encreuats</h2></div>
-                    <button onclick="closeGame()" class="text-gray-500 hover:text-red-500 font-bold flex items-center gap-1 transition px-4 py-2 rounded hover:bg-gray-100"><i data-lucide="x" class="w-5 h-5"></i> Tancar</button>
-                </div>
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                    <div class="lg:col-span-4 space-y-4 bg-teal-50 p-6 rounded-xl h-fit">
-                        <div><label class="block text-sm font-semibold text-teal-800 mb-2">Títol</label><input type="text" id="cwTitle" value="Geografia Europea" class="w-full p-2 border border-teal-200 rounded-lg"></div>
-                        <div class="flex justify-between items-center mb-2"><label class="block text-sm font-semibold text-teal-800">Paraules i Pistes</label><button onclick="cwAddRow()" class="text-xs text-teal-600 font-bold hover:underline flex items-center gap-1"><i data-lucide="plus" class="w-3 h-3"></i> Afegir</button></div>
-                        <div id="cwWordsContainer" class="space-y-3 max-h-[300px] overflow-y-auto pr-2 mb-4"></div>
-                        <div class="pt-2 flex flex-col gap-2"><button onclick="cwGenerate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 rounded-lg shadow-md">Generar Mots</button><p id="cwGenError" class="text-xs text-red-500 text-center hidden">Error.</p></div>
-                    </div>
-                    <div class="lg:col-span-8"><div id="cwArea" class="bg-white p-6 rounded-xl shadow-lg border border-slate-200 min-h-[500px] flex flex-col items-center"><div class="text-center mb-6"><h2 id="cwDisplayTitle" class="text-2xl font-bold text-slate-800">Geografia Europea</h2><p class="text-slate-400 text-sm">Clica una casella per començar</p></div><div id="cwGridWrapper" class="bg-slate-50 p-4 rounded-lg border border-slate-100 mb-8 overflow-x-auto max-w-full"><div id="cwGrid" class="grid gap-0 mx-auto"></div></div><div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl"><div><h3 class="font-bold text-slate-700 border-b pb-2 mb-3">Horitzontals</h3><ul id="cwCluesAcross" class="space-y-2 text-sm text-slate-600"></ul></div><div><h3 class="font-bold text-slate-700 border-b pb-2 mb-3">Verticals</h3><ul id="cwCluesDown" class="space-y-2 text-sm text-slate-600"></ul></div></div></div></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- PANTALLA 5: APP PENJAT -->
-        <div id="app-penjat" class="hidden-app max-w-4xl mx-auto px-4 w-full">
-            <div class="bg-white p-8 rounded-2xl shadow-lg border border-red-100">
-                <!-- Capçalera Penjat (Adaptada) -->
-                <div class="flex justify-between items-center mb-6 border-b pb-4">
-                    <div class="flex items-center gap-3">
-                        <div class="p-2 bg-red-100 rounded-lg"><i data-lucide="skull" class="text-red-600 w-6 h-6"></i></div>
-                        <h2 class="text-2xl font-bold text-red-900">El Penjat</h2>
-                    </div>
-                    <button onclick="closeGame()" class="text-gray-500 hover:text-red-500 font-bold flex items-center gap-1 transition px-4 py-2 rounded hover:bg-gray-100">
-                        <i data-lucide="x" class="w-5 h-5"></i> Tancar
-                    </button>
-                </div>
-
-                <!-- Setup Penjat -->
-                <div id="pjSetupScreen" class="max-w-lg mx-auto text-center py-8">
-                    <div class="mb-8">
-                        <div class="w-24 h-24 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-red-100">
-                            <i data-lucide="pencil" class="w-10 h-10 text-red-400"></i>
-                        </div>
-                        <h2 class="text-3xl font-bold mb-2 text-gray-800">Prepara la partida</h2>
-                        <p class="text-gray-500">Escriu la paraula o frase secreta per als jugadors.</p>
-                    </div>
-                    <div class="relative mb-6">
-                        <input type="password" id="pjSecretInput" 
-                            class="w-full bg-slate-50 border-2 border-red-200 rounded-xl p-4 text-center text-xl tracking-widest focus:border-red-500 focus:outline-none transition-colors text-gray-800 placeholder-gray-400"
-                            placeholder="ESCRIU AQUÍ..." autocomplete="off">
-                        <button onmousedown="pjTogglePassword(true)" onmouseup="pjTogglePassword(false)" onmouseleave="pjTogglePassword(false)"
-                            class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-400">
-                            <i data-lucide="eye" class="w-5 h-5"></i>
-                        </button>
-                    </div>
-                    <button onclick="pjStartGame()" class="w-full py-4 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl shadow-lg transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2">
-                        <i data-lucide="play" class="w-6 h-6"></i> COMENÇAR JOC
-                    </button>
-                </div>
-
-                <!-- Joc Penjat Actiu -->
-                <div id="pjGameScreen" class="hidden flex flex-col md:flex-row h-full min-h-[500px] gap-8">
-                    <!-- Zona Esquerra: Dibuix -->
-                    <div class="md:w-1/3 bg-red-50 rounded-xl p-6 flex flex-col items-center justify-center border border-red-100 relative">
-                        <canvas id="pjHangmanCanvas" width="250" height="300" class="max-w-full"></canvas>
-                        <div class="mt-4 bg-white px-4 py-2 rounded-full border border-red-100 text-sm font-bold text-red-500 shadow-sm">
-                            Errades: <span id="pjErrorCount">0</span> / 9
-                        </div>
-                    </div>
-                    <!-- Zona Dreta: Paraula i Teclat -->
-                    <div class="md:w-2/3 flex flex-col">
-                        <div id="pjWordDisplay" class="flex-1 flex flex-wrap items-center justify-center gap-2 mb-8 content-center min-h-[100px]"></div>
-                        <div id="pjResultMessage" class="hidden text-center mb-6 p-4 rounded-xl font-bold text-xl animate-bounce"></div>
-                        <div id="pjKeyboard" class="grid grid-cols-7 gap-2 md:gap-3 max-w-2xl mx-auto w-full"></div>
-                        <div id="pjPlayAgainBtn" class="hidden mt-6 text-center">
-                            <button onclick="pjResetGame()" class="px-8 py-3 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition-colors shadow-md">
-                                Nova Partida
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
     </main>
 
-    <footer class="bg-white border-t py-8 mt-auto">
-        <div class="max-w-6xl mx-auto px-4 text-center text-sm text-gray-500">
-            <p>&copy; 2025 Jo Recursos.</p>
+    <!-- Footer Simple -->
+    <footer class="bg-gradient-to-r from-purple-50 to-rose-50 border-t border-gray-200 mt-20 py-10">
+        <div class="max-w-4xl mx-auto text-center px-4">
+            <p class="text-gray-600 mb-4 font-medium">Creat per Jo Francis Gil</p>
+            <div class="flex justify-center items-center gap-2 opacity-80">
+                <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">
+                    <img alt="Llicència de Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" />
+                </a>
+            </div>
+            <p class="text-xs text-gray-500 mt-2">
+                Obra sota llicència <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" class="text-purple-700 hover:underline">CC BY-NC-SA 4.0</a>.
+            </p>
         </div>
     </footer>
 
     <script>
         lucide.createIcons();
-
-        // --- GESTIÓ CENTRALITZADA DE PANTALLES ---
-        function openGame(gameId) {
-            // 1. Amagar Menú Principal
-            document.getElementById('games-menu').style.display = 'none';
-            
-            // 2. FORÇAR TANCAMENT DE TOTS ELS JOCS (Evita superposició)
-            const allGames = ['app-sopa', 'app-memory', 'app-mots', 'app-penjat'];
-            allGames.forEach(id => {
-                const el = document.getElementById(id);
-                if(el) el.classList.add('hidden-app');
-            });
-
-            // 3. Obrir el joc seleccionat
-            const target = document.getElementById('app-' + gameId);
-            if(target) target.classList.remove('hidden-app');
-            
-            // Inicialitzacions
-            if(gameId === 'sopa') generateSopa(); 
-            if(gameId === 'mots' && document.getElementById('cwWordsContainer').children.length === 0) cwInit();
-            if(gameId === 'penjat') pjResetGame(); // Reset penjat en obrir
-            
-            window.scrollTo(0,0);
-        }
-
-        function closeGame() {
-            // 1. Tancar tots els jocs explícitament
-            document.getElementById('app-sopa').classList.add('hidden-app');
-            document.getElementById('app-memory').classList.add('hidden-app');
-            document.getElementById('app-mots').classList.add('hidden-app');
-            document.getElementById('app-penjat').classList.add('hidden-app');
-            
-            // 2. Mostrar el menú principal
-            document.getElementById('games-menu').style.display = 'block';
-            
-            // 3. Neteja de lògiques
-            stopMemTimer();
-            window.scrollTo(0,0);
-        }
-
-        // --- 1. SOPA DE LLETRES ---
-        function generateSopa() {
-            const title = document.getElementById('sopaTitle').value;
-            const words = document.getElementById('sopaWords').value.toUpperCase().split('\n').map(w => w.trim().replace(/[^A-ZÇ]/g, '')).filter(w => w);
-            document.getElementById('sopaDisplayTitle').innerText = title || "Sopa";
-            const size = 12;
-            const grid = Array(size).fill(null).map(() => Array(size).fill(''));
-            const letters = "ABCÇDEFGHIJKLMNOPQRSTUVWXYZ";
-            words.forEach(word => {
-                if(word.length > size) return;
-                let placed = false, attempts = 0;
-                while(!placed && attempts < 100) {
-                    const dir = Math.random() > 0.5 ? [0,1] : [1,0];
-                    const r = Math.floor(Math.random() * size);
-                    const c = Math.floor(Math.random() * size);
-                    if (r + dir[0]*(word.length-1) < size && c + dir[1]*(word.length-1) < size) {
-                        let clear = true;
-                        for(let i=0; i<word.length; i++) {
-                            if(grid[r + dir[0]*i][c + dir[1]*i] !== '' && grid[r + dir[0]*i][c + dir[1]*i] !== word[i]) clear = false;
-                        }
-                        if(clear) {
-                            for(let i=0; i<word.length; i++) grid[r + dir[0]*i][c + dir[1]*i] = word[i];
-                            placed = true;
-                        }
-                    }
-                    attempts++;
-                }
-            });
-            const container = document.getElementById('sopaGrid');
-            container.innerHTML = '';
-            container.style.gridTemplateColumns = `repeat(${size}, minmax(0, 1fr))`;
-            for(let r=0; r<size; r++) {
-                for(let c=0; c<size; c++) {
-                    if(grid[r][c] === '') grid[r][c] = letters.charAt(Math.floor(Math.random() * letters.length));
-                    const cell = document.createElement('div');
-                    cell.innerText = grid[r][c];
-                    cell.className = 'sopa-cell';
-                    cell.onclick = function() { this.classList.toggle('selected-cell'); };
-                    container.appendChild(cell);
-                }
-            }
-            const bank = document.getElementById('sopaWordBank');
-            bank.innerHTML = words.map(w => `<div onclick="this.classList.toggle('line-through opacity-50')" class="cursor-pointer bg-purple-100 px-3 py-1 rounded-md text-purple-800 border border-purple-200 hover:bg-purple-200 transition select-none">${w}</div>`).join('');
-        }
-        function printSopa() {
-            const content = document.getElementById('sopaArea').innerHTML;
-            const w = window.open('', '_blank');
-            w.document.write(`<html><head><script src="https://cdn.tailwindcss.com"><\/script><style>@import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap'); .font-hand{font-family:'Patrick Hand',sans-serif;} .sopa-cell{width:2rem;height:2rem;border:1px solid #000;display:flex;align-items:center;justify-content:center;font-weight:bold;}</style></head><body class="p-8 text-center">${content}</body></html>`);
-            w.document.close();
-        }
-
-        // --- 2. MEMORY ---
-        let memCards = [], memFlipped = [], memSolved = 0, memMoves = 0, memTimer, memSecs = 0;
-        function startMemory() {
-            const raw = document.getElementById('memoryWords').value;
-            const words = raw.split(/[\n,]/).map(w => w.trim()).filter(w => w);
-            if(words.length < 2) return alert("Mínim 2 paraules!");
-            document.getElementById('memorySetup').classList.add('hidden');
-            document.getElementById('memoryGame').classList.remove('hidden');
-            const deck = [...words, ...words].sort(() => 0.5 - Math.random());
-            const grid = document.getElementById('memGrid');
-            let cols = deck.length > 12 ? 4 : 3;
-            if(window.innerWidth < 768) cols = 3;
-            grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-            grid.innerHTML = '';
-            memCards = []; memFlipped = []; memSolved = 0; memMoves = 0; memSecs = 0;
-            document.getElementById('memMoves').innerText = '0';
-            document.getElementById('memTime').innerText = '00:00';
-            deck.forEach((word, i) => {
-                const card = document.createElement('div');
-                card.className = 'mem-card animate-pop';
-                card.dataset.word = word;
-                card.innerHTML = `<div class="card-inner"><div class="card-front mem-front"><i data-lucide="help-circle"></i></div><div class="card-back mem-back">${word}</div></div>`;
-                card.onclick = () => flipCard(card);
-                grid.appendChild(card);
-            });
-            lucide.createIcons();
-            startMemTimer();
-        }
-        function flipCard(card) {
-            if(memFlipped.length >= 2 || card.classList.contains('flipped') || card.classList.contains('matched')) return;
-            card.classList.add('flipped');
-            memFlipped.push(card);
-            if(memFlipped.length === 2) {
-                memMoves++;
-                document.getElementById('memMoves').innerText = memMoves;
-                setTimeout(checkMatch, 800);
-            }
-        }
-        function checkMatch() {
-            const [c1, c2] = memFlipped;
-            if(c1.dataset.word === c2.dataset.word) {
-                c1.classList.add('matched'); c2.classList.add('matched');
-                memSolved++;
-                if(memSolved === document.querySelectorAll('.mem-card').length / 2) {
-                    stopMemTimer();
-                    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-                }
-            } else {
-                c1.classList.remove('flipped'); c2.classList.remove('flipped');
-            }
-            memFlipped = [];
-        }
-        function startMemTimer() {
-            stopMemTimer();
-            memTimer = setInterval(() => {
-                memSecs++;
-                const m = Math.floor(memSecs/60).toString().padStart(2,'0');
-                const s = (memSecs%60).toString().padStart(2,'0');
-                document.getElementById('memTime').innerText = `${m}:${s}`;
-            }, 1000);
-        }
-        function stopMemTimer() { clearInterval(memTimer); }
-        function restartMemory() { 
-            document.getElementById('memoryGame').classList.add('hidden');
-            document.getElementById('memorySetup').classList.remove('hidden');
-            stopMemTimer();
-        }
-
-        // --- 3. MOTS ENCREUATS ---
-        let cwGridData = [], cwPlacedWords = [];
-        const cwGridSize = 15;
-        function cwInit() {
-            const data = [{ w: "PARIS", c: "Capital de França" }, { w: "ITALIA", c: "País amb forma de bota" }, { w: "ALPS", c: "Serralada més alta d'Europa" }, { w: "DANUBI", c: "Riu que passa per Viena" }];
-            const cont = document.getElementById('cwWordsContainer');
-            data.forEach(i => cwAddRow(i.w, i.c));
-            cwAddRow();
-            cwGenerate();
-        }
-        function cwAddRow(word="", clue="") {
-            const div = document.createElement('div');
-            div.className = "flex gap-2 items-start";
-            div.innerHTML = `<div class="flex-1 space-y-1"><input type="text" placeholder="Paraula" value="${word}" class="w-full p-2 text-sm border border-slate-300 rounded uppercase font-bold cw-word-input"><input type="text" placeholder="Definició..." value="${clue}" class="w-full p-2 text-sm border border-slate-300 rounded cw-clue-input"></div><button onclick="this.parentElement.remove()" class="mt-2 text-slate-400 hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
-            document.getElementById('cwWordsContainer').appendChild(div);
-            lucide.createIcons();
-        }
-        function cwGenerate() {
-            document.getElementById('cwDisplayTitle').innerText = document.getElementById('cwTitle').value || "Mots Encreuats";
-            const inputs = document.querySelectorAll('#cwWordsContainer > div');
-            let words = [];
-            inputs.forEach(r => {
-                const w = r.querySelector('.cw-word-input').value.trim().toUpperCase().replace(/[^A-Z]/g, '');
-                const c = r.querySelector('.cw-clue-input').value.trim();
-                if(w && c) words.push({ word: w, clue: c });
-            });
-            if(words.length === 0) return;
-            words.sort((a,b) => b.word.length - a.word.length);
-            let grid = Array(cwGridSize).fill().map(() => Array(cwGridSize).fill(null));
-            cwPlacedWords = [];
-            const first = words[0];
-            const startRow = Math.floor(cwGridSize/2);
-            const startCol = Math.floor((cwGridSize - first.word.length)/2);
-            cwPlaceWord(grid, first, startRow, startCol, 'across');
-            cwPlacedWords.push({...first, row: startRow, col: startCol, dir: 'across', num: 1});
-            for(let i=1; i<words.length; i++) {
-                const curr = words[i];
-                let placed = false;
-                for(let placedW of cwPlacedWords) {
-                    if(placed) break;
-                    for(let j=0; j<placedW.word.length; j++) {
-                        const char = placedW.word[j];
-                        const pRow = placedW.dir==='across'? placedW.row : placedW.row+j;
-                        const pCol = placedW.dir==='across'? placedW.col+j : placedW.col;
-                        for(let k=0; k<curr.word.length; k++) {
-                            if(curr.word[k] === char) {
-                                const newDir = placedW.dir==='across'? 'down' : 'across';
-                                const newRow = newDir==='down'? pRow - k : pRow;
-                                const newCol = newDir==='down'? pCol : pCol - k;
-                                if(cwCanPlace(grid, curr.word, newRow, newCol, newDir)) {
-                                    cwPlaceWord(grid, curr, newRow, newCol, newDir);
-                                    cwPlacedWords.push({...curr, row: newRow, col: newCol, dir: newDir, num: cwPlacedWords.length+1});
-                                    placed = true; break;
-                                }
-                            }
-                        }
-                        if(placed) break;
-                    }
-                }
-            }
-            cwPlacedWords.sort((a,b) => (a.row - b.row) || (a.col - b.col));
-            cwPlacedWords.forEach((w,i) => w.num = i+1);
-            cwRenderGrid(grid);
-            cwRenderClues();
-        }
-        function cwCanPlace(grid, word, row, col, dir) {
-            if(row<0 || col<0) return false;
-            if(dir==='across') {
-                if(col+word.length > cwGridSize) return false;
-                if(col>0 && grid[row][col-1] !== null) return false;
-                if(col+word.length < cwGridSize && grid[row][col+word.length] !== null) return false;
-            } else {
-                if(row+word.length > cwGridSize) return false;
-                if(row>0 && grid[row-1][col] !== null) return false;
-                if(row+word.length < cwGridSize && grid[row+word.length][col] !== null) return false;
-            }
-            for(let i=0; i<word.length; i++) {
-                const r = dir==='across'? row : row+i;
-                const c = dir==='across'? col+i : col;
-                const cell = grid[r][c];
-                if(cell !== null && cell !== word[i]) return false;
-                if(cell === null) {
-                    if(dir==='across') { if((r>0 && grid[r-1][c]!==null) || (r<cwGridSize-1 && grid[r+1][c]!==null)) return false; }
-                    else { if((c>0 && grid[r][c-1]!==null) || (c<cwGridSize-1 && grid[r][c+1]!==null)) return false; }
-                }
-            }
-            return true;
-        }
-        function cwPlaceWord(grid, item, row, col, dir) {
-            for(let i=0; i<item.word.length; i++) {
-                const r = dir==='across'? row : row+i;
-                const c = dir==='across'? col+i : col;
-                grid[r][c] = item.word[i];
-            }
-        }
-        function cwRenderGrid(grid) {
-            const cont = document.getElementById('cwGrid');
-            cont.innerHTML = '';
-            let minR=cwGridSize, maxR=0, minC=cwGridSize, maxC=0, has=false;
-            for(let r=0; r<cwGridSize; r++) for(let c=0; c<cwGridSize; c++) if(grid[r][c]!==null) {
-                has=true; minR=Math.min(minR,r); maxR=Math.max(maxR,r); minC=Math.min(minC,c); maxC=Math.max(maxC,c);
-            }
-            if(!has) { minR=0; maxR=5; minC=0; maxC=5; }
-            cont.style.gridTemplateColumns = `repeat(${maxC-minC+1}, minmax(0,1fr))`;
-            for(let r=minR; r<=maxR; r++) {
-                for(let c=minC; c<=maxC; c++) {
-                    const cellDiv = document.createElement('div');
-                    if(grid[r][c] === null) cellDiv.className = "cw-cell black-cell";
-                    else {
-                        cellDiv.className = "cw-cell";
-                        const startW = cwPlacedWords.find(w => w.row===r && w.col===c);
-                        if(startW) { const num = document.createElement('span'); num.className="cw-number"; num.innerText=startW.num; cellDiv.appendChild(num); }
-                        const inp = document.createElement('input'); inp.className="cell-input"; inp.maxLength=1; inp.dataset.ans = grid[r][c]; cellDiv.appendChild(inp);
-                    }
-                    cont.appendChild(cellDiv);
-                }
-            }
-        }
-        function cwRenderClues() {
-            const ac = document.getElementById('cwCluesAcross');
-            const dn = document.getElementById('cwCluesDown');
-            ac.innerHTML=''; dn.innerHTML='';
-            cwPlacedWords.forEach(w => {
-                const li = document.createElement('li');
-                li.innerHTML = `<strong class="text-teal-600">${w.num}.</strong> ${w.clue}`;
-                if(w.dir==='across') ac.appendChild(li); else dn.appendChild(li);
-            });
-        }
-        function cwCheck() {
-            let correct = true;
-            document.querySelectorAll('.cell-input').forEach(inp => {
-                if(inp.value.toUpperCase() === inp.dataset.ans) inp.style.backgroundColor = "#dcfce7";
-                else { inp.style.backgroundColor = "#fee2e2"; correct=false; }
-            });
-            if(correct) confetti();
-        }
-        function cwPrint() {
-            const title = document.getElementById('cwTitle').value;
-            const gridHtml = document.getElementById('cwGrid').outerHTML;
-            const temp = document.createElement('div'); temp.innerHTML=gridHtml;
-            temp.querySelectorAll('input').forEach(i => i.remove());
-            temp.querySelectorAll('.cw-cell').forEach(c => { c.style.border="1px solid black"; c.style.width="40px"; c.style.height="40px"; if(c.classList.contains('black-cell')) c.style.border="none"; });
-            const w = window.open('','_blank');
-            w.document.write(`<html><head><style>body{font-family:sans-serif;padding:40px;} .grid{display:grid;gap:0;margin-bottom:40px;} .cw-cell{position:relative;display:flex;}</style></head><body><h1>${title}</h1><div class="grid" style="${document.getElementById('cwGrid').style.cssText}">${temp.innerHTML}</div></body></html>`);
-            w.document.close();
-        }
-
-        // --- 4. PENJAT (HANGMAN) ---
-        // Variables prefixades amb pj_ per evitar conflictes
-        const PJ_MAX_ERRORS = 9;
-        const PJ_ALPHABET = "ABCÇDEFGHIJKLMNÑOPQRSTUVWXYZ";
-        let pjSecretPhrase = "";
-        let pjNormalizedPhrase = "";
-        let pjGuessedLetters = new Set();
-        let pjErrors = 0;
-        let pjIsGameOver = false;
-
-        // Elements DOM Penjat
-        const pjSecretInput = document.getElementById('pjSecretInput');
-        const pjWordDisplay = document.getElementById('pjWordDisplay');
-        const pjKeyboard = document.getElementById('pjKeyboard');
-        const pjCanvas = document.getElementById('pjHangmanCanvas');
-        const pjCtx = pjCanvas.getContext('2d');
-        const pjErrorCountDisplay = document.getElementById('pjErrorCount');
-        const pjResultMessage = document.getElementById('pjResultMessage');
-        const pjPlayAgainBtn = document.getElementById('pjPlayAgainBtn');
-
-        function pjNormalizeText(text) {
-            return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
-        }
-
-        function pjTogglePassword(show) {
-            pjSecretInput.type = show ? "text" : "password";
-        }
-
-        function pjStartGame() {
-            const val = pjSecretInput.value.trim();
-            if (val.length < 2) {
-                alert("Si us plau, escriu una paraula o frase més llarga.");
-                return;
-            }
-
-            pjSecretPhrase = val.toUpperCase();
-            pjNormalizedPhrase = pjNormalizeText(pjSecretPhrase);
-            
-            // Reiniciar estat
-            pjGuessedLetters.clear();
-            pjErrors = 0;
-            pjIsGameOver = false;
-            
-            // UI Switch
-            document.getElementById('pjSetupScreen').classList.add('hidden');
-            document.getElementById('pjGameScreen').classList.remove('hidden');
-            pjResultMessage.classList.add('hidden');
-            pjPlayAgainBtn.classList.add('hidden');
-            
-            // Netejar canvas i estils
-            pjCtx.clearRect(0, 0, pjCanvas.width, pjCanvas.height);
-            pjCtx.strokeStyle = '#e2e8f0'; // Slate-200 color
-            pjCtx.lineWidth = 4;
-            pjCtx.lineCap = 'round';
-            pjErrorCountDisplay.innerText = 0;
-
-            pjRenderWord();
-            pjRenderKeyboard();
-        }
-
-        function pjResetGame() {
-            pjSecretInput.value = "";
-            document.getElementById('pjGameScreen').classList.add('hidden');
-            document.getElementById('pjSetupScreen').classList.remove('hidden');
-        }
-
-        function pjRenderWord() {
-            pjWordDisplay.innerHTML = '';
-            let allGuessed = true;
-
-            for (let i = 0; i < pjSecretPhrase.length; i++) {
-                const char = pjSecretPhrase[i];
-                const normChar = pjNormalizedPhrase[i];
-                
-                const span = document.createElement('div');
-                // Estils adaptats al tema clar/vermell del Penjat
-                span.className = "w-10 h-12 md:w-12 md:h-16 flex items-center justify-center text-2xl md:text-3xl font-bold rounded-lg border-b-4 mx-1 transition-all";
-                
-                if (char === ' ') {
-                    span.className = "w-6 h-16 flex items-center justify-center";
-                    span.innerHTML = "&nbsp;";
-                } else if (pjGuessedLetters.has(normChar) || !PJ_ALPHABET.includes(normChar)) {
-                    span.innerText = char;
-                    span.className += " bg-red-100 border-red-200 text-red-800 letter-reveal";
-                } else {
-                    span.innerText = "";
-                    span.className += " bg-slate-100 border-slate-200 text-transparent";
-                    allGuessed = false;
-                }
-                pjWordDisplay.appendChild(span);
-            }
-
-            if (allGuessed && !pjIsGameOver) {
-                pjHandleWin();
-            }
-        }
-
-        function pjRenderKeyboard() {
-            pjKeyboard.innerHTML = '';
-            for (let letter of PJ_ALPHABET) {
-                const btn = document.createElement('button');
-                btn.innerText = letter;
-                btn.className = "key-btn h-12 rounded-lg font-bold bg-white border-b-4 border-slate-200 hover:bg-slate-50 text-slate-700";
-                
-                if (pjGuessedLetters.has(letter)) {
-                    btn.disabled = true;
-                    if (pjNormalizedPhrase.includes(letter)) {
-                        btn.classList.add('key-correct');
-                    } else {
-                        btn.classList.add('key-wrong');
-                    }
-                }
-                btn.onclick = () => pjHandleGuess(letter);
-                pjKeyboard.appendChild(btn);
-            }
-        }
-
-        function pjHandleGuess(letter) {
-            if (pjIsGameOver || pjGuessedLetters.has(letter)) return;
-
-            pjGuessedLetters.add(letter);
-            
-            if (pjNormalizedPhrase.includes(letter)) {
-                pjRenderWord();
-            } else {
-                pjErrors++;
-                pjErrorCountDisplay.innerText = pjErrors;
-                pjDrawHangmanStep(pjErrors);
-                
-                if (pjErrors >= PJ_MAX_ERRORS) {
-                    pjHandleLoss();
-                }
-            }
-            pjRenderKeyboard();
-        }
-
-        function pjDrawHangmanStep(step) {
-            pjCtx.beginPath();
-            // Estil de línia per al dibuix (gris fosc)
-            pjCtx.strokeStyle = '#475569'; 
-            
-            switch(step) {
-                case 1: pjCtx.moveTo(20, 280); pjCtx.lineTo(180, 280); break; // Base
-                case 2: pjCtx.moveTo(50, 280); pjCtx.lineTo(50, 20); break;   // Pal Vertical
-                case 3: pjCtx.moveTo(50, 20); pjCtx.lineTo(150, 20); break;   // Pal Superior
-                case 4: pjCtx.moveTo(150, 20); pjCtx.lineTo(150, 50); break;  // Corda
-                case 5: pjCtx.arc(150, 80, 30, 0, Math.PI * 2); break;        // Cap
-                case 6: pjCtx.moveTo(150, 110); pjCtx.lineTo(150, 200); break;// Cos
-                case 7: pjCtx.moveTo(150, 130); pjCtx.lineTo(120, 170); break;// Braç E
-                case 8: pjCtx.moveTo(150, 130); pjCtx.lineTo(180, 170); break;// Braç D
-                case 9: 
-                    pjCtx.moveTo(150, 200); pjCtx.lineTo(120, 250); // Cama E
-                    pjCtx.moveTo(150, 200); pjCtx.lineTo(180, 250); // Cama D
-                    break;
-            }
-            pjCtx.stroke();
-        }
-
-        function pjHandleWin() {
-            pjIsGameOver = true;
-            const isPhrase = pjSecretPhrase.includes(' ');
-            
-            pjResultMessage.classList.remove('hidden', 'bg-red-100', 'text-red-800');
-            pjResultMessage.classList.add('bg-green-100', 'text-green-800', 'border', 'border-green-200');
-            pjResultMessage.innerHTML = isPhrase ? `🎉 FRASE CORRECTA! 🎉` : `🎉 PARAULA CORRECTA! 🎉`;
-            
-            pjPlayAgainBtn.classList.remove('hidden');
-            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-        }
-
-        function pjHandleLoss() {
-            pjIsGameOver = true;
-            
-            // Revelar tot
-            for (let char of pjNormalizedPhrase) {
-                if(PJ_ALPHABET.includes(char)) pjGuessedLetters.add(char);
-            }
-            pjRenderWord();
-
-            pjResultMessage.classList.remove('hidden', 'bg-green-100', 'text-green-800');
-            pjResultMessage.classList.add('bg-red-100', 'text-red-800', 'border', 'border-red-200');
-            pjResultMessage.innerHTML = `💀 HAS PERDUT!<br><span class="text-sm text-gray-600 mt-1 block">La resposta era: ${pjSecretPhrase}</span>`;
-            
-            pjPlayAgainBtn.classList.remove('hidden');
-            pjDisableKeyboard();
-        }
-
-        function pjDisableKeyboard() {
-            const btns = document.querySelectorAll('#pjKeyboard .key-btn');
-            btns.forEach(b => b.disabled = true);
-        }
-
     </script>
 </body>
 </html>
