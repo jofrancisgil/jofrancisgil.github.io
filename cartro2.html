@@ -1,0 +1,169 @@
+import React, { useState, useEffect } from 'react';
+import { Sparkles } from 'lucide-react';
+
+const BingoCard = () => {
+  const [card, setCard] = useState([]);
+  const [marked, setMarked] = useState(new Set());
+  const [showBingo, setShowBingo] = useState(false);
+
+  const generateCard = () => {
+    const newCard = [];
+    
+    // Per cada fila (3 files)
+    for (let row = 0; row < 3; row++) {
+      const rowNumbers = [];
+      const columnsWithNumbers = [];
+      
+      // Triar 5 columnes aleatòries per aquesta fila
+      while (columnsWithNumbers.length < 5) {
+        const col = Math.floor(Math.random() * 9);
+        if (!columnsWithNumbers.includes(col)) {
+          columnsWithNumbers.push(col);
+        }
+      }
+      columnsWithNumbers.sort((a, b) => a - b);
+      
+      // Generar números per cada columna
+      for (let col = 0; col < 9; col++) {
+        if (columnsWithNumbers.includes(col)) {
+          let min, max;
+          if (col === 0) {
+            min = 1;
+            max = 9;
+          } else if (col === 8) {
+            min = 80;
+            max = 90;
+          } else {
+            min = col * 10;
+            max = col * 10 + 9;
+          }
+          
+          // Generar número aleatori dins del rang
+          let num;
+          do {
+            num = Math.floor(Math.random() * (max - min + 1)) + min;
+          } while (newCard.flat().includes(num));
+          
+          rowNumbers.push(num);
+        } else {
+          rowNumbers.push(null);
+        }
+      }
+      
+      newCard.push(rowNumbers);
+    }
+    
+    setCard(newCard);
+    setMarked(new Set());
+    setShowBingo(false);
+  };
+
+  useEffect(() => {
+    generateCard();
+  }, []);
+
+  const toggleNumber = (num) => {
+    if (num === null) return;
+    
+    const newMarked = new Set(marked);
+    if (newMarked.has(num)) {
+      newMarked.delete(num);
+    } else {
+      newMarked.add(num);
+    }
+    setMarked(newMarked);
+    
+    // Comprovar si tots els números estan marcats
+    const allNumbers = card.flat().filter(n => n !== null);
+    const allMarked = allNumbers.every(n => newMarked.has(n));
+    
+    if (allMarked && allNumbers.length > 0) {
+      setTimeout(() => setShowBingo(true), 300);
+    } else {
+      setShowBingo(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center p-4">
+      <div className="max-w-3xl w-full">
+        <h1 className="text-4xl font-bold text-white text-center mb-8 flex items-center justify-center gap-3">
+          <Sparkles className="text-yellow-300" />
+          Bingo
+          <Sparkles className="text-yellow-300" />
+        </h1>
+        
+        <div className="bg-white rounded-xl shadow-2xl p-6 mb-6">
+          <div className="grid grid-cols-9 gap-1 mb-4">
+            {card.map((row, rowIdx) => (
+              row.map((num, colIdx) => (
+                <div
+                  key={`${rowIdx}-${colIdx}`}
+                  onClick={() => toggleNumber(num)}
+                  className={`
+                    aspect-square flex items-center justify-center text-lg font-bold rounded-lg
+                    transition-all duration-300 cursor-pointer
+                    ${num === null 
+                      ? 'bg-gray-300' 
+                      : marked.has(num)
+                        ? 'bg-gradient-to-br from-green-400 to-green-600 text-white scale-95 shadow-inner'
+                        : 'bg-gradient-to-br from-blue-400 to-blue-600 text-white hover:scale-105 hover:shadow-lg'
+                    }
+                  `}
+                >
+                  {num !== null && (
+                    <span className={marked.has(num) ? 'line-through' : ''}>
+                      {num}
+                    </span>
+                  )}
+                </div>
+              ))
+            ))}
+          </div>
+        </div>
+
+        <button
+          onClick={generateCard}
+          className="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold py-3 px-6 rounded-lg
+                     hover:from-pink-600 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl"
+        >
+          Nova Butlleta
+        </button>
+      </div>
+
+      {showBingo && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 animate-fadeIn">
+          <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"></div>
+          <div className="relative bg-gradient-to-br from-yellow-400 via-orange-500 to-red-500 rounded-3xl p-12 shadow-2xl animate-bounce">
+            <div className="text-8xl font-black text-white text-center transform rotate-[-5deg] animate-pulse">
+              🎉 BINGO! 🎉
+            </div>
+            <div className="absolute -top-4 -left-4 text-6xl animate-spin-slow">⭐</div>
+            <div className="absolute -top-4 -right-4 text-6xl animate-spin-slow">⭐</div>
+            <div className="absolute -bottom-4 -left-4 text-6xl animate-spin-slow">⭐</div>
+            <div className="absolute -bottom-4 -right-4 text-6xl animate-spin-slow">⭐</div>
+          </div>
+        </div>
+      )}
+
+      <style jsx>{`
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes spin-slow {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-out;
+        }
+        .animate-spin-slow {
+          animation: spin-slow 3s linear infinite;
+        }
+      `}</style>
+    </div>
+  );
+};
+
+export default BingoCard;
