@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recursos de Música - Jo Recursos</title>
+    <link rel="icon" type="image/png" href="IMG/logo.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            /* Gradient de fons groguenc molt suau */
+            background: linear-gradient(135deg, #fffdf5 0%, #fff6c2 100%);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Navegació */
+        nav {
+            background: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .logo {
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo img {
+            height: 96px;
+            width: auto;
+        }
+
+        .menu {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .menu a {
+            text-decoration: none;
+            color: #555;
+            padding: 10px 18px;
+            border-radius: 50px;
+            font-weight: normal; 
+            font-family: inherit;
+            transition: all 0.3s ease;
+            font-size: 1.05em; 
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .menu a i {
+            font-size: 0.9em;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+
+        /* Highlight per a la secció actual (opcional, però queda bé) */
+        .menu a.active {
+            color: #f09819;
+            background-color: #fff8e1;
+            font-weight: 600;
+        }
+        .menu a.active i {
+            opacity: 1;
+            color: #f09819;
+        }
+
+        .menu a:hover {
+            color: #f09819; /* Taronja/Groc fosc al hover per aquesta pàgina */
+            background-color: #fff8e1;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .menu a:hover i {
+            opacity: 1;
+            color: #f09819;
+        }
+
+        /* Contingut Principal */
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            flex: 1;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            text-align: center;
+            padding: 60px 20px;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 3em;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            font-weight: 800;
+        }
+
+        .gradient-text {
+            /* Gradient Groc-Taronja per al títol */
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: block;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            color: #666;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        h2 {
+            border-bottom: 2px solid #eecda3; /* Línia groguenca */
+            padding-bottom: 10px;
+            margin-top: 50px;
+            margin-bottom: 25px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            color: #444;
+        }
+
+        .title-section {
+            background: linear-gradient(135deg, #f09819 0%, #edde5d 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Graella */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .card {
+            border-radius: 15px;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-decoration: none;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 220px;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .card-icon {
+            font-size: 45px;
+            margin-bottom: 15px;
+            color: rgba(255, 255, 255, 0.95);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .card h3 {
+            margin: 10px 0;
+            font-size: 1.5em;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .card p {
+            font-size: 1em;
+            line-height: 1.4;
+            opacity: 0.95;
+            margin: 0;
+            font-weight: 500;
+        }
+
+        /* Gradient Groc (Sunny Morning) */
+        .grad-yellow { 
+            background: linear-gradient(120deg, #f6d365 0%, #fda085 100%); 
+        }
+
+        /* Footer */
+        footer {
+            background: linear-gradient(135deg, #fffcf5 0%, #fae8c8 100%);
+            color: #444;
+            text-align: center;
+            padding: 40px 20px;
+            margin-top: 60px;
+            border-top: 1px solid rgba(0,0,0,0.05);
+        }
+
+        footer p {
+            margin: 10px 0;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .cc-license img {
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+        
+        .cc-license a {
+            color: #d35400; /* Enllaç taronja fosc */
+            text-decoration: underline;
+        }
+
+        /* Responsivitat */
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .menu {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 10px;
+                width: 100%;
+            }
+            .menu a {
+                margin: 0;
+                background-color: #fff;
+                border: 1px solid #eee;
+            }
+            h1 { font-size: 2em; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <img src="img/logo-nofons.png" alt="Logo Repositori" onerror="this.src='https://via.placeholder.com/200x96?text=Logo+Recursos'">
+            </a>
+            <div class="menu">
+                <a href="matematiques.html"><i class="fas fa-calculator"></i> Matemàtiques</a>
+                <a href="llengues.html"><i class="fas fa-comments"></i> Llengües</a>
+                <a href="medi.html"><i class="fas fa-globe-europe"></i> Medi</a>
+                <a href="musica.html" class="active"><i class="fas fa-music"></i> Música</a>
+                <a href="jocs.html"><i class="fas fa-gamepad"></i> Jocs</a>
+                <a href="gestio.html"><i class="fas fa-tools"></i> Gestió</a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <!-- Hero Section -->
+        <div class="hero-section">
+            <h1>
+                Recursos de <br>
+                <span class="gradient-text">Música i So</span>
+            </h1>
+            <p class="subtitle">
+                Eines interactives per explorar el ritme, la melodia i la creativitat musical a l'aula.
+            </p>
+        </div>
+
+        <!-- SECCIÓ: Eines Musicals -->
+        <h2 class="title-section"><i class="fas fa-music"></i> Eines i Instruments</h2>
+        <div class="grid-container">
+            <!-- Targeta 1: Music Lab -->
+            <a href="musiclab.html" class="card grad-yellow">
+                <div class="card-icon"><i class="fas fa-sliders-h"></i></div>
+                <h3>Music Lab</h3>
+                <p>Experimenta amb sons, ritmes i seqüenciadors musicals.</p>
+            </a>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>Creat per Jo Francis Gil</p>
+            <div class="cc-license">
+                <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">
+                    <img alt="Llicència de Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" />
+                </a><br />
+                Aquesta obra està subjecta a una llicència de <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Reconeixement-NoComercial-CompartirIgual 4.0 Internacional de Creative Commons</a>.
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
