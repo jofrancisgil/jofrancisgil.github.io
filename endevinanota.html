@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Endevina la Nota - Jo Recursos</title>
+    <link rel="icon" type="image/png" href="IMG/logo.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* --- ESTILS GENERALS (Adaptats a to groguenc) --- */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            /* Fons groc crema suau */
+            background: linear-gradient(135deg, #fffdf2 0%, #fff8e1 100%);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Navegació */
+        nav {
+            background: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .logo {
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo img {
+            height: 96px;
+            width: auto;
+        }
+
+        .menu {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .menu a {
+            text-decoration: none;
+            color: #555;
+            padding: 10px 18px;
+            border-radius: 50px;
+            font-weight: normal; 
+            font-family: inherit;
+            transition: all 0.3s ease;
+            font-size: 1.05em; 
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .menu a i {
+            font-size: 0.9em;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+
+        .menu a:hover {
+            /* Canvi a taronja/ocre */
+            color: #d97706; 
+            background-color: #fffbeb; 
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .menu a:hover i {
+            opacity: 1;
+            color: #d97706;
+        }
+
+        /* Contingut Principal */
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            flex: 1;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .hero-section {
+            text-align: center;
+            padding: 30px 20px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 3em;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            font-weight: 800;
+        }
+
+        .gradient-text {
+            /* Gradient daurat/taronja */
+            background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            color: #666;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* Footer */
+        footer {
+            /* Gradient groc molt pàl·lid */
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            color: #444;
+            text-align: center;
+            padding: 40px 20px;
+            margin-top: 60px;
+            border-top: 1px solid rgba(217, 119, 6, 0.1);
+        }
+
+        footer p {
+            margin: 10px 0;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .cc-license img {
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+        
+        .cc-license a {
+            color: #d97706; /* Color enllaç footer */
+            text-decoration: underline;
+        }
+
+        /* Responsivitat Menú */
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .menu {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 10px;
+                width: 100%;
+            }
+            .menu a {
+                margin: 0;
+                background-color: #fff;
+                border: 1px solid #eee;
+            }
+            h1 { font-size: 2em; }
+        }
+
+        /* --- ESTILS DEL JOC ENDEVINA LA NOTA --- */
+
+        .game-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            padding: 40px;
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+            border: 1px solid rgba(0,0,0,0.02);
+            position: relative;
+            overflow: hidden;
+            min-height: 500px; 
+        }
+
+        /* Pantalles de Configuració i Resultats (Overlay) */
+        .overlay-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.98);
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .overlay-title {
+            font-size: 2em;
+            color: #d97706; /* Títol ocre */
+            margin-bottom: 20px;
+            font-weight: 800;
+        }
+
+        .setup-options {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .mode-selector {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            text-align: left;
+        }
+
+        .mode-label {
+            font-weight: bold;
+            color: #555;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 15px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .time-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            text-align: left;
+            transition: opacity 0.3s;
+        }
+        
+        .time-input-group.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .time-input {
+            padding: 10px;
+            border: 2px solid #e0e6ed;
+            border-radius: 8px;
+            font-size: 1.1em;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .btn-primary {
+            /* Botó groc/taronja vibrant */
+            background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.6);
+        }
+
+        /* Interfície del Joc */
+        #game-ui {
+            display: none; 
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        /* Marcador */
+        .score-board {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #555;
+            /* Fons marcador suau */
+            background: #fffbeb;
+            padding: 15px 25px;
+            border-radius: 12px;
+        }
+
+        .score-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .timer-display {
+            color: #d97706; /* Color rellotge */
+            font-size: 1.2em;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .score-correct { color: #2ecc71; }
+        .score-wrong { color: #e74c3c; }
+
+        /* Àrea del Pentagrama */
+        .staff-container {
+            margin: 30px auto;
+            position: relative;
+            max-width: 500px;
+            height: 220px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #ffffff;
+            border-radius: 10px;
+        }
+
+        /* Botons de Resposta */
+        .options-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .note-btn {
+            background: white;
+            border: 2px solid #e0e6ed;
+            border-radius: 12px;
+            padding: 15px 25px;
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #555;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 80px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .note-btn:hover {
+            /* Hover taronja */
+            border-color: #f59e0b;
+            color: #f59e0b;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(245, 158, 11, 0.2);
+        }
+
+        .note-btn:active {
+            transform: translateY(1px);
+        }
+
+        /* Estats dels botons */
+        .note-btn.correct {
+            background-color: #2ecc71;
+            border-color: #2ecc71;
+            color: white;
+            animation: pulse 0.5s;
+        }
+
+        .note-btn.wrong {
+            background-color: #e74c3c;
+            border-color: #e74c3c;
+            color: white;
+            animation: shake 0.5s;
+        }
+
+        /* Feedback Text */
+        #feedback-msg {
+            height: 30px;
+            margin-top: 15px;
+            font-weight: bold;
+            font-size: 1.1em;
+            transition: opacity 0.3s;
+        }
+
+        /* Animacions */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+
+        /* Estils SVG */
+        svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .staff-line {
+            stroke: #333;
+            stroke-width: 2;
+        }
+
+        .music-note {
+            fill: #333;
+            transition: fill 0.3s;
+        }
+        
+        .music-note.success {
+            fill: #2ecc71;
+        }
+        
+        .music-note.error {
+            fill: #e74c3c;
+        }
+
+        .ledger-line {
+            stroke: #333;
+            stroke-width: 2;
+        }
+
+        .clef {
+            font-family: 'Times New Roman', serif;
+            font-size: 140px;
+            fill: #333;
+            user-select: none;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Navegació -->
+    <nav>
+        <div class="nav-container">
+            <a href="https://jofrancisgil.github.io/" class="logo">
+                <img src="https://jofrancisgil.github.io/img/logo-nofons.png" alt="Logo Repositori">
+            </a>
+            <div class="menu">
+                <a href="https://jofrancisgil.github.io/matematiques.html"><i class="fas fa-calculator"></i> Matemàtiques</a>
+                <a href="https://jofrancisgil.github.io/llengues.html"><i class="fas fa-comments"></i> Llengües</a>
+                <a href="https://jofrancisgil.github.io/medi.html"><i class="fas fa-globe-europe"></i> Medi</a>
+                <a href="https://jofrancisgil.github.io/jocs.html"><i class="fas fa-gamepad"></i> Jocs</a>
+                <a href="https://jofrancisgil.github.io/gestio.html"><i class="fas fa-tools"></i> Gestió</a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <!-- Hero Section -->
+        <div class="hero-section">
+            <h1>
+                Endevina <span class="gradient-text">la Nota</span>
+            </h1>
+            <p class="subtitle">
+                Mira el pentagrama i selecciona la nota correcta.
+            </p>
+        </div>
+
+        <!-- Àrea de Joc -->
+        <div class="game-card">
+            
+            <!-- Pantalla de Configuració -->
+            <div id="setup-screen" class="overlay-screen">
+                <div class="overlay-title">Configuració</div>
+                <div class="setup-options">
+                    
+                    <div class="mode-selector">
+                        <span class="mode-label">Mode de Joc:</span>
+                        <div class="radio-group">
+                            <label class="radio-option">
+                                <input type="radio" name="gameMode" value="infinite" checked onchange="toggleTimeInput()">
+                                Infinit
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="gameMode" value="timed" onchange="toggleTimeInput()">
+                                Contra Rellotge
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="time-input-container" class="time-input-group disabled">
+                        <span class="mode-label">Temps (segons):</span>
+                        <input type="number" id="time-limit" class="time-input" value="60" min="10" max="300">
+                    </div>
+
+                    <button class="btn-primary" onclick="startGame()">Començar Joc</button>
+                </div>
+            </div>
+
+            <!-- Pantalla de Resultats (Game Over) -->
+            <div id="result-screen" class="overlay-screen" style="display:none;">
+                <div class="overlay-title">Temps Esgotat!</div>
+                <div style="font-size: 1.5em; margin: 20px 0;">
+                    Puntuació Final: <span id="final-score" style="color:#2ecc71; font-weight:bold;">0</span>
+                </div>
+                <div style="color: #666; margin-bottom: 30px;">
+                    Encerts: <span id="final-correct">0</span> | Errors: <span id="final-wrong">0</span>
+                </div>
+                <button class="btn-primary" onclick="resetGame()">Tornar a jugar</button>
+            </div>
+
+            <!-- Interfície de Joc -->
+            <div id="game-ui">
+                <div class="score-board">
+                    <div class="score-item score-correct">
+                        <i class="fas fa-check-circle"></i> <span id="correct-count">0</span>
+                    </div>
+                    
+                    <!-- Timer Display -->
+                    <div id="timer-display" class="timer-display" style="display:none;">
+                        <i class="fas fa-stopwatch"></i> <span id="time-left">60</span>s
+                    </div>
+
+                    <div class="score-item score-wrong">
+                        <i class="fas fa-times-circle"></i> <span id="wrong-count">0</span>
+                    </div>
+                </div>
+
+                <div class="staff-container" id="staff-canvas">
+                    <!-- SVG es generarà aquí via JS -->
+                </div>
+
+                <div id="feedback-msg"></div>
+
+                <div class="options-container">
+                    <button class="note-btn" onclick="handleNoteClick('Do')">Do</button>
+                    <button class="note-btn" onclick="handleNoteClick('Re')">Re</button>
+                    <button class="note-btn" onclick="handleNoteClick('Mi')">Mi</button>
+                    <button class="note-btn" onclick="handleNoteClick('Fa')">Fa</button>
+                    <button class="note-btn" onclick="handleNoteClick('Sol')">Sol</button>
+                    <button class="note-btn" onclick="handleNoteClick('La')">La</button>
+                    <button class="note-btn" onclick="handleNoteClick('Si')">Si</button>
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <button onclick="resetGame()" style="background:none; border:none; color:#999; cursor:pointer; text-decoration:underline;">Tornar al menú</button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <p>Creat per Jo Francis Gil</p>
+            <div class="cc-license">
+                <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">
+                    <img alt="Llicència de Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" />
+                </a><br />
+                Aquesta obra està subjecta a una llicència de <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Reconeixement-NoComercial-CompartirIgual 4.0 Internacional de Creative Commons</a>.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // --- CONFIGURACIÓ AUDIO (Freqüències Octava 4) ---
+        const noteFrequencies = {
+            'Do': 261.63,
+            'Re': 293.66,
+            'Mi': 329.63,
+            'Fa': 349.23,
+            'Sol': 392.00,
+            'La': 440.00,
+            'Si': 493.88
+        };
+
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
+
+        function initAudio() {
+            if (!audioCtx) audioCtx = new AudioContext();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function playTone(freq, type = 'sine', duration = 0.3, volume = 0.5) {
+            initAudio();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            
+            osc.type = type;
+            osc.frequency.value = freq;
+            
+            gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        // --- LÒGICA DEL JOC ---
+        const notesData = [
+            { name: 'Do', y: 130, ledger: true }, 
+            { name: 'Re', y: 120, ledger: false },
+            { name: 'Mi', y: 110, ledger: false }, 
+            { name: 'Fa', y: 100, ledger: false },
+            { name: 'Sol', y: 90, ledger: false }, 
+            { name: 'La', y: 80, ledger: false },
+            { name: 'Si', y: 70, ledger: false }, 
+            { name: 'Do', y: 60, ledger: false }, 
+            { name: 'Re', y: 50, ledger: false }, 
+            { name: 'Mi', y: 40, ledger: false }, 
+            { name: 'Fa', y: 30, ledger: false } 
+        ];
+
+        let currentNote = null;
+        let correctCount = 0;
+        let wrongCount = 0;
+        let canAnswer = true;
+        
+        // Variables Timer
+        let gameMode = 'infinite';
+        let timerInterval;
+        let timeLeft = 60;
+        let isGameActive = false;
+
+        // UI Management
+        function toggleTimeInput() {
+            const isTimed = document.querySelector('input[name="gameMode"]:checked').value === 'timed';
+            const container = document.getElementById('time-input-container');
+            if (isTimed) {
+                container.classList.remove('disabled');
+            } else {
+                container.classList.add('disabled');
+            }
+        }
+
+        function startGame() {
+            // Obtenir configuració
+            gameMode = document.querySelector('input[name="gameMode"]:checked').value;
+            
+            // Reset variables
+            correctCount = 0;
+            wrongCount = 0;
+            updateScoreUI();
+            
+            document.getElementById('setup-screen').style.display = 'none';
+            document.getElementById('result-screen').style.display = 'none';
+            
+            const gameUI = document.getElementById('game-ui');
+            gameUI.style.display = 'block';
+            
+            setTimeout(() => { gameUI.style.opacity = 1; }, 50);
+
+            // Configuració Timer
+            const timerDisplay = document.getElementById('timer-display');
+            if (gameMode === 'timed') {
+                timeLeft = parseInt(document.getElementById('time-limit').value) || 60;
+                document.getElementById('time-left').textContent = timeLeft;
+                timerDisplay.style.display = 'block';
+                startTimer();
+            } else {
+                timerDisplay.style.display = 'none';
+            }
+
+            isGameActive = true;
+            nextNote();
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('time-left').textContent = timeLeft;
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        function endGame() {
+            clearInterval(timerInterval);
+            isGameActive = false;
+            
+            document.getElementById('final-score').textContent = correctCount;
+            document.getElementById('final-correct').textContent = correctCount;
+            document.getElementById('final-wrong').textContent = wrongCount;
+            
+            document.getElementById('game-ui').style.opacity = 0;
+            setTimeout(() => {
+                document.getElementById('game-ui').style.display = 'none';
+                document.getElementById('result-screen').style.display = 'flex';
+            }, 500);
+        }
+
+        function resetGame() {
+            clearInterval(timerInterval);
+            document.getElementById('result-screen').style.display = 'none';
+            document.getElementById('game-ui').style.display = 'none';
+            document.getElementById('game-ui').style.opacity = 0;
+            document.getElementById('setup-screen').style.display = 'flex';
+        }
+
+        function updateScoreUI() {
+            document.getElementById('correct-count').textContent = correctCount;
+            document.getElementById('wrong-count').textContent = wrongCount;
+        }
+
+        // Dibuixat SVG
+        function drawStaff(noteObj) {
+            const container = document.getElementById('staff-canvas');
+            const width = 500;
+            const height = 220;
+            
+            let svgContent = `<svg viewBox="0 0 ${width} ${height}">`;
+
+            // Línies del pentagrama
+            for (let i = 0; i < 5; i++) {
+                let y = 110 - (i * 20); 
+                svgContent += `<line x1="50" y1="${y}" x2="450" y2="${y}" class="staff-line" />`;
+            }
+
+            svgContent += `<text x="60" y="105" class="clef">𝄞</text>`;
+
+            if (noteObj) {
+                // Nota
+                svgContent += `<ellipse id="active-note" cx="250" cy="${noteObj.y}" rx="14" ry="10" class="music-note" transform="rotate(-15 250 ${noteObj.y})" />`;
+                
+                // Plica
+                if (noteObj.y > 70) {
+                    svgContent += `<line id="active-stem" x1="262" y1="${noteObj.y - 5}" x2="262" y2="${noteObj.y - 45}" stroke="#333" stroke-width="2" />`;
+                } else {
+                    svgContent += `<line id="active-stem" x1="238" y1="${noteObj.y + 5}" x2="238" y2="${noteObj.y + 45}" stroke="#333" stroke-width="2" />`;
+                }
+
+                // Línia addicional
+                if (noteObj.ledger) {
+                    svgContent += `<line x1="225" y1="${noteObj.y}" x2="275" y2="${noteObj.y}" class="ledger-line" />`;
+                }
+            }
+
+            svgContent += `</svg>`;
+            container.innerHTML = svgContent;
+        }
+
+        function nextNote() {
+            if (!isGameActive) return;
+
+            let newNote;
+            do {
+                newNote = notesData[Math.floor(Math.random() * notesData.length)];
+            } while (currentNote && newNote.y === currentNote.y);
+
+            currentNote = newNote;
+            drawStaff(currentNote);
+            document.getElementById('feedback-msg').textContent = "";
+            
+            const buttons = document.querySelectorAll('.note-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('correct', 'wrong');
+                btn.disabled = false;
+            });
+            canAnswer = true;
+        }
+
+        function handleNoteClick(selectedNoteName) {
+            if (!canAnswer || !isGameActive) return;
+
+            // 1. Primer de tot: Sonar la nota que l'usuari ha clicat
+            if (noteFrequencies[selectedNoteName]) {
+                playTone(noteFrequencies[selectedNoteName], 'sine', 0.4);
+            }
+
+            const feedback = document.getElementById('feedback-msg');
+            const noteElement = document.getElementById('active-note');
+            
+            const buttons = Array.from(document.querySelectorAll('.note-btn'));
+            const clickedBtn = buttons.find(btn => btn.textContent === selectedNoteName);
+
+            if (selectedNoteName === currentNote.name) {
+                // Encert
+                correctCount++;
+                updateScoreUI();
+                feedback.textContent = "Molt bé! 🎉";
+                feedback.style.color = "#2ecc71";
+                
+                if (clickedBtn) clickedBtn.classList.add('correct');
+                if (noteElement) noteElement.classList.add('success');
+                
+                canAnswer = false;
+                setTimeout(nextNote, 1500);
+
+            } else {
+                // Error
+                wrongCount++;
+                updateScoreUI();
+                feedback.textContent = "Torna-ho a provar!";
+                feedback.style.color = "#e74c3c";
+                
+                if (clickedBtn) clickedBtn.classList.add('wrong');
+                if (noteElement) noteElement.classList.add('error');
+                
+                setTimeout(() => {
+                    if (clickedBtn) clickedBtn.classList.remove('wrong');
+                    if (noteElement) noteElement.classList.remove('error');
+                }, 500);
+            }
+        }
+    </script>
+</body>
+</html>
