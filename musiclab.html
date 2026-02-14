@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Piano Virtual - Jo Recursos</title>
+    <link rel="icon" type="image/png" href="IMG/logo.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* --- ESTILS GENERALS (Del teu codi original) --- */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4eff9 100%);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Navegació */
+        nav {
+            background: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .logo {
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo img {
+            height: 96px;
+            width: auto;
+        }
+
+        .menu {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .menu a {
+            text-decoration: none;
+            color: #555;
+            padding: 10px 18px;
+            border-radius: 50px;
+            font-weight: normal; 
+            font-family: inherit;
+            transition: all 0.3s ease;
+            font-size: 1.05em; 
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .menu a i {
+            font-size: 0.9em;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+
+        .menu a:hover {
+            color: #2b5876;
+            background-color: #f0f4f8;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .menu a:hover i {
+            opacity: 1;
+            color: #2b5876;
+        }
+
+        /* Contingut Principal */
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            flex: 1;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .hero-section {
+            text-align: center;
+            padding: 40px 20px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 3em;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            font-weight: 800;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            color: #666;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* Footer */
+        footer {
+            background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+            color: #444;
+            text-align: center;
+            padding: 40px 20px;
+            margin-top: 60px;
+            border-top: 1px solid rgba(255,255,255,0.5);
+        }
+
+        footer p {
+            margin: 10px 0;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .cc-license img {
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+        
+        .cc-license a {
+            color: #2b5876;
+            text-decoration: underline;
+        }
+
+        /* Responsivitat Menú */
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .menu {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 10px;
+                width: 100%;
+            }
+            .menu a {
+                margin: 0;
+                background-color: #fff;
+                border: 1px solid #eee;
+            }
+            h1 { font-size: 2em; }
+        }
+
+        /* --- ESTILS ESPECÍFICS DEL PIANO (Adaptats al tema) --- */
+        
+        /* Contenidor estil targeta gran */
+        .app-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            padding: 30px;
+            max-width: 900px;
+            margin: 0 auto;
+            border: 1px solid rgba(0,0,0,0.02);
+        }
+
+        .controls-bar {
+            background-color: #f8fafc;
+            padding: 15px 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            border: 1px solid #eef2f6;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .control-label {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Estil Select personalitzat */
+        select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: white;
+            font-family: inherit;
+            color: #333;
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        select:focus {
+            border-color: #4facfe;
+        }
+
+        /* Toggle Switch per Sustain */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider { background-color: #4facfe; }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        /* Estructura del Piano */
+        .piano-wrapper {
+            display: flex;
+            justify-content: center;
+            padding: 20px 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .piano-container {
+            position: relative;
+            display: flex;
+            user-select: none;
+        }
+
+        .white-key {
+            width: 60px;
+            height: 240px;
+            background: white;
+            border: 1px solid #cbd5e1;
+            border-bottom: 4px solid #e2e8f0;
+            border-radius: 0 0 5px 5px;
+            position: relative;
+            z-index: 1;
+            cursor: pointer;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: all 0.1s;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            padding-bottom: 10px;
+        }
+
+        .white-key:active, .white-key.active {
+            background: #f1f5f9;
+            transform: translateY(2px);
+            border-bottom-width: 2px;
+            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+        }
+
+        .black-key {
+            width: 40px;
+            height: 140px;
+            background: #333; /* Gris fosc gairebé negre */
+            border-radius: 0 0 4px 4px;
+            position: absolute;
+            z-index: 2;
+            cursor: pointer;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+            background: linear-gradient(to bottom, #333 0%, #111 100%);
+            transition: all 0.1s;
+        }
+
+        .black-key:active, .black-key.active {
+            background: #000;
+            transform: translateY(2px);
+        }
+
+        .key-label {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            font-weight: 700;
+        }
+        
+        .key-shortcut {
+            font-size: 0.7rem;
+            color: #cbd5e1;
+            margin-bottom: 4px;
+        }
+
+        .info-box {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f0f4f8;
+            border-left: 4px solid #4facfe;
+            border-radius: 4px;
+            color: #444;
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+        
+        .info-title {
+            font-weight: 700;
+            color: #2b5876;
+            display: block;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navegació EXACTA -->
+    <nav>
+        <div class="nav-container">
+            <!-- Logo sense text -->
+            <a href="https://jofrancisgil.github.io/" class="logo">
+                <img src="https://jofrancisgil.github.io/img/logo-nofons.png" alt="Logo Repositori">
+            </a>
+            <div class="menu">
+                <a href="https://jofrancisgil.github.io/matematiques.html"><i class="fas fa-calculator"></i> Matemàtiques</a>
+                <a href="https://jofrancisgil.github.io/llengues.html"><i class="fas fa-comments"></i> Llengües</a>
+                <a href="https://jofrancisgil.github.io/medi.html"><i class="fas fa-globe-europe"></i> Medi</a>
+                <a href="https://jofrancisgil.github.io/jocs.html"><i class="fas fa-gamepad"></i> Jocs</a>
+                <a href="https://jofrancisgil.github.io/gestio.html"><i class="fas fa-tools"></i> Gestió</a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <!-- Hero Section -->
+        <div class="hero-section">
+            <h1>
+                Laboratori <span class="gradient-text">Musical</span>
+            </h1>
+            <p class="subtitle">
+                Experimenta amb les notes, crea melodies i descobreix la relació entre el teclat i el so.
+            </p>
+        </div>
+
+        <!-- APP PIANO INTEGRADA -->
+        <div class="app-card">
+            
+            <!-- Barra de Controls -->
+            <div class="controls-bar">
+                <div class="control-group">
+                    <span class="control-label">Timbre:</span>
+                    <select id="waveform">
+                        <option value="sine">Piano Suau (Sine)</option>
+                        <option value="triangle">Clarinet (Triangle)</option>
+                        <option value="sawtooth">Sintetitzador (Saw)</option>
+                        <option value="square">Joc Retro (Square)</option>
+                    </select>
+                </div>
+                
+                <div class="control-group text-slate-500" style="font-size: 0.9em; color: #666;">
+                    <i class="fas fa-keyboard"></i>
+                    <span>Fes servir el teclat o fes clic</span>
+                </div>
+
+                <div class="control-group">
+                    <span class="control-label" style="margin-right: 8px;">Sustain</span>
+                    <label class="switch">
+                        <input type="checkbox" id="sustain">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- El Piano -->
+            <div class="piano-wrapper">
+                <div class="piano-container" id="piano">
+                    <!-- Les tecles es generen amb JS -->
+                </div>
+            </div>
+
+            <!-- Info Box -->
+            <div class="info-box">
+                <span class="info-title">💡 Sabies que...?</span>
+                El so que sents no és una gravació, és matemàtica pura! El teu navegador genera ones de so en temps real. 
+                Per exemple, la nota <strong>La (A4)</strong> vibra exactament 440 vegades per segon.
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer EXACTE -->
+    <footer>
+        <div class="footer-content">
+            <p>Creat per Jo Francis Gil</p>
+            <div class="cc-license">
+                <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">
+                    <img alt="Llicència de Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" />
+                </a><br />
+                Aquesta obra està subjecta a una llicència de <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Reconeixement-NoComercial-CompartirIgual 4.0 Internacional de Creative Commons</a>.
+            </div>
+        </div>
+    </footer>
+
+    <!-- LÒGICA JS (Mantiguda intacta) -->
+    <script>
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
+
+        // Configuració de notes
+        const notes = [
+            { note: 'C4', label: 'Do', freq: 261.63, type: 'white', key: 'a' },
+            { note: 'C#4', label: '', freq: 277.18, type: 'black', key: 'w', offset: 40 },
+            { note: 'D4', label: 'Re', freq: 293.66, type: 'white', key: 's' },
+            { note: 'D#4', label: '', freq: 311.13, type: 'black', key: 'e', offset: 100 },
+            { note: 'E4', label: 'Mi', freq: 329.63, type: 'white', key: 'd' },
+            { note: 'F4', label: 'Fa', freq: 349.23, type: 'white', key: 'f' },
+            { note: 'F#4', label: '', freq: 369.99, type: 'black', key: 't', offset: 220 },
+            { note: 'G4', label: 'Sol', freq: 392.00, type: 'white', key: 'g' },
+            { note: 'G#4', label: '', freq: 415.30, type: 'black', key: 'y', offset: 280 },
+            { note: 'A4', label: 'La', freq: 440.00, type: 'white', key: 'h' },
+            { note: 'A#4', label: '', freq: 466.16, type: 'black', key: 'u', offset: 340 },
+            { note: 'B4', label: 'Si', freq: 493.88, type: 'white', key: 'j' },
+            { note: 'C5', label: 'Do', freq: 523.25, type: 'white', key: 'k' },
+            { note: 'C#5', label: '', freq: 554.37, type: 'black', key: 'o', offset: 460 },
+            { note: 'D5', label: 'Re', freq: 587.33, type: 'white', key: 'l' },
+        ];
+
+        const pianoContainer = document.getElementById('piano');
+        const waveformSelect = document.getElementById('waveform');
+        const sustainCheck = document.getElementById('sustain');
+
+        let whiteKeyCount = 0;
+        notes.forEach(note => {
+            const key = document.createElement('div');
+            
+            if (note.type === 'white') {
+                key.className = 'white-key';
+                key.dataset.note = note.note;
+                key.dataset.freq = note.freq;
+                key.dataset.keyboard = note.key;
+                key.id = `key-${note.key}`;
+                
+                key.innerHTML = `
+                    <span class="key-shortcut">${note.key.toUpperCase()}</span>
+                    <span class="key-label">${note.label}</span>
+                `;
+                pianoContainer.appendChild(key);
+                whiteKeyCount++;
+            } else {
+                key.className = 'black-key';
+                key.dataset.note = note.note;
+                key.dataset.freq = note.freq;
+                key.dataset.keyboard = note.key;
+                key.id = `key-${note.key}`;
+                key.style.left = note.offset + 'px'; 
+                pianoContainer.appendChild(key);
+            }
+
+            key.addEventListener('mousedown', () => playNote(note.freq, key));
+            key.addEventListener('mouseup', () => stopNote(key));
+            key.addEventListener('mouseleave', () => stopNote(key));
+        });
+
+        const activeOscillators = {};
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new AudioContext();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playNote(freq, keyElement) {
+            initAudio();
+
+            if (activeOscillators[freq]) return;
+
+            keyElement.classList.add('active');
+
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            osc.type = waveformSelect.value;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+            gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 0.02);
+
+            if (!sustainCheck.checked) {
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.5);
+            }
+
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            osc.start();
+
+            activeOscillators[freq] = { osc, gainNode, keyElement };
+        }
+
+        function stopNote(keyElement) {
+            const freq = parseFloat(keyElement.dataset.freq);
+            const active = activeOscillators[freq];
+
+            if (active) {
+                active.keyElement.classList.remove('active');
+
+                const now = audioCtx.currentTime;
+                const releaseTime = sustainCheck.checked ? 1.5 : 0.1;
+                
+                active.gainNode.gain.cancelScheduledValues(now);
+                active.gainNode.gain.setValueAtTime(active.gainNode.gain.value, now);
+                active.gainNode.gain.exponentialRampToValueAtTime(0.001, now + releaseTime);
+
+                active.osc.stop(now + releaseTime);
+                
+                delete activeOscillators[freq];
+            }
+        }
+
+        const keysMap = {};
+        notes.forEach(n => keysMap[n.key] = n);
+
+        window.addEventListener('keydown', (e) => {
+            const char = e.key.toLowerCase();
+            if (keysMap[char]) {
+                const noteData = keysMap[char];
+                const keyElement = document.getElementById(`key-${char}`);
+                playNote(noteData.freq, keyElement);
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            const char = e.key.toLowerCase();
+            if (keysMap[char]) {
+                const keyElement = document.getElementById(`key-${char}`);
+                stopNote(keyElement);
+            }
+        });
+    </script>
+</body>
+</html>
