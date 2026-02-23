@@ -1,77 +1,466 @@
----
-layout: default
-title: Jo Recursos - Llengües
----
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Llengües - Jo Recursos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;600&family=Inter:wght@300;400;600&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
 
-<!-- Títol de la pàgina -->
-<div class="hero-section" style="padding: 30px 20px; margin-bottom: 20px;">
-    <h1>
-        <i class="fas fa-comments" style="color: #ff9800; margin-right: 15px;"></i>
-        Llengües
-    </h1>
-    <p class="subtitle">
-        Recursos, jocs i eines per practicar vocabulari, <br>
-        gramàtica i comprensió lectora en diferents idiomes.
-    </p>
-</div>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, .brand-font { font-family: 'Fredoka', sans-serif; }
+        .hidden-lang { display: none; }
+        .hidden-app { display: none !important; }
 
-<!-- Graella de Targetes -->
-<div class="grid-container">
-    
-    <!-- Targeta: Verbs Irregulars -->
-    <a href="irreggularverbs.html" class="card grad-green">
-        <div class="card-icon"><i class="fas fa-language"></i></div>
-        <h3>Verbs Irregulars</h3>
-        <p>Practica els verbs irregulars en anglès de forma interactiva.</p>
-    </a>
+        /* --- ESTILS DE TARGETES (Coherents amb index.html i altres pàgines) --- */
+        .card {
+            border-radius: 15px;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-decoration: none;
+            color: white !important; /* Text blanc forçat per als gradients foscos */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 240px;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
 
-    <!-- Targeta: El Penjat -->
-    <a href="penjat.html" class="card grad-red">
-        <div class="card-icon"><i class="fas fa-user-slash"></i></div>
-        <h3>El Penjat</h3>
-        <p>El clàssic joc de descobrir la paraula amagada abans que sigui tard.</p>
-    </a>
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
 
-    <!-- Targeta: Sopa de Lletres -->
-    <a href="sopa.html" class="card grad-purple">
-        <div class="card-icon"><i class="fas fa-table-cells"></i></div>
-        <h3>Sopa de Lletres</h3>
-        <p>Troba totes les paraules amagades en aquest clàssic passatemps.</p>
-    </a>
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: rgba(255, 255, 255, 0.95);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        /* Ajust per a icones Lucide dins les targetes */
+        .card-icon svg {
+            width: 48px;
+            height: 48px;
+        }
 
-    <!-- Targeta: Mots -->
-    <a href="mots.html" class="card grad-orange">
-        <div class="card-icon"><i class="fas fa-spell-check"></i></div>
-        <h3>Mots</h3>
-        <p>Joc d'agilitat mental per formar paraules amb lletres donades.</p>
-    </a>
+        .card h3 {
+            margin: 10px 0;
+            font-size: 1.5em;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            font-family: 'Fredoka', sans-serif;
+        }
 
-    <!-- Targeta: Frases en Català -->
-    <a href="frasescat.html" class="card grad-blue">
-        <div class="card-icon"><i class="fas fa-pen"></i></div>
-        <h3>Construeix Frases (CAT)</h3>
-        <p>Ordena les paraules per formar frases correctes en català.</p>
-    </a>
+        .card p {
+            font-size: 1em;
+            line-height: 1.4;
+            opacity: 0.95;
+            margin: 0;
+            font-weight: 500;
+            font-family: 'Inter', sans-serif;
+        }
 
-    <!-- Targeta: Frases en Castellà -->
-    <a href="fraseses.html" class="card grad-calm">
-        <div class="card-icon"><i class="fas fa-pen-nib"></i></div>
-        <h3>Construye Frases (ES)</h3>
-        <p>Ordena las palabras para formar frases correctas en castellano.</p>
-    </a>
+        /* --- GRADIENTS --- */
+        
+        /* Català (Tons Vermells/Roses) */
+        .grad-cat-1 { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%); }
+        .grad-cat-2 { background: linear-gradient(135deg, #ff758c 0%, #ff7eb3 100%); }
 
-    <!-- Targeta: Comprensions -->
-    <a href="Comprensions.html" class="card grad-teal">
-        <div class="card-icon"><i class="fas fa-book-reader"></i></div>
-        <h3>Comprensions</h3>
-        <p>Eina per treballar i avaluar la comprensió lectora dels alumnes.</p>
-    </a>
+        /* Castellano (Tons Blaus/Cian) */
+        .grad-esp-1 { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .grad-esp-2 { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); } /* Variant verda-blavosa per contrast */
+        .grad-esp-3 { background: linear-gradient(135deg, #4481eb 0%, #04befe 100%); } /* Blau intens a cian */
 
-    <!-- Targeta: Taboo Eng -->
-    <a href="tabooeng.html" class="card grad-blue">
-        <div class="card-icon"><i class="fas fa-comment-slash"></i></div>
-        <h3>Taboo (ENG)</h3>
-        <p>Juga al clàssic Taboo per practicar la descripció oral en anglès.</p>
-    </a>
+        /* English (Mix Union Jack: Blau Marí, Vermell Fort, Blanc/Gris) */
+        .grad-eng-blue { background: linear-gradient(135deg, #012169 0%, #4facfe 100%); }
+        .grad-eng-red { background: linear-gradient(135deg, #C8102E 0%, #ff9a9e 100%); }
+        /* Gradient clar per a la varietat, amb text fosc */
+        .grad-eng-white { background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%); }
+        
+        /* Classes auxiliars per targetes amb fons clar */
+        .card-light { color: #333 !important; }
+        .card-light .card-icon { color: #444 !important; text-shadow: none; }
+        .card-light h3 { text-shadow: none; }
 
-</div>
+
+        /* --- ESTILS APP VERBS (Mantinguem la lògica) --- */
+        .verb-app-wrapper {
+            --union-blue: #012169; --union-red: #C8102E; --bg-gradient: linear-gradient(135deg, #f0f4f8 0%, #dbeafe 100%); --radius: 16px;
+            font-family: 'Poppins', sans-serif; background: var(--bg-gradient); padding: 20px; border-radius: var(--radius);
+            box-shadow: 0 10px 25px -5px rgba(1, 33, 105, 0.15); border-top: 8px solid var(--union-red); text-align: center; margin-top: 20px;
+        }
+        .verb-app-wrapper h1 { font-family: 'Poppins', sans-serif; color: var(--union-blue); margin: 0 0 10px 0; font-size: 2rem; font-weight: 700; }
+        .verb-app-wrapper select { padding: 12px; border-radius: 12px; border: 2px solid #e5e7eb; margin-bottom: 20px; display: inline-block; }
+        .verb-app-wrapper button.app-btn { padding: 14px 28px; font-weight: 600; border-radius: 12px; cursor: pointer; transition: 0.2s; }
+        .verb-app-wrapper .btn-primary { background: var(--union-blue); color: white; }
+        .verb-app-wrapper .btn-secondary { background: white; border: 2px solid #e5e7eb; color: #6b7280; }
+        .verb-app-wrapper table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; border-radius: 12px; overflow: hidden; }
+        .verb-app-wrapper th { background: var(--union-blue); color: white; padding: 12px; }
+        .verb-app-wrapper td { padding: 12px; border-bottom: 1px solid #f3f4f6; }
+        .verb-app-wrapper input { padding: 8px; border: 2px solid #e5e7eb; border-radius: 8px; text-align: center; width: 100%; }
+        .verb-app-wrapper .correct-input { border-color: #10b981; background: #ecfdf5; }
+        .verb-app-wrapper .wrong-input { border-color: #dc2626; background: #fef2f2; }
+        .verb-app-wrapper .screen { display: none; }
+        .verb-app-wrapper .active { display: block; }
+
+        /* --- ESTILS NAVEGACIÓ I FOOTER (Del Layout) --- */
+        .glass-header {
+            position: sticky;
+            top: 20px;
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            padding: 0 20px;
+            transition: all 0.3s ease;
+        }
+
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 100px;
+            padding: 8px 12px 8px 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            max-width: 1050px;
+            width: 100%;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .nav-logo img {
+            height: 45px;
+            width: auto;
+            transition: transform 0.3s ease;
+        }
+        
+        .nav-logo:hover img {
+            transform: scale(1.05);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 5px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border-radius: 50px;
+            text-decoration: none;
+            color: #5a6b7c;
+            font-weight: 600;
+            font-size: 0.95em;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .nav-item i {
+            font-size: 1.1em;
+            color: #899bb0;
+            transition: color 0.3s;
+        }
+
+        .nav-item:hover {
+            background: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            transform: translateY(-2px);
+        }
+
+        .nav-mates:hover { color: #d32f2f; }
+        .nav-mates:hover i { color: #f44336; }
+
+        .nav-llengues:hover { color: #e65100; }
+        .nav-llengues:hover i { color: #ff9800; }
+
+        .nav-medi:hover { color: #2e7d32; }
+        .nav-medi:hover i { color: #4caf50; }
+
+        .nav-musica:hover { color: #6a1b9a; }
+        .nav-musica:hover i { color: #9c27b0; }
+
+        .nav-art:hover { color: #c2185b; }
+        .nav-art:hover i { color: #e91e63; }
+
+        .nav-jocs:hover { color: #00838f; }
+        .nav-jocs:hover i { color: #00bcd4; }
+
+        .nav-gestio:hover { color: #37474f; }
+        .nav-gestio:hover i { color: #607d8b; }
+
+        footer { 
+            background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%); 
+            color: #444; text-align: center; padding: 40px 20px; 
+            margin-top: 60px; border-top: 1px solid rgba(255,255,255,0.5); 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        footer p { margin: 10px 0; opacity: 0.9; font-weight: 500; }
+        .footer-content { max-width: 800px; margin: 0 auto; }
+        .cc-license img { margin-bottom: 10px; opacity: 0.9; display: inline-block; }
+        .cc-license a { color: #2b5876; text-decoration: underline; }
+
+        @media (max-width: 850px) {
+            .glass-header {
+                top: 0;
+                padding: 15px 0;
+                background: linear-gradient(to bottom, rgba(245, 247, 250, 1), rgba(245, 247, 250, 0));
+            }
+            .glass-nav {
+                border-radius: 0;
+                border: none;
+                box-shadow: none;
+                background: transparent;
+                backdrop-filter: none;
+                justify-content: center;
+                padding: 0;
+            }
+            .nav-logo img { height: 55px; }
+            .nav-links {
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: rgba(255, 255, 255, 0.85);
+                backdrop-filter: blur(15px);
+                -webkit-backdrop-filter: blur(15px);
+                border: 1px solid rgba(255, 255, 255, 0.6);
+                border-radius: 25px;
+                padding: 10px 5px;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+                display: flex;
+                gap: 2px;
+                width: 95%;
+                max-width: 500px;
+                justify-content: space-around;
+                z-index: 2000;
+            }
+            .nav-item {
+                flex-direction: column;
+                gap: 5px;
+                padding: 10px 5px;
+                font-size: 0.7em;
+                font-weight: 700;
+                border-radius: 15px;
+                width: 100%;
+                text-align: center;
+            }
+            .nav-item i {
+                font-size: 1.6em;
+                margin-bottom: 2px;
+            }
+            .nav-item:hover { transform: translateY(-5px); }
+            
+            body { padding-bottom: 90px !important; } 
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
+
+    {% include menu.html %}
+
+    <main class="flex-grow py-12">
+        <div class="max-w-6xl mx-auto px-4 mb-10 text-center">
+            <div class="inline-flex bg-white p-1 rounded-full shadow-sm border">
+                <button onclick="showLanguage('cat')" id="btn-cat" class="px-6 py-2 rounded-full font-bold transition bg-red-600 text-white shadow-md">Català</button>
+                <button onclick="showLanguage('esp')" id="btn-esp" class="px-6 py-2 rounded-full font-bold text-gray-600 hover:bg-gray-50 transition">Castellano</button>
+                <button onclick="showLanguage('eng')" id="btn-eng" class="px-6 py-2 rounded-full font-bold text-gray-600 hover:bg-gray-50 transition">English</button>
+            </div>
+        </div>
+
+        <div id="content-cat" class="lang-content max-w-6xl mx-auto px-4">
+            <div class="flex items-center gap-3 mb-8 pb-2 border-b border-red-100">
+                <div class="w-2 h-8 bg-red-600 rounded-full"></div>
+                <h3 class="text-2xl font-bold text-gray-800">Recursos de Català</h3>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-6">
+                <a href="frasescat.html" class="card grad-cat-2">
+                    <div class="card-icon"><i data-lucide="align-left"></i></div>
+                    <h3>Ordena la frase</h3>
+                    <p>Joc interactiu per ordenar paraules i formar frases correctes.</p>
+                </a>
+
+                <a href="https://gemini.google.com/share/80cea9a8ec9a" target="_blank" class="card grad-cat-1">
+                    <div class="card-icon"><i data-lucide="bot"></i></div>
+                    <h3>Generador Comprensions</h3>
+                    <p>Crea textos i preguntes de comprensió automàticament amb IA.</p>
+                </a>
+            </div>
+        </div>
+
+        <div id="content-esp" class="lang-content max-w-6xl mx-auto px-4 hidden-lang">
+            <div class="flex items-center gap-3 mb-8 pb-2 border-b border-blue-100">
+                <div class="w-2 h-8 bg-blue-600 rounded-full"></div>
+                <h3 class="text-2xl font-bold text-gray-800">Recursos de Castellano</h3>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-6">
+                <a href="fraseses.html" class="card grad-esp-3">
+                    <div class="card-icon"><i data-lucide="align-left"></i></div>
+                    <h3>Ordena la Frase</h3>
+                    <p>Juego interactivo para ordenar palabras y formar frases correctas.</p>
+                </a>
+
+                <a href="https://gemini.google.com/share/80cea9a8ec9a" target="_blank" class="card grad-esp-1">
+                    <div class="card-icon"><i data-lucide="sparkles"></i></div>
+                    <h3>Generador Comprensions</h3>
+                    <p>Crea textos y preguntas de comprensión automáticamente con IA.</p>
+                </a>
+            </div>
+        </div>
+
+        <div id="content-eng" class="lang-content max-w-6xl mx-auto px-4 hidden-lang">
+            <div id="eng-resources-list">
+                <div class="flex items-center gap-3 mb-8 pb-2 border-b border-blue-100">
+                    <div class="w-2 h-8 bg-gradient-to-b from-blue-800 via-red-600 to-blue-800 rounded-full"></div>
+                    <h3 class="text-2xl font-bold text-gray-800">English Resources</h3>
+                </div>
+                
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div onclick="openVerbApp()" class="card grad-eng-blue">
+                        <div class="card-icon"><i class="fas fa-gamepad"></i></div>
+                        <h3>Irregular Verbs Master</h3>
+                        <p>Interactive test to practice irregular verbs. UK Edition.</p>
+                    </div>
+
+                    <a href="tabooeng.html" class="card grad-eng-red">
+                        <div class="card-icon"><i data-lucide="message-circle-off"></i></div>
+                        <h3>Taboo Game</h3>
+                        <p>Describe words without saying the forbidden ones. Fun speaking practice!</p>
+                    </a>
+
+                    <a href="memory-pictures.html" class="card grad-eng-white card-light">
+                        <div class="card-icon"><i data-lucide="images"></i></div>
+                        <h3>Vocabulary Memory</h3>
+                        <p>Match pictures with words. Topics: Clothes, Weather, Animals & more.</p>
+                    </a>
+
+                    <a href="fraseseng.html" class="card grad-eng-blue">
+                        <div class="card-icon"><i data-lucide="move"></i></div>
+                        <h3>Scrambled Sentences</h3>
+                        <p>Unscramble the words to make correct sentences. Teacher can set the text!</p>
+                    </a>
+
+                    <a href="https://gemini.google.com/share/a47f52463101" target="_blank" class="card grad-eng-red">
+                        <div class="card-icon"><i data-lucide="wand-2"></i></div>
+                        <h3>Reading Generator</h3>
+                        <p>Automatically create reading texts and questions with AI.</p>
+                    </a>
+                </div>
+            </div>
+
+            <div id="irregular-verbs-app" class="verb-app-wrapper hidden-app">
+                <div id="setup-screen" class="screen active">
+                    <div class="text-6xl mb-4">🇬🇧</div><h1>Irregular Verbs</h1><p>Select number of verbs:</p>
+                    <select id="verb-count"><option value="5">5 Verbs</option><option value="10" selected>10 Verbs</option><option value="20">20 Verbs</option></select><br>
+                    <button class="app-btn btn-primary" onclick="startVerbGame()">Start Practice 🚀</button><br><br>
+                    <button class="app-btn btn-secondary" onclick="closeVerbApp()">Back to Resources</button>
+                </div>
+                <div id="game-screen" class="screen">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:15px;"><h3 style="margin:0">Fill in the blanks</h3><button class="app-btn btn-secondary" onclick="closeVerbApp()">Quit</button></div>
+                    <div id="game-table-slot" style="overflow-x:auto;"></div><br>
+                    <button class="app-btn btn-primary" onclick="checkVerbAnswers()">Check Answers ✨</button>
+                </div>
+                <div id="result-screen" class="screen">
+                    <h2>Session Complete!</h2><div class="text-4xl font-bold text-blue-900 my-4" id="score-number">0%</div>
+                    <p id="score-message"></p><button class="app-btn btn-primary" onclick="resetVerbGame()">Start New Game 🔄</button>
+                    <button class="app-btn btn-secondary" onclick="closeVerbApp()" style="margin-left:10px;">Exit</button>
+                    <div id="review-table-slot" style="overflow-x:auto; margin-top:30px;"></div>
+                </div>
+                <div style="display:none;"><div id="main-table-wrapper"><table id="quiz-table"><thead><tr><th>Infinitive</th><th>Past Simple</th><th>Past Participle</th><th>Catalan</th></tr></thead><tbody id="quiz-body"></tbody></table></div></div>
+            </div>
+        </div>
+    </main>
+
+    {% include footer.html %}
+
+    <script>
+        lucide.createIcons();
+
+        // Navegació Pestanyes amb colors dinàmics
+        function showLanguage(langId) {
+            document.querySelectorAll('.lang-content').forEach(el => el.classList.add('hidden-lang'));
+            document.getElementById('content-' + langId).classList.remove('hidden-lang');
+            
+            // Definim les classes actives segons l'idioma
+            const activeClasses = {
+                'cat': "bg-red-600 text-white shadow-md",
+                'esp': "bg-blue-600 text-white shadow-md",
+                'eng': "bg-gradient-to-r from-blue-800 to-red-700 text-white shadow-md"
+            };
+
+            // Reset i aplicar classes
+            ['cat','esp','eng'].forEach(id => {
+                const btn = document.getElementById('btn-'+id);
+                if(id === langId) {
+                    btn.className = "px-6 py-2 rounded-full font-bold transition " + activeClasses[id];
+                } else {
+                    btn.className = "px-6 py-2 rounded-full font-bold text-gray-600 hover:bg-gray-50 transition";
+                }
+            });
+        }
+
+        // Lògica App Verbs
+        function openVerbApp() { document.getElementById('eng-resources-list').style.display = 'none'; document.getElementById('irregular-verbs-app').classList.remove('hidden-app'); resetVerbGame(); }
+        function closeVerbApp() { document.getElementById('irregular-verbs-app').classList.add('hidden-app'); document.getElementById('eng-resources-list').style.display = 'block'; }
+        
+        const verbsDB = [{i:"be",p1:"was/were",p2:"been",c:"ser/estar"},{i:"begin",p1:"began",p2:"begun",c:"començar"},{i:"break",p1:"broke",p2:"broken",c:"trencar"},{i:"buy",p1:"bought",p2:"bought",c:"comprar"},{i:"come",p1:"came",p2:"come",c:"venir"},{i:"do",p1:"did",p2:"done",c:"fer"},{i:"drink",p1:"drank",p2:"drunk",c:"beure"},{i:"eat",p1:"ate",p2:"eaten",c:"menjar"},{i:"go",p1:"went",p2:"gone",c:"anar"},{i:"have",p1:"had",p2:"had",c:"tenir"},{i:"know",p1:"knew",p2:"known",c:"saber"},{i:"make",p1:"made",p2:"made",c:"fer"},{i:"read",p1:"read",p2:"read",c:"llegir"},{i:"run",p1:"ran",p2:"run",c:"córrer"},{i:"see",p1:"saw",p2:"seen",c:"veure"},{i:"speak",p1:"spoke",p2:"spoken",c:"parlar"},{i:"write",p1:"wrote",p2:"written",c:"escriure"}];
+        let currentSelection=[];
+        function shuffle(a){let c=a.length,r;while(c!=0){r=Math.floor(Math.random()*c);c--;[a[c],a[r]]=[a[r],a[c]];}return a;}
+        function clean(s){return s.trim().toLowerCase();}
+        function showAppScreen(id){document.querySelectorAll('#irregular-verbs-app .screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+        function startVerbGame(){
+            const count=parseInt(document.getElementById('verb-count').value);
+            currentSelection=shuffle([...verbsDB]).slice(0,count);
+            const tbody=document.getElementById('quiz-body');tbody.innerHTML='';
+            currentSelection.forEach((v,ix)=>{
+                const tr=document.createElement('tr');
+                const g=Math.floor(Math.random()*4);
+                const d=[v.i,v.p1,v.p2,v.c];
+                for(let i=0;i<4;i++) tr.innerHTML+=i===g?`<td><span class="static-text py-1 px-3 bg-blue-50 text-blue-800 rounded-full text-sm font-bold">${d[i]}</span></td>`:`<td><input type="text" data-r="${ix}" data-c="${i}"></td>`;
+                tbody.appendChild(tr);
+            });
+            document.getElementById('game-table-slot').appendChild(document.getElementById('main-table-wrapper'));
+            showAppScreen('game-screen');
+        }
+        function checkVerbAnswers(){
+            let sc=0,tot=0;
+            document.querySelectorAll('#quiz-body input').forEach(inp=>{
+                tot++;
+                const r=inp.getAttribute('data-r'), c=inp.getAttribute('data-c');
+                const v=currentSelection[r], d=[v.i,v.p1,v.p2,v.c];
+                const u=clean(inp.value), ans=clean(d[c]);
+                const ok=(ans.split('/').includes(u)||u===ans)&&u!=='';
+                inp.className=ok?'correct-input':'wrong-input';
+                if(ok)sc++; else {const sp=document.createElement('span');sp.className='block text-red-600 text-xs font-bold mt-1';sp.innerText=d[c];inp.parentNode.appendChild(sp);}
+            });
+            document.getElementById('score-number').innerText=Math.round((sc/tot)*100)+'%';
+            document.getElementById('review-table-slot').appendChild(document.getElementById('main-table-wrapper'));
+            showAppScreen('result-screen');
+        }
+        function resetVerbGame(){showAppScreen('setup-screen');document.getElementById('quiz-body').innerHTML='';}
+    </script>
+</body>
+</html>
