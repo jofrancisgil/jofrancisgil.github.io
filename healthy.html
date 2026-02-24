@@ -1,21 +1,70 @@
 import React, { useState, useEffect } from 'react';
 import { RefreshCw, Star, Play } from 'lucide-react';
 
-// The game items: a mix of foods and habits. Using emojis as they are perfect for this age group!
+// A massive pool of items! 
+// We use a mix of clear foods, drinks, and daily activities.
 const ALL_ITEMS = [
+  // Healthy Foods & Drinks
   { id: 1, emoji: '🍎', type: 'healthy', description: 'Apple' },
-  { id: 2, emoji: '🍭', type: 'unhealthy', description: 'Lollipop' },
-  { id: 3, emoji: '🏃‍♂️', type: 'healthy', description: 'Running' },
-  { id: 4, emoji: '📺', type: 'unhealthy', description: 'Too much TV' },
-  { id: 5, emoji: '🥦', type: 'healthy', description: 'Broccoli' },
-  { id: 6, emoji: '🍩', type: 'unhealthy', description: 'Donut' },
-  { id: 7, emoji: '💧', type: 'healthy', description: 'Water' },
-  { id: 8, emoji: '🥤', type: 'unhealthy', description: 'Soda' },
-  { id: 9, emoji: '🪥', type: 'healthy', description: 'Brushing Teeth' },
-  { id: 10, emoji: '🍟', type: 'unhealthy', description: 'Fries' },
-  { id: 11, emoji: '🛌', type: 'healthy', description: 'Sleeping well' },
-  { id: 12, emoji: '🍫', type: 'unhealthy', description: 'Chocolate' },
+  { id: 2, emoji: '🍌', type: 'healthy', description: 'Banana' },
+  { id: 3, emoji: '🍉', type: 'healthy', description: 'Watermelon' },
+  { id: 4, emoji: '🍇', type: 'healthy', description: 'Grapes' },
+  { id: 5, emoji: '🍓', type: 'healthy', description: 'Strawberry' },
+  { id: 6, emoji: '🥕', type: 'healthy', description: 'Carrot' },
+  { id: 7, emoji: '🥦', type: 'healthy', description: 'Broccoli' },
+  { id: 8, emoji: '🌽', type: 'healthy', description: 'Corn' },
+  { id: 9, emoji: '🥑', type: 'healthy', description: 'Avocado' },
+  { id: 10, emoji: '🥝', type: 'healthy', description: 'Kiwi' },
+  { id: 11, emoji: '🍅', type: 'healthy', description: 'Tomato' },
+  { id: 12, emoji: '🥗', type: 'healthy', description: 'Salad' },
+  { id: 13, emoji: '🥛', type: 'healthy', description: 'Milk' },
+  { id: 14, emoji: '🥚', type: 'healthy', description: 'Egg' },
+  { id: 15, emoji: '🐟', type: 'healthy', description: 'Fish' },
+  { id: 16, emoji: '🫐', type: 'healthy', description: 'Blueberries' },
+  { id: 17, emoji: '🍍', type: 'healthy', description: 'Pineapple' },
+  { id: 18, emoji: '🍒', type: 'healthy', description: 'Cherries' },
+  { id: 19, emoji: '🍑', type: 'healthy', description: 'Peach' },
+  { id: 20, emoji: '💧', type: 'healthy', description: 'Water' },
+  { id: 21, emoji: '🥜', type: 'healthy', description: 'Peanuts' },
+
+  // Healthy Habits
+  { id: 22, emoji: '🏃‍♂️', type: 'healthy', description: 'Running' },
+  { id: 23, emoji: '🪥', type: 'healthy', description: 'Brushing Teeth' },
+  { id: 24, emoji: '🛌', type: 'healthy', description: 'Sleeping well' },
+  { id: 25, emoji: '🧼', type: 'healthy', description: 'Washing Hands' },
+  { id: 26, emoji: '🛁', type: 'healthy', description: 'Taking a Bath' },
+  { id: 27, emoji: '🚲', type: 'healthy', description: 'Riding a Bike' },
+  { id: 28, emoji: '⚽', type: 'healthy', description: 'Playing Sports' },
+  { id: 29, emoji: '🧘', type: 'healthy', description: 'Stretching/Yoga' },
+  { id: 30, emoji: '📖', type: 'healthy', description: 'Reading a Book' },
+
+  // Unhealthy Foods & Drinks
+  { id: 31, emoji: '🍭', type: 'unhealthy', description: 'Lollipop' },
+  { id: 32, emoji: '🍩', type: 'unhealthy', description: 'Donut' },
+  { id: 33, emoji: '🥤', type: 'unhealthy', description: 'Soda' },
+  { id: 34, emoji: '🍟', type: 'unhealthy', description: 'Fries' },
+  { id: 35, emoji: '🍫', type: 'unhealthy', description: 'Chocolate' },
+  { id: 36, emoji: '🍔', type: 'unhealthy', description: 'Burger' },
+  { id: 37, emoji: '🍕', type: 'unhealthy', description: 'Pizza' },
+  { id: 38, emoji: '🌭', type: 'unhealthy', description: 'Hotdog' },
+  { id: 39, emoji: '🧁', type: 'unhealthy', description: 'Cupcake' },
+  { id: 40, emoji: '🍰', type: 'unhealthy', description: 'Cake' },
+  { id: 41, emoji: '🍦', type: 'unhealthy', description: 'Ice Cream' },
+  { id: 42, emoji: '🍬', type: 'unhealthy', description: 'Candy' },
+  { id: 43, emoji: '🥞', type: 'unhealthy', description: 'Pancakes with Syrup' },
+  { id: 44, emoji: '🥓', type: 'unhealthy', description: 'Bacon' },
+  { id: 45, emoji: '🥐', type: 'unhealthy', description: 'Croissant/Pastry' },
+  { id: 46, emoji: '🧋', type: 'unhealthy', description: 'Sugary Boba Tea' },
+
+  // Unhealthy Habits
+  { id: 47, emoji: '📺', type: 'unhealthy', description: 'Too much TV' },
+  { id: 48, emoji: '📱', type: 'unhealthy', description: 'Too much Phone' },
+  { id: 49, emoji: '🎮', type: 'unhealthy', description: 'Too much Video Games' },
+  { id: 50, emoji: '🛋️', type: 'unhealthy', description: 'Sitting on the couch too long' },
 ];
+
+// Number of items a child will face in a single playthrough
+const ITEMS_PER_GAME = 20;
 
 export default function App() {
   const [gameState, setGameState] = useState('start'); // 'start', 'playing', 'end'
@@ -25,10 +74,14 @@ export default function App() {
   const [feedback, setFeedback] = useState(null); // 'correct' or 'incorrect'
   const [shake, setShake] = useState(false);
 
-  // Initialize a new game by shuffling the items
+  // Initialize a new game by shuffling the MASSIVE pool and picking a random subset
   const startGame = () => {
+    // 1. Shuffle all items
     const shuffled = [...ALL_ITEMS].sort(() => Math.random() - 0.5);
-    setItems(shuffled);
+    // 2. Take only a specific amount so the game is long, but doesn't exhaust their attention
+    const gameItems = shuffled.slice(0, ITEMS_PER_GAME);
+    
+    setItems(gameItems);
     setCurrentIndex(0);
     setScore(0);
     setGameState('playing');
@@ -74,8 +127,8 @@ export default function App() {
     <div className="flex flex-col items-center justify-center h-full space-y-8 animate-in fade-in duration-700">
       <div className="flex space-x-4 text-7xl mb-4">
         <span className="animate-bounce" style={{ animationDelay: '0ms' }}>🍎</span>
-        <span className="animate-bounce" style={{ animationDelay: '200ms' }}>🏃‍♀️</span>
-        <span className="animate-bounce" style={{ animationDelay: '400ms' }}>💧</span>
+        <span className="animate-bounce" style={{ animationDelay: '200ms' }}>🚲</span>
+        <span className="animate-bounce" style={{ animationDelay: '400ms' }}>🥛</span>
       </div>
       <button
         onClick={startGame}
@@ -94,10 +147,10 @@ export default function App() {
           ⭐
         </div>
       </div>
-      <div className="flex space-x-2">
-        {/* Render a star for every 3 points to keep it visual */}
-        {[...Array(Math.max(1, Math.floor(score / 3)))].map((_, i) => (
-          <Star key={i} size={48} className="text-yellow-400 fill-current animate-bounce" style={{ animationDelay: `${i * 150}ms` }} />
+      <div className="flex flex-wrap justify-center max-w-lg gap-2 mt-4">
+        {/* Render a star for every 2 points to make it super rewarding */}
+        {[...Array(Math.max(1, Math.floor(score / 2)))].map((_, i) => (
+          <Star key={i} size={40} className="text-yellow-400 fill-current animate-bounce" style={{ animationDelay: `${(i % 5) * 150}ms` }} />
         ))}
       </div>
       <button
