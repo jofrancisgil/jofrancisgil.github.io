@@ -1,0 +1,213 @@
+import React, { useState, useEffect } from 'react';
+import { RefreshCw, Star, Play } from 'lucide-react';
+
+// The game items: a mix of foods and habits. Using emojis as they are perfect for this age group!
+const ALL_ITEMS = [
+  { id: 1, emoji: '🍎', type: 'healthy', description: 'Apple' },
+  { id: 2, emoji: '🍭', type: 'unhealthy', description: 'Lollipop' },
+  { id: 3, emoji: '🏃‍♂️', type: 'healthy', description: 'Running' },
+  { id: 4, emoji: '📺', type: 'unhealthy', description: 'Too much TV' },
+  { id: 5, emoji: '🥦', type: 'healthy', description: 'Broccoli' },
+  { id: 6, emoji: '🍩', type: 'unhealthy', description: 'Donut' },
+  { id: 7, emoji: '💧', type: 'healthy', description: 'Water' },
+  { id: 8, emoji: '🥤', type: 'unhealthy', description: 'Soda' },
+  { id: 9, emoji: '🪥', type: 'healthy', description: 'Brushing Teeth' },
+  { id: 10, emoji: '🍟', type: 'unhealthy', description: 'Fries' },
+  { id: 11, emoji: '🛌', type: 'healthy', description: 'Sleeping well' },
+  { id: 12, emoji: '🍫', type: 'unhealthy', description: 'Chocolate' },
+];
+
+export default function App() {
+  const [gameState, setGameState] = useState('start'); // 'start', 'playing', 'end'
+  const [items, setItems] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [score, setScore] = useState(0);
+  const [feedback, setFeedback] = useState(null); // 'correct' or 'incorrect'
+  const [shake, setShake] = useState(false);
+
+  // Initialize a new game by shuffling the items
+  const startGame = () => {
+    const shuffled = [...ALL_ITEMS].sort(() => Math.random() - 0.5);
+    setItems(shuffled);
+    setCurrentIndex(0);
+    setScore(0);
+    setGameState('playing');
+    setFeedback(null);
+  };
+
+  const handleGuess = (guess) => {
+    if (feedback !== null) return; // Prevent double clicks while animating
+
+    const currentItem = items[currentIndex];
+    const isCorrect = guess === currentItem.type;
+
+    if (isCorrect) {
+      setFeedback('correct');
+      setScore((s) => s + 1);
+      
+      // Wait for animation, then move to next item
+      setTimeout(() => {
+        if (currentIndex + 1 < items.length) {
+          setCurrentIndex((i) => i + 1);
+          setFeedback(null);
+        } else {
+          setGameState('end');
+        }
+      }, 1200);
+    } else {
+      setFeedback('incorrect');
+      setShake(true);
+      
+      // Let them try again after a short delay
+      setTimeout(() => {
+        setFeedback(null);
+        setShake(false);
+      }, 800);
+    }
+  };
+
+  // ---------------------------------------------------------------------------
+  // Screens
+  // ---------------------------------------------------------------------------
+
+  const renderStartScreen = () => (
+    <div className="flex flex-col items-center justify-center h-full space-y-8 animate-in fade-in duration-700">
+      <div className="flex space-x-4 text-7xl mb-4">
+        <span className="animate-bounce" style={{ animationDelay: '0ms' }}>🍎</span>
+        <span className="animate-bounce" style={{ animationDelay: '200ms' }}>🏃‍♀️</span>
+        <span className="animate-bounce" style={{ animationDelay: '400ms' }}>💧</span>
+      </div>
+      <button
+        onClick={startGame}
+        className="bg-green-500 hover:bg-green-400 text-white rounded-full p-8 shadow-[0_8px_0_rgb(22,163,74)] hover:shadow-[0_4px_0_rgb(22,163,74)] hover:translate-y-1 transition-all active:shadow-none active:translate-y-2 flex items-center justify-center space-x-4"
+      >
+        <Play size={64} fill="currentColor" />
+      </button>
+    </div>
+  );
+
+  const renderEndScreen = () => (
+    <div className="flex flex-col items-center justify-center h-full space-y-8 animate-in zoom-in duration-500">
+      <div className="text-9xl relative">
+        ⭐
+        <div className="absolute top-0 left-0 w-full h-full animate-ping opacity-50 text-yellow-400">
+          ⭐
+        </div>
+      </div>
+      <div className="flex space-x-2">
+        {/* Render a star for every 3 points to keep it visual */}
+        {[...Array(Math.max(1, Math.floor(score / 3)))].map((_, i) => (
+          <Star key={i} size={48} className="text-yellow-400 fill-current animate-bounce" style={{ animationDelay: `${i * 150}ms` }} />
+        ))}
+      </div>
+      <button
+        onClick={startGame}
+        className="bg-blue-500 hover:bg-blue-400 text-white rounded-full p-6 shadow-[0_8px_0_rgb(37,99,235)] hover:shadow-[0_4px_0_rgb(37,99,235)] hover:translate-y-1 transition-all active:shadow-none active:translate-y-2 flex items-center justify-center mt-8"
+      >
+        <RefreshCw size={48} />
+      </button>
+    </div>
+  );
+
+  const renderGameScreen = () => {
+    const currentItem = items[currentIndex];
+    const progressPercent = ((currentIndex) / items.length) * 100;
+
+    return (
+      <div className="flex flex-col h-full w-full max-w-2xl mx-auto p-4 md:p-8">
+        {/* Progress Bar */}
+        <div className="w-full h-6 bg-blue-100 rounded-full mb-8 overflow-hidden shadow-inner border-2 border-blue-200">
+          <div 
+            className="h-full bg-yellow-400 transition-all duration-500 ease-out flex items-center justify-end pr-2"
+            style={{ width: `${Math.max(progressPercent, 5)}%` }}
+          >
+            <Star size={16} className="text-white fill-current" />
+          </div>
+        </div>
+
+        {/* Main Play Area */}
+        <div className="flex-1 flex flex-col items-center justify-center relative">
+          
+          {/* Item Card */}
+          <div 
+            className={`
+              relative w-64 h-64 md:w-80 md:h-80 bg-white rounded-3xl shadow-2xl flex items-center justify-center text-[8rem] md:text-[10rem] select-none
+              transition-transform duration-300
+              ${shake ? 'animate-[wiggle_0.3s_ease-in-out_infinite]' : ''}
+              ${feedback === 'correct' ? 'scale-110' : 'scale-100'}
+            `}
+          >
+            {/* The Emoji */}
+            <div className={`transition-all duration-300 ${feedback === 'correct' ? 'scale-125 animate-bounce' : ''}`}>
+              {currentItem?.emoji}
+            </div>
+
+            {/* Visual Feedback Overlay */}
+            {feedback === 'correct' && (
+              <div className="absolute inset-0 flex items-center justify-center bg-green-500 bg-opacity-20 rounded-3xl animate-in fade-in zoom-in duration-300">
+                <span className="text-green-500 drop-shadow-lg text-9xl">✅</span>
+              </div>
+            )}
+            {feedback === 'incorrect' && (
+              <div className="absolute inset-0 flex items-center justify-center bg-red-500 bg-opacity-20 rounded-3xl animate-in fade-in zoom-in duration-200">
+                <span className="text-red-500 drop-shadow-lg text-9xl">❌</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Controls - Big Buttons */}
+        <div className="flex justify-between w-full mt-8 gap-4 md:gap-8 pb-8">
+          {/* Healthy Button */}
+          <button
+            onClick={() => handleGuess('healthy')}
+            disabled={feedback !== null}
+            className={`
+              flex-1 bg-green-400 rounded-3xl border-b-[12px] border-green-600 active:border-b-0 active:translate-y-[12px] 
+              transition-all duration-150 flex items-center justify-center p-6 md:p-10 shadow-xl
+              ${feedback !== null && feedback !== 'correct' ? 'opacity-50' : 'opacity-100 hover:bg-green-300'}
+            `}
+          >
+            <span className="text-7xl md:text-8xl drop-shadow-md">😃</span>
+          </button>
+
+          {/* Unhealthy Button */}
+          <button
+            onClick={() => handleGuess('unhealthy')}
+            disabled={feedback !== null}
+            className={`
+              flex-1 bg-red-400 rounded-3xl border-b-[12px] border-red-600 active:border-b-0 active:translate-y-[12px] 
+              transition-all duration-150 flex items-center justify-center p-6 md:p-10 shadow-xl
+              ${feedback !== null && feedback !== 'incorrect' ? 'opacity-50' : 'opacity-100 hover:bg-red-300'}
+            `}
+          >
+            <span className="text-7xl md:text-8xl drop-shadow-md">🤢</span>
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="min-h-screen bg-sky-100 font-sans overflow-hidden fixed inset-0 touch-manipulation">
+      {/* Custom Keyframes for the shaking animation on wrong guess */}
+      <style>{`
+        @keyframes wiggle {
+          0%, 100% { transform: rotate(-5deg) translateX(-10px); }
+          50% { transform: rotate(5deg) translateX(10px); }
+        }
+      `}</style>
+      
+      {/* Background decorative elements */}
+      <div className="absolute top-4 left-4 text-4xl opacity-20 hidden md:block">☁️</div>
+      <div className="absolute top-12 right-12 text-6xl opacity-20 hidden md:block">☁️</div>
+      <div className="absolute bottom-10 left-1/4 text-5xl opacity-20 hidden md:block">🌳</div>
+
+      <div className="relative w-full h-full">
+        {gameState === 'start' && renderStartScreen()}
+        {gameState === 'playing' && renderGameScreen()}
+        {gameState === 'end' && renderEndScreen()}
+      </div>
+    </div>
+  );
+}
