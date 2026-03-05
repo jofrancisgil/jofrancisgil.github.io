@@ -2,47 +2,67 @@
 layout: default
 title: Medi Natural i Social
 ---
-<!DOCTYPE html>
-<html lang="ca">
-            <!-- Encapçalament de Pàgina -->
-            <div class="text-center mb-12">
-                <h1 class="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-800 to-amber-700 mb-4">
-                    <i class="fas fa-globe-europe mr-2 text-emerald-700"></i> Recursos de Medi
-                </h1>
-                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
-                    Geografia, ciències socials i naturals. Descobreix el món que t'envolta.
-                </p>
-            </div>
+<style>
+    /* Gradients verdosos personalitzats per a Medi */
+    .grad-medi-1 { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); } /* Verd maragda */
+    .grad-medi-2 { background: linear-gradient(135deg, #0ba360 0%, #3cba92 100%); } /* Verd bosc */
+    .grad-medi-3 { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); } /* Verd menta */
 
-            <!-- Graella de Recursos -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                
-                <!-- Comarques de Catalunya -->
-                <a href="comarques.html" class="card grad-medi-forest">
-                    <div class="card-icon"><i class="fas fa-map-marked-alt"></i></div>
-                    <h3>Comarques</h3>
-                    <p>Situa i aprèn les comarques de Catalunya al mapa interactiu.</p>
-                </a>
+    /* Estils per a la capçalera (adaptant l'aspecte anterior sense Tailwind) */
+    .medi-header {
+        text-align: center;
+        padding: 40px 20px;
+        margin-bottom: 30px;
+    }
+    
+    .medi-header h1 {
+        font-size: 3em;
+        color: #2e7d32;
+        margin-bottom: 15px;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+    }
 
-                <!-- Capitals d'Espanya -->
-                <a href="capitalsespanya.html" class="card grad-medi-earth">
-                    <div class="card-icon"><i class="fas fa-city"></i></div>
-                    <h3>Capitals d'Espanya</h3>
-                    <p>Coneixes les capitals de les comunitats autònomes?</p>
-                </a>
+    .medi-header p {
+        font-size: 1.2em;
+        color: #666;
+        max-width: 800px;
+        margin: 0 auto;
+        line-height: 1.6;
+    }
+</style>
 
-                <!-- Capitals d'Europa -->
-                <a href="capitalseuropa.html" class="card grad-medi-olive">
-                    <div class="card-icon"><i class="fas fa-globe-americas"></i></div>
-                    <h3>Capitals d'Europa</h3>
-                    <p>Posa a prova els teus coneixements sobre la geografia europea.</p>
-                </a>
+<!-- Encapçalament de Pàgina -->
+<div class="medi-header">
+    <h1><i class="fas fa-globe-europe"></i> Recursos de Medi</h1>
+    <p>Geografia, ciències socials i naturals. Descobreix el món que t'envolta.</p>
+</div>
 
-                <!-- Eina extra (si escau) -->
-                <!-- Pots afegir-ne més aquí en el futur -->
+<!-- Graella de Recursos utilitzant 'grid-container' de default.html -->
+<div class="grid-container">
+    
+    <!-- Comarques de Catalunya -->
+    <a href="comarques.html" class="card grad-medi-1">
+        <div class="card-icon"><i class="fas fa-map-marked-alt"></i></div>
+        <h3>Comarques</h3>
+        <p>Situa i aprèn les comarques de Catalunya al mapa interactiu.</p>
+    </a>
 
-            </div>
-        </div>
-    </main>
-</body>
-</html>
+    <!-- Capitals d'Espanya -->
+    <a href="capitalsespanya.html" class="card grad-medi-2">
+        <div class="card-icon"><i class="fas fa-city"></i></div>
+        <h3>Capitals d'Espanya</h3>
+        <p>Coneixes les capitals de les comunitats autònomes?</p>
+    </a>
+
+    <!-- Capitals d'Europa -->
+    <a href="capitalseuropa.html" class="card grad-medi-3">
+        <div class="card-icon"><i class="fas fa-globe-americas"></i></div>
+        <h3>Capitals d'Europa</h3>
+        <p>Posa a prova els teus coneixements sobre la geografia europea.</p>
+    </a>
+
+</div>
