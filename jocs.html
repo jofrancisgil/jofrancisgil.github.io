@@ -1,212 +1,84 @@
-<!DOCTYPE html>
-<html lang="ca">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jocs - Jo Recursos</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;600&family=Inter:wght@300;400;600&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
+---
+layout: default
+title: Jocs
+---
+<style>
+    /* Gradients blaus i cian personalitzats per a Jocs */
+    .grad-jocs-1 { background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%); } /* Blau elèctric */
+    .grad-jocs-2 { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); } /* Cian brillant */
+    .grad-jocs-3 { background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%); } /* Blau cel suau */
+    .grad-jocs-4 { background: linear-gradient(135deg, #1cb5e0 0%, #000851 100%); } /* Blau intens a fosc */
+    .grad-jocs-5 { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); } /* Verd a cian */
 
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        h1, h2, h3, .brand-font { font-family: 'Fredoka', sans-serif; }
+    /* Estils per a la capçalera (adaptant l'aspecte de la resta de pàgines) */
+    .jocs-header {
+        text-align: center;
+        padding: 40px 20px;
+        margin-bottom: 30px;
+    }
+    
+    .jocs-header h1 {
+        font-size: 3em;
+        color: #00838f; /* Color cian fosc, mateix que al menú per a Jocs */
+        margin-bottom: 15px;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+    }
 
-        /* --- ESTILS DE TARGETES --- */
-        .card {
-            border-radius: 15px;
-            padding: 30px 20px;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            text-decoration: none;
-            color: white !important;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 240px;
-            border: none;
-            cursor: pointer;
-            width: 100%;
-            position: relative;
-            overflow: hidden;
-        }
+    .jocs-header p {
+        font-size: 1.2em;
+        color: #666;
+        max-width: 800px;
+        margin: 0 auto;
+        line-height: 1.6;
+    }
+</style>
 
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-        }
+<!-- Encapçalament de Pàgina -->
+<div class="jocs-header">
+    <h1><i class="fas fa-gamepad"></i> Recursos de Jocs</h1>
+    <p>Aprèn jugant amb aquesta col·lecció d'activitats interactives i passatemps educatius </p>
+</div>
 
-        .card-icon {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            color: rgba(255, 255, 255, 0.95);
-            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .card-icon svg {
-            width: 48px;
-            height: 48px;
-        }
+<!-- Graella de Recursos utilitzant 'grid-container' de default.html -->
+<div class="grid-container">
+    
+    <!-- El Penjat -->
+    <a href="penjat.html" class="card grad-jocs-1">
+        <div class="card-icon"><i class="fas fa-font"></i></div>
+        <h3>El Penjat</h3>
+        <p>Descobreix la paraula oculta abans que s'acabin els intents.</p>
+    </a>
 
-        .card h3 {
-            margin: 10px 0;
-            font-size: 1.5em;
-            font-weight: 700;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            font-family: 'Fredoka', sans-serif;
-        }
+    <!-- Sopa de Lletres -->
+    <a href="sopa.html" class="card grad-jocs-2">
+        <div class="card-icon"><i class="fas fa-border-all"></i></div>
+        <h3>Sopa de Lletres</h3>
+        <p>Troba totes les paraules amagades a la graella.</p>
+    </a>
 
-        .card p {
-            font-size: 1em;
-            line-height: 1.4;
-            opacity: 0.95;
-            margin: 0;
-            font-weight: 500;
-            font-family: 'Inter', sans-serif;
-        }
+    <!-- Bingo Educatiu -->
+    <a href="bingo.html" class="card grad-jocs-3">
+        <div class="card-icon"><i class="fas fa-ticket-alt"></i></div>
+        <h3>Bingo Educatiu</h3>
+        <p>Juga al bingo clàssic per repassar conceptes de forma divertida.</p>
+    </a>
 
-        /* --- GRADIENTS JOCS (Violetes i Granats) --- */
-        
-        /* Violeta Elèctric */
-        .grad-jocs-violet { background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); }
-        
-        /* Granat Intens (Sang de Bou) */
-        .grad-jocs-garnet { background: linear-gradient(135deg, #800000 0%, #cc0000 100%); }
-        
-        /* Baia (Berry) - Barreja porpra/vermell */
-        .grad-jocs-berry { background: linear-gradient(135deg, #C04848 0%, #480048 100%); }
-        
-        /* Rosa Fosc / Magenta */
-        .grad-jocs-magenta { background: linear-gradient(135deg, #ef32d9 0%, #89fffd 100%); }
-        
-        /* Vi (Wine) */
-        .grad-jocs-wine { background: linear-gradient(135deg, #5b1a37 0%, #8c2a52 100%); }
+    <!-- Sudokus -->
+    <a href="sudokus.html" class="card grad-jocs-4">
+        <div class="card-icon"><i class="fas fa-th"></i></div>
+        <h3>Sudokus</h3>
+        <p>Posa a prova la teva lògica matemàtica amb diferents nivells.</p>
+    </a>
 
-        /* Pruna (Plum) */
-        .grad-jocs-plum { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    <!-- Xifres i Lletres -->
+    <a href="xifresilletres.html" class="card grad-jocs-5">
+        <div class="card-icon"><i class="fas fa-stopwatch"></i></div>
+        <h3>Xifres i Lletres</h3>
+        <p>El clàssic joc d'agilitat mental, càlcul i vocabulari.</p>
+    </a>
 
-    </style>
-</head>
-<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
-
-    <!-- Navegació -->
-    <nav class="bg-white shadow-md sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 flex justify-between h-20 items-center">
-            <!-- Logo / Enllaç Inici -->
-            <a href="index.html" class="logo flex items-center">
-                 <img src="img/logo-nofons.png" alt="Logo" class="h-16 w-auto mr-2">
-            </a>
-
-            <!-- Menú Principal -->
-            <div class="hidden md:flex items-center gap-2">
-                <a href="matematiques.html" class="px-5 py-2 rounded-full font-bold text-gray-600 hover:bg-gray-100 transition flex items-center gap-2">
-                    <i class="fas fa-calculator"></i> Matemàtiques
-                </a>
-                <a href="llengues.html" class="px-5 py-2 rounded-full font-bold text-gray-600 hover:bg-gray-100 transition flex items-center gap-2">
-                    <i class="fas fa-comments"></i> Llengües
-                </a>
-                <a href="medi.html" class="px-5 py-2 rounded-full font-bold text-gray-600 hover:bg-gray-100 transition flex items-center gap-2">
-                    <i class="fas fa-globe-europe"></i> Medi
-                </a>
-                <a href="jocs.html" class="px-5 py-2 rounded-full font-bold transition bg-purple-700 text-white shadow-md flex items-center gap-2">
-                    <i class="fas fa-gamepad"></i> Jocs
-                </a>
-                <a href="gestio.html" class="px-5 py-2 rounded-full font-bold text-gray-600 hover:bg-gray-100 transition flex items-center gap-2">
-                    <i class="fas fa-tools"></i> Eines
-                </a>
-            </div>
-            
-            <div class="md:hidden text-gray-600">
-                <i class="fas fa-bars text-2xl"></i>
-            </div>
-        </div>
-    </nav>
-
-    <main class="flex-grow py-12">
-        <div class="max-w-6xl mx-auto px-4">
-            
-            <!-- Encapçalament de Pàgina -->
-            <div class="text-center mb-12">
-                <h1 class="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-800 to-rose-700 mb-4">
-                    <i class="fas fa-dice mr-2 text-purple-700"></i> Zona de Jocs
-                </h1>
-                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
-                    Aprèn jugant amb aquesta col·lecció d'activitats interactives i passatemps educatius.
-                </p>
-            </div>
-
-            <!-- Graella de Recursos -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                
-                <!-- Memory -->
-                <a href="memory-pictures.html" class="card grad-jocs-violet">
-                    <div class="card-icon"><i class="fas fa-brain"></i></div>
-                    <h3>Memory Visual</h3>
-                    <p>Exercita la memòria trobant les parelles d'imatges.</p>
-                </a>
-
-                <!-- El Penjat -->
-                <a href="penjat.html" class="card grad-jocs-garnet">
-                    <div class="card-icon"><i class="fas fa-user-injured"></i></div>
-                    <h3>El Penjat</h3>
-                    <p>Endevina la paraula lletra per lletra abans que sigui massa tard.</p>
-                </a>
-
-                <!-- Sopa de Lletres -->
-                <a href="sopa.html" class="card grad-jocs-berry">
-                    <div class="card-icon"><i class="fas fa-search"></i></div>
-                    <h3>Sopa de Lletres</h3>
-                    <p>Busca les paraules amagades dins de la graella.</p>
-                </a>
-
-                <!-- Sudokus -->
-                <a href="sudokus.html" class="card grad-jocs-plum">
-                    <div class="card-icon"><i class="fas fa-border-all"></i></div>
-                    <h3>Sudokus</h3>
-                    <p>Resol sudokus de diferents nivells de dificultat.</p>
-                </a>
-
-                <!-- Bingo -->
-                <a href="bingo.html" class="card grad-jocs-wine">
-                    <div class="card-icon"><i class="fas fa-th-large"></i></div>
-                    <h3>Bingo</h3>
-                    <p>Genera cartrons per jugar al bingo a l'aula.</p>
-                </a>
-
-                <!-- Caixes -->
-                <a href="caixes.html" class="card grad-jocs-magenta">
-                    <div class="card-icon"><i class="fas fa-box-open"></i></div>
-                    <h3>Caixes Màgiques</h3>
-                    <p>Descobreix què hi ha amagat resolent l'enigma.</p>
-                </a>
-
-            </div>
-        </div>
-    </main>
-
-    <!-- Footer Simple -->
-    <footer class="bg-gradient-to-r from-purple-50 to-rose-50 border-t border-gray-200 mt-20 py-10">
-        <div class="max-w-4xl mx-auto text-center px-4">
-            <p class="text-gray-600 mb-4 font-medium">Creat per Jo Francis Gil</p>
-            <div class="flex justify-center items-center gap-2 opacity-80">
-                <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">
-                    <img alt="Llicència de Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" />
-                </a>
-            </div>
-            <p class="text-xs text-gray-500 mt-2">
-                Obra sota llicència <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" class="text-purple-700 hover:underline">CC BY-NC-SA 4.0</a>.
-            </p>
-        </div>
-    </footer>
-
-    <script>
-        lucide.createIcons();
-    </script>
-</body>
-</html>
+</div>
