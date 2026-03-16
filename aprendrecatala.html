@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aprenem l'Abecedari! 学习字母表</title>
+    <!-- Tailwind CSS per als estils -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font divertida per a nens -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <!-- Llibreria per al confeti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #f0fdfa; /* Fons suau cyan */
+            background-image: radial-gradient(#bae6fd 2px, transparent 2px);
+            background-size: 30px 30px;
+            user-select: none;
+        }
+
+        .bouncy:hover {
+            transform: scale(1.1) translateY(-5px);
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .active-tab {
+            background-color: #fcd34d; /* Groc */
+            color: #78350f;
+            border-color: #fbbf24;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .inactive-tab {
+            background-color: #ffffff;
+            color: #9ca3af;
+            border-color: #e5e7eb;
+        }
+
+        /* Animació per quan s'equivoca en el joc */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            50% { transform: translateX(10px); }
+            75% { transform: translateX(-10px); }
+        }
+        .shake {
+            animation: shake 0.5s;
+        }
+
+        /* Animació per la targeta d'aprenentatge */
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .pop-in {
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center py-6 px-4">
+
+    <!-- Selector d'idioma -->
+    <div class="w-full max-w-4xl flex justify-end mb-4">
+        <div class="bg-white rounded-xl shadow-sm border-2 border-blue-100 p-2 flex items-center gap-2">
+            <span class="text-xl">🌍</span>
+            <select id="lang-selector" onchange="canviarIdioma(this.value)" class="bg-transparent font-bold text-gray-700 outline-none cursor-pointer">
+                <option value="zh">中文 (Xinès)</option>
+                <option value="ar">العربية (Àrab)</option>
+                <option value="ur">اردو (Urdú)</option>
+                <option value="wo">Wolof (Wolof)</option>
+                <option value="uk">Українська (Ucraïnès)</option>
+                <option value="ro">Română (Romanès)</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Capçalera -->
+    <header class="text-center mb-8">
+        <h1 class="text-4xl md:text-5xl font-black text-blue-600 drop-shadow-sm mb-2">
+            Aprenem l'Abecedari!
+        </h1>
+        <h2 id="main-subtitle" class="text-2xl font-bold text-gray-600 mb-6">
+            学习加泰罗尼亚语字母表
+        </h2>
+
+        <!-- Navegació (Pestanyes) -->
+        <div class="flex gap-4 justify-center">
+            <button id="btn-learn" onclick="canviarMode('learn')" class="active-tab px-6 py-3 rounded-2xl font-bold text-xl border-b-4 transition-all flex items-center gap-2">
+                📖 Aprendre <span id="tab-learn-txt" class="text-sm font-normal">(学习)</span>
+            </button>
+            <button id="btn-play" onclick="canviarMode('play')" class="inactive-tab px-6 py-3 rounded-2xl font-bold text-xl border-b-4 transition-all flex items-center gap-2 bouncy">
+                🎮 Jugar <span id="tab-play-txt" class="text-sm font-normal">(玩)</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- CONTENIDOR PRINCIPAL -->
+    <main class="w-full max-w-4xl bg-white rounded-3xl shadow-xl p-6 md:p-8 border-4 border-blue-100">
+        
+        <!-- ========================================== -->
+        <!-- MODE APRENDRE (LEARN)                      -->
+        <!-- ========================================== -->
+        <div id="mode-learn" class="flex flex-col items-center">
+            
+            <!-- Àrea de Visualització Destacada -->
+            <div id="featured-card" class="w-full max-w-md bg-gradient-to-br from-blue-50 to-purple-50 rounded-3xl border-4 border-blue-200 p-8 text-center mb-8 hidden shadow-sm">
+                <div class="text-8xl mb-4" id="featured-emoji">👋</div>
+                <div class="flex justify-center items-center gap-4 mb-2">
+                    <span class="text-6xl font-black text-blue-500" id="featured-letter">H</span>
+                    <span class="text-4xl font-bold text-gray-700" id="featured-word">Hola</span>
+                </div>
+                <div class="text-3xl font-bold text-red-500 mt-2" id="featured-translated">你好</div>
+                <button onclick="tornarAEscoltar()" class="mt-6 bg-blue-500 hover:bg-blue-600 text-white rounded-full p-4 shadow-md transition-transform transform hover:scale-110">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M11 5L6 9H2v6h4l5 4V5z" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Tauler de Lletres -->
+            <p class="text-xl text-gray-500 mb-6 font-bold text-center" id="instruccions-learn">
+                Clica una lletra per escoltar-la! <br> <span id="instruccions-learn-txt" class="text-base font-normal">点击字母听发音！</span>
+            </p>
+            <div id="alphabet-grid" class="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-7 gap-3 md:gap-4 w-full">
+                <!-- Les lletres es generaran aquí via JavaScript -->
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- MODE JUGAR (PLAY)                          -->
+        <!-- ========================================== -->
+        <div id="mode-play" class="hidden flex-col items-center w-full">
+            
+            <!-- Puntuació -->
+            <div class="w-full flex justify-between items-center mb-6 px-4">
+                <div class="text-2xl font-bold text-yellow-500 flex items-center gap-2">
+                    ⭐ <span id="score">0</span>
+                </div>
+                <button id="btn-reset" onclick="iniciarJoc()" class="text-gray-400 hover:text-blue-500 font-bold transition-colors">
+                    🔄 Reiniciar (重置)
+                </button>
+            </div>
+
+            <div class="text-center mb-8">
+                <h3 class="text-3xl font-bold text-gray-700 mb-2">Quina lletra és?</h3>
+                <h4 id="question-play-txt" class="text-xl text-gray-500">这是哪个字母？</h4>
+            </div>
+
+            <!-- Pregunta -->
+            <div class="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-3xl border-4 border-yellow-200 w-full max-w-md p-8 text-center mb-8 shadow-sm">
+                <div class="text-8xl mb-6 pop-in" id="quiz-emoji">❓</div>
+                <div class="text-4xl font-black text-red-500 pop-in" id="quiz-translated">问题</div>
+            </div>
+
+            <!-- Opcions de Lletres -->
+            <div id="quiz-options" class="flex gap-4 md:gap-8 justify-center w-full max-w-lg">
+                <!-- Els botons d'opcions es generaran aquí -->
+            </div>
+
+        </div>
+
+    </main>
+
+    <footer class="mt-8 text-gray-400 font-bold text-center">
+        Aprèn jugant! • <span id="footer-txt">边玩边学！</span>
+    </footer>
+
+    <!-- LOGIC DEL JOC (JAVASCRIPT) -->
+    <script>
+        // Traduccions generals de la interfície
+        const uiTranslations = {
+            zh: { subtitle: '学习加泰罗尼亚语字母表', learn: '(学习)', play: '(玩)', instLearn: '点击字母听发音！', reset: '🔄 Reiniciar (重置)', qPlay: '这是哪个字母？', footer: '边玩边学！' },
+            ar: { subtitle: 'تعلم الأبجدية الكتالانية', learn: '(يتعلم)', play: '(يلعب)', instLearn: 'اضغط على الحرف لسماع صوته!', reset: '🔄 Reiniciar (إعادة ضبط)', qPlay: 'ما هذا الحرف؟', footer: 'تعلم باللعب!' },
+            ur: { subtitle: 'کیٹالان حروف تہجی سیکھیں', learn: '(سیکھیں)', play: '(کھیلیں)', instLearn: 'آواز سننے کے لیے حرف پر کلک کریں!', reset: '🔄 Reiniciar (دوبارہ ترتیب دیں)', qPlay: 'یہ کون سا حرف ہے؟', footer: 'کھیل کر سیکھیں!' },
+            wo: { subtitle: 'Jàngal abajada wu Katalan', learn: '(Jàng)', play: '(Fo)', instLearn: 'Bësal ci araf bi ngir dégg ko!', reset: '🔄 Reiniciar (Bësaat)', qPlay: 'Bii araf ban la?', footer: 'Jàngal ci fo!' },
+            uk: { subtitle: 'Вивчайте каталонську абетку', learn: '(Вчити)', play: '(Грати)', instLearn: 'Натисніть на літеру, щоб почути звук!', reset: '🔄 Reiniciar (Скинути)', qPlay: 'Яка це літера?', footer: 'Вчись граючи!' },
+            ro: { subtitle: 'Învață alfabetul catalan', learn: '(Învață)', play: '(Joacă)', instLearn: 'Fă clic pe o literă pentru a-i auzi sunetul!', reset: '🔄 Reiniciar (Resetează)', qPlay: 'Ce literă este?', footer: 'Învață jucându-te!' }
+        };
+
+        // Dades de l'alfabet amb paraules en català, emojis i múltiples idiomes
+        const alfabet = [
+            { lletra: 'A', paraula: 'Avió', emoji: '✈️', zh: '飞机', ar: 'طائرة', ur: 'ہوائی جہاز', wo: 'Roplan', uk: 'Літак', ro: 'Avion' },
+            { lletra: 'B', paraula: 'Bici', emoji: '🚲', zh: '自行车', ar: 'دراجة', ur: 'سائیکل', wo: 'Welo', uk: 'Велосипед', ro: 'Bicicletă' },
+            { lletra: 'C', paraula: 'Casa', emoji: '🏠', zh: '房子', ar: 'منزل', ur: 'گھر', wo: 'Kërr', uk: 'Будинок', ro: 'Casă' },
+            { lletra: 'D', paraula: 'Dofí', emoji: '🐬', zh: '海豚', ar: 'دلفين', ur: 'ڈولفن', wo: 'Dofin', uk: 'Дельфін', ro: 'Delfin' },
+            { lletra: 'E', paraula: 'Elefant', emoji: '🐘', zh: '大象', ar: 'فيل', ur: 'ہاتھی', wo: 'Ñey', uk: 'Слон', ro: 'Elefant' },
+            { lletra: 'F', paraula: 'Flor', emoji: '🌸', zh: '花', ar: 'زهرة', ur: 'پھول', wo: 'Fleur', uk: 'Квітка', ro: 'Floare' },
+            { lletra: 'G', paraula: 'Gat', emoji: '🐈', zh: '猫', ar: 'قطة', ur: 'بلی', wo: 'Muus', uk: 'Кіт', ro: 'Pisică' },
+            { lletra: 'H', paraula: 'Hola', emoji: '👋', zh: '你好', ar: 'مرحباً', ur: 'ہیلو', wo: 'Salam', uk: 'Привіт', ro: 'Salut' },
+            { lletra: 'I', paraula: 'Illa', emoji: '🏝️', zh: '岛', ar: 'جزيرة', ur: 'جزیرہ', wo: 'Dun', uk: 'Острів', ro: 'Insulă' },
+            { lletra: 'J', paraula: 'Jirafa', emoji: '🦒', zh: '长颈鹿', ar: 'زرافة', ur: 'جراف', wo: 'Njanqau', uk: 'Жирафа', ro: 'Girafă' },
+            { lletra: 'K', paraula: 'Kiwi', emoji: '🥝', zh: '猕猴桃', ar: 'كيوي', ur: 'کیوی', wo: 'Kiwi', uk: 'Ківі', ro: 'Kiwi' },
+            { lletra: 'L', paraula: 'Lleó', emoji: '🦁', zh: '狮子', ar: 'أسد', ur: 'شیر', wo: 'Gaynde', uk: 'Лев', ro: 'Leu' },
+            { lletra: 'M', paraula: 'Mico', emoji: '🐒', zh: '猴子', ar: 'قرد', ur: 'بندر', wo: 'Golo', uk: 'Мавпа', ro: 'Maimuță' },
+            { lletra: 'N', paraula: 'Núvol', emoji: '☁️', zh: '云', ar: 'سحابة', ur: 'بادل', wo: 'Niir', uk: 'Хмара', ro: 'Nor' },
+            { lletra: 'O', paraula: 'Ós', emoji: '🐻', zh: '熊', ar: 'دب', ur: 'ریچھ', wo: 'Wub', uk: 'Ведмідь', ro: 'Urs' },
+            { lletra: 'P', paraula: 'Pilota', emoji: '⚽', zh: '球', ar: 'كرة', ur: 'گیند', wo: 'Bal', uk: "М'яч", ro: 'Minge' },
+            { lletra: 'Q', paraula: 'Quadern', emoji: '📓', zh: '笔记本', ar: 'دفتر', ur: 'کاپی', wo: 'Kaye', uk: 'Зошит', ro: 'Caiet' },
+            { lletra: 'R', paraula: 'Ratolí', emoji: '🐁', zh: '老鼠', ar: 'فأر', ur: 'چوہا', wo: 'Janax', uk: 'Миша', ro: 'Șoarece' },
+            { lletra: 'S', paraula: 'Sol', emoji: '☀️', zh: '太阳', ar: 'شمس', ur: 'سورج', wo: 'Jant', uk: 'Сонце', ro: 'Soare' },
+            { lletra: 'T', paraula: 'Tren', emoji: '🚂', zh: '火车', ar: 'قطار', ur: 'ٹرین', wo: 'Saxaar', uk: 'Поїзд', ro: 'Tren' },
+            { lletra: 'U', paraula: 'Unicorn', emoji: '🦄', zh: '独角兽', ar: 'وحيد القرن', ur: 'ایک سینگ والا گھوڑا', wo: 'Unikorn', uk: 'Єдиноріг', ro: 'Unicorn' },
+            { lletra: 'V', paraula: 'Vaca', emoji: '🐄', zh: '牛', ar: 'بقرة', ur: 'گائے', wo: 'Nag', uk: 'Корова', ro: 'Vacă' },
+            { lletra: 'W', paraula: 'Waterpolo', emoji: '🤽', zh: '水球', ar: 'كرة الماء', ur: 'واٹر پولو', wo: 'Waterpolo', uk: 'Водне поло', ro: 'Polo pe apă' },
+            { lletra: 'X', paraula: 'Xocolata', emoji: '🍫', zh: '巧克力', ar: 'شوكولاتة', ur: 'چاکلیٹ', wo: 'Sokolaa', uk: 'Шоколад', ro: 'Ciocolată' },
+            { lletra: 'Y', paraula: 'Yuca', emoji: '🍠', zh: '木薯', ar: 'يوكا', ur: 'یوکا', wo: 'Yuka', uk: 'Юка', ro: 'Manioc' },
+            { lletra: 'Z', paraula: 'Zebra', emoji: '🦓', zh: '斑马', ar: 'حمار وحشي', ur: 'زیبرا', wo: 'Fasu àll', uk: 'Зебра', ro: 'Zebră' }
+        ];
+
+        // Colors divertits per a les lletres
+        const colors = ['bg-red-400', 'bg-blue-400', 'bg-green-400', 'bg-yellow-400', 'bg-purple-400', 'bg-pink-400', 'bg-indigo-400', 'bg-orange-400'];
+
+        let idiomaActual = 'zh'; // <-- CORRECCIÓ: Definició de la variable global d'idioma
+        let lletraActualDestacada = null;
+        let preguntaActual = null;
+        let puntuacio = 0;
+
+        // === INICIALITZACIÓ ===
+        function init() {
+            renderitzarGraella();
+        }
+
+        // === GESTIÓ DE MODES ===
+        function canviarMode(mode) {
+            const btnLearn = document.getElementById('btn-learn');
+            const btnPlay = document.getElementById('btn-play');
+            const modeLearn = document.getElementById('mode-learn');
+            const modePlay = document.getElementById('mode-play');
+
+            if (mode === 'learn') {
+                btnLearn.className = "active-tab px-6 py-3 rounded-2xl font-bold text-xl border-b-4 transition-all flex items-center gap-2";
+                btnPlay.className = "inactive-tab px-6 py-3 rounded-2xl font-bold text-xl border-b-4 transition-all flex items-center gap-2 bouncy";
+                modeLearn.classList.remove('hidden');
+                modePlay.classList.add('hidden');
+                modePlay.classList.remove('flex');
+            } else {
+                btnPlay.className = "active-tab px-6 py-3 rounded-2xl font-bold text-xl border-b-4 transition-all flex items-center gap-2";
+                btnLearn.className = "inactive-tab px-6 py-3 rounded-2xl font-bold text-xl border-b-4 transition-all flex items-center gap-2 bouncy";
+                modePlay.classList.remove('hidden');
+                modePlay.classList.add('flex');
+                modeLearn.classList.add('hidden');
+                iniciarJoc();
+            }
+        }
+
+        // === CANVI D'IDIOMA ===
+        function canviarIdioma(nouIdioma) {
+            idiomaActual = nouIdioma;
+            
+            // Actualitzar textos generals
+            document.getElementById('main-subtitle').innerText = uiTranslations[idiomaActual].subtitle;
+            document.getElementById('tab-learn-txt').innerText = uiTranslations[idiomaActual].learn;
+            document.getElementById('tab-play-txt').innerText = uiTranslations[idiomaActual].play;
+            document.getElementById('instruccions-learn-txt').innerText = uiTranslations[idiomaActual].instLearn;
+            document.getElementById('btn-reset').innerText = uiTranslations[idiomaActual].reset;
+            document.getElementById('question-play-txt').innerText = uiTranslations[idiomaActual].qPlay;
+            document.getElementById('footer-txt').innerText = uiTranslations[idiomaActual].footer;
+
+            // Actualitzar targetes actives si n'hi ha
+            if (lletraActualDestacada) {
+                document.getElementById('featured-translated').innerText = lletraActualDestacada[idiomaActual];
+            }
+
+            if (preguntaActual && !document.getElementById('mode-play').classList.contains('hidden')) {
+                document.getElementById('quiz-translated').innerText = preguntaActual[idiomaActual];
+            }
+        }
+
+        // === FUNCIONS DE VEU (TTS) ===
+        function parlar(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const pronunciacio = new SpeechSynthesisUtterance(text);
+                pronunciacio.lang = 'ca-ES'; 
+                pronunciacio.rate = 0.9;
+                pronunciacio.pitch = 1.1;
+                window.speechSynthesis.speak(pronunciacio);
+            }
+        }
+
+        function pronunciarLletra(item) {
+            const vocals = ['A', 'E', 'I', 'O', 'U', 'H'];
+            const primeraLletra = item.paraula.charAt(0).toUpperCase();
+            const preposicio = vocals.includes(primeraLletra) ? "d'" : "de ";
+            
+            // Ex: "A d'Avió" o "B de Bici"
+            parlar(`${item.lletra} ${preposicio}${item.paraula}`);
+        }
+
+        // === MODE APRENDRE ===
+        function renderitzarGraella() {
+            const grid = document.getElementById('alphabet-grid');
+            grid.innerHTML = '';
+
+            alfabet.forEach((item, index) => {
+                const color = colors[index % colors.length];
+                const button = document.createElement('button');
+                button.className = `${color} text-white font-black text-3xl md:text-4xl rounded-2xl aspect-square flex flex-col items-center justify-center border-b-4 border-black/20 bouncy shadow-sm`;
+                button.innerHTML = `
+                    <span>${item.lletra}</span>
+                    <span class="text-sm mt-1 filter drop-shadow-md">${item.emoji}</span>
+                `;
+                button.onclick = () => mostrarDestacat(item);
+                grid.appendChild(button);
+            });
+        }
+
+        function mostrarDestacat(item) {
+            lletraActualDestacada = item;
+            const card = document.getElementById('featured-card');
+            const instruccions = document.getElementById('instruccions-learn');
+            
+            document.getElementById('featured-emoji').innerText = item.emoji;
+            document.getElementById('featured-letter').innerText = item.lletra;
+            document.getElementById('featured-word').innerText = item.paraula;
+            document.getElementById('featured-translated').innerText = item[idiomaActual];
+
+            instruccions.classList.add('hidden');
+            card.classList.remove('hidden');
+            
+            // Re-aplicar animació
+            card.classList.remove('pop-in');
+            void card.offsetWidth; // Trigger reflow
+            card.classList.add('pop-in');
+
+            pronunciarLletra(item);
+        }
+
+        function tornarAEscoltar() {
+            if (lletraActualDestacada) {
+                pronunciarLletra(lletraActualDestacada);
+            }
+        }
+
+        // === MODE JUGAR ===
+        function iniciarJoc() {
+            puntuacio = 0;
+            actualitzarPuntuacio();
+            generarPregunta();
+        }
+
+        function actualitzarPuntuacio() {
+            document.getElementById('score').innerText = puntuacio;
+        }
+
+        function obtenirOpcionsAleatories(itemCorrecte, quantitat) {
+            const opcions = [itemCorrecte];
+            const alfabetCopia = [...alfabet].filter(item => item.lletra !== itemCorrecte.lletra);
+            
+            alfabetCopia.sort(() => 0.5 - Math.random());
+            
+            for (let i = 0; i < quantitat - 1; i++) {
+                opcions.push(alfabetCopia[i]);
+            }
+            
+            return opcions.sort(() => 0.5 - Math.random());
+        }
+
+        function generarPregunta() {
+            preguntaActual = alfabet[Math.floor(Math.random() * alfabet.length)];
+            
+            const emojiEl = document.getElementById('quiz-emoji');
+            const translatedEl = document.getElementById('quiz-translated');
+            
+            emojiEl.innerText = preguntaActual.emoji;
+            translatedEl.innerText = preguntaActual[idiomaActual];
+
+            emojiEl.classList.remove('pop-in');
+            translatedEl.classList.remove('pop-in');
+            void emojiEl.offsetWidth;
+            emojiEl.classList.add('pop-in');
+            translatedEl.classList.add('pop-in');
+            
+            const opcions = obtenirOpcionsAleatories(preguntaActual, 3);
+            const opcionsContenidor = document.getElementById('quiz-options');
+            opcionsContenidor.innerHTML = '';
+
+            opcions.forEach((opcio, index) => {
+                const btnColor = colors[index % colors.length];
+                const button = document.createElement('button');
+                button.className = `${btnColor} text-white font-black text-5xl md:text-6xl rounded-3xl w-24 h-24 md:w-32 md:h-32 flex items-center justify-center border-b-[6px] border-black/20 bouncy shadow-lg transition-transform`;
+                button.innerText = opcio.lletra;
+                button.onclick = () => comprovarResposta(opcio, button);
+                opcionsContenidor.appendChild(button);
+            });
+        }
+
+        function comprovarResposta(opcioEscollida, botoElement) {
+            if (opcioEscollida.lletra === preguntaActual.lletra) {
+                parlar(`Molt bé! ${preguntaActual.lletra} de ${preguntaActual.paraula}`);
+                
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#fcd34d', '#60a5fa', '#f87171', '#34d399']
+                });
+
+                puntuacio += 1;
+                actualitzarPuntuacio();
+
+                botoElement.classList.remove(...colors);
+                botoElement.classList.add('bg-green-500', 'scale-110');
+                
+                const botons = document.getElementById('quiz-options').children;
+                for(let btn of botons) {
+                    btn.disabled = true;
+                }
+
+                setTimeout(() => {
+                    generarPregunta();
+                }, 1500);
+
+            } else {
+                parlar("Torna a provar");
+                botoElement.classList.add('shake', 'bg-red-500');
+                botoElement.classList.remove(...colors);
+                
+                setTimeout(() => {
+                    botoElement.classList.remove('shake');
+                }, 500);
+            }
+        }
+
+        // Iniciar al carregar
+        window.onload = init;
+
+    </script>
+</body>
+</html>
