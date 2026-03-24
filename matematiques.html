@@ -3,6 +3,25 @@ layout: default
 title: Jo Recursos - Matemàtiques
 ---
 
+<style>
+    /* Solució per alinear les targetes i donar-les la mateixa alçada */
+    .grid-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 24px;
+        align-items: stretch; /* Obliga a totes les caixes de la fila a estirar-se per igual */
+    }
+    .card {
+        display: flex;
+        flex-direction: column;
+        height: 100%; /* Ocupa el 100% de l'alçada disponible a la graella */
+    }
+    .card p {
+        flex-grow: 1; /* Empeny l'espai buit restant perquè el disseny quedi uniforme */
+        margin-bottom: 0;
+    }
+</style>
+
 <!-- Títol de la pàgina -->
 <div class="hero-section" style="padding: 30px 20px; margin-bottom: 20px;">
     <h1>
