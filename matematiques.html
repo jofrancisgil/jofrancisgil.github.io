@@ -2,88 +2,197 @@
 layout: default
 title: Jo Recursos - Matemàtiques
 ---
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jo Recursos - Matemàtiques</title>
+    <!-- Font Awesome per a les icones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #fcf8f8;
+            --text-color: #333;
+            --primary-red: #f44336;
+            --card-shadow: 0 4px 12px rgba(244, 67, 54, 0.1);
+            --card-hover-shadow: 0 10px 25px rgba(244, 67, 54, 0.2);
+        }
 
-<style>
-    /* Solució per alinear les targetes i donar-les la mateixa alçada */
-    .grid-container {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-        gap: 24px;
-        align-items: stretch; /* Obliga a totes les caixes de la fila a estirar-se per igual */
-    }
-    .card {
-        display: flex;
-        flex-direction: column;
-        height: 100%; /* Ocupa el 100% de l'alçada disponible a la graella */
-    }
-    .card p {
-        flex-grow: 1; /* Empeny l'espai buit restant perquè el disseny quedi uniforme */
-        margin-bottom: 0;
-    }
-</style>
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            color: var(--text-color);
+        }
 
-<!-- Títol de la pàgina -->
-<div class="hero-section" style="padding: 30px 20px; margin-bottom: 20px;">
-    <h1>
-        <i class="fas fa-calculator" style="color: #f44336; margin-right: 15px;"></i>
-        Matemàtiques
-    </h1>
-    <p class="subtitle">
-        Recursos, generadors i jocs interactius per treballar <br>
-        el càlcul, la geometria y el raonament lògic.
-    </p>
-</div>
+        /* Secció Hero */
+        .hero-section {
+            text-align: center;
+            padding: 40px 20px;
+            margin-bottom: 30px;
+            background: white;
+            border-radius: 24px;
+            box-shadow: var(--card-shadow);
+            border-bottom: 4px solid var(--primary-red);
+        }
 
-<!-- Graella de Targetes -->
-<div class="grid-container">
-    
-    <!-- Targeta: Operacions Matemàtiques -->
-    <a href="operacionsmate.html" class="card grad-red">
-        <div class="card-icon"><i class="fas fa-plus-minus"></i></div>
-        <h3>Operacions</h3>
-        <p>Generador i pràctica d'operacions matemàtiques bàsiques.</p>
-    </a>
+        .hero-section h1 {
+            font-size: 2.5rem;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-red);
+        }
 
-    <!-- Targeta: Sudokus -->
-    <a href="sudokus.html" class="card grad-orange">
-        <div class="card-icon"><i class="fas fa-table-cells"></i></div>
-        <h3>Sudokus</h3>
-        <p>Juga i resol sudokus de diferents nivells de dificultat.</p>
-    </a>
-    
-    <!-- Targeta: Geometry Lab -->
-    <a href="geometrylab.html" class="card grad-purple">
-        <div class="card-icon"><i class="fas fa-shapes"></i></div>
-        <h3>Geometry Lab</h3>
-        <p>Experimenta de forma interactiva amb formes i geometria.</p>
-    </a>
+        .hero-section .subtitle {
+            font-size: 1.15rem;
+            color: #555;
+            margin-top: 15px;
+            line-height: 1.6;
+        }
 
-    <!-- Targeta: Caixes -->
-    <a href="caixes.html" class="card grad-teal">
-        <div class="card-icon"><i class="fas fa-box-open"></i></div>
-        <h3>Caixes</h3>
-        <p>Joc on pots practicar operacions matemàtiques per descobrir el resultat.</p>
-    </a>
+        /* Graella de Targetes */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+            align-items: stretch;
+        }
 
-    <!-- Targeta: Xifres i Lletres -->
-    <a href="xifresilletres.html" class="card grad-calm">
-        <div class="card-icon"><i class="fas fa-stopwatch"></i></div>
-        <h3>Xifres i Lletres</h3>
-        <p>Posa a prova la teva agilitat mental amb els números.</p>
-    </a>
+        /* Estil Base de la Targeta */
+        .card {
+            text-decoration: none;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            padding: 28px;
+            border-radius: 20px;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: var(--card-shadow);
+            height: 100%;
+            box-sizing: border-box;
+            position: relative;
+        }
 
-    <!-- Targeta: Rellotge -->
-    <a href="rellotge.html" class="card grad-blue">
-        <div class="card-icon"><i class="far fa-clock"></i></div>
-        <h3>El Rellotge</h3>
-        <p>Eina interactiva per aprendre i practicar les hores.</p>
-    </a>
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--card-hover-shadow);
+            filter: brightness(1.1);
+        }
 
-    <!-- Targeta: Màquina de Funcions -->
-    <a href="maquinafuncions.html" class="card grad-indigo">
-        <div class="card-icon"><i class="fas fa-cogs"></i></div>
-        <h3>Màquina de Funcions</h3>
-        <p>Descobreix la regla oculta que transforma l'entrada en la sortida.</p>
-    </a>
+        .card-icon {
+            font-size: 2.8rem;
+            margin-bottom: 20px;
+            opacity: 0.95;
+        }
 
-</div>
+        .card h3 {
+            margin: 0 0 12px 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .card p {
+            margin: 0;
+            font-size: 1.05rem;
+            line-height: 1.5;
+            flex-grow: 1;
+            opacity: 0.95;
+        }
+
+        /* Variants de Gradients Vermells per donar varietat */
+        .red-1 { background: linear-gradient(135deg, #f44336, #d32f2f); }
+        .red-2 { background: linear-gradient(135deg, #e53935, #b71c1c); }
+        .red-3 { background: linear-gradient(135deg, #ff5252, #c62828); }
+        .red-4 { background: linear-gradient(135deg, #d32f2f, #9a0007); }
+        .red-5 { background: linear-gradient(135deg, #ef5350, #c62828); }
+        .red-6 { background: linear-gradient(135deg, #ff1744, #d50000); }
+        .red-7 { background: linear-gradient(135deg, #f44336, #b71c1c); }
+
+        /* Adaptabilitat per a mòbils */
+        @media (max-width: 600px) {
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+            .hero-section h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Capçalera -->
+    <div class="hero-section">
+        <h1>
+            <i class="fas fa-calculator" style="margin-right: 15px;"></i>
+            Matemàtiques
+        </h1>
+        <p class="subtitle">
+            Recursos, generadors i jocs interactius per treballar <br>
+            el càlcul, la geometria i el raonament lògic.
+        </p>
+    </div>
+
+    <!-- Graella de Recursos -->
+    <div class="grid-container">
+        
+        <!-- Targeta: Operacions -->
+        <a href="operacionsmate.html" class="card red-1">
+            <div class="card-icon"><i class="fas fa-plus-minus"></i></div>
+            <h3>Operacions</h3>
+            <p>Generador i pràctica d'operacions matemàtiques bàsiques per a totes les edats.</p>
+        </a>
+
+        <!-- Targeta: Sudokus -->
+        <a href="sudokus.html" class="card red-2">
+            <div class="card-icon"><i class="fas fa-table-cells"></i></div>
+            <h3>Sudokus</h3>
+            <p>Juga i resol sudokus de diferents nivells per millorar la teva capacitat lògica.</p>
+        </a>
+        
+        <!-- Targeta: Geometry Lab -->
+        <a href="geometrylab.html" class="card red-3">
+            <div class="card-icon"><i class="fas fa-shapes"></i></div>
+            <h3>Geometry Lab</h3>
+            <p>Eina visual per experimentar amb formes geomètriques, perímetres i àrees.</p>
+        </a>
+
+        <!-- Targeta: Caixes -->
+        <a href="caixes.html" class="card red-4">
+            <div class="card-icon"><i class="fas fa-box-open"></i></div>
+            <h3>Caixes</h3>
+            <p>Descobreix què hi ha dins les caixes practicant operacions de càlcul mental ràpid.</p>
+        </a>
+
+        <!-- Targeta: Xifres i Lletres -->
+        <a href="xifresilletres.html" class="card red-5">
+            <div class="card-icon"><i class="fas fa-stopwatch"></i></div>
+            <h3>Xifres i Lletres</h3>
+            <p>El clàssic repte d'agilitat numèrica: aconsegueix el número objectiu exactament.</p>
+        </a>
+
+        <!-- Targeta: Rellotge -->
+        <a href="rellotge.html" class="card red-6">
+            <div class="card-icon"><i class="far fa-clock"></i></div>
+            <h3>El Rellotge</h3>
+            <p>Aprèn a llegir l'hora tant en format analògic com digital de forma senzilla.</p>
+        </a>
+
+        <!-- Targeta: Màquina de Funcions -->
+        <a href="maquinafuncions.html" class="card red-7">
+            <div class="card-icon"><i class="fas fa-cogs"></i></div>
+            <h3>Màquina de Funcions</h3>
+            <p>Analitza els resultats i troba la regla matemàtica que fa funcionar la màquina.</p>
+        </a>
+
+    </div>
+
+</body>
+</html>
