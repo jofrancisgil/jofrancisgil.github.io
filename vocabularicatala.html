@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aprèn Català - Escola</title>
+  
+  <!-- Carreguem Tailwind CSS per als estils -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Traductor de codi (Babel) perquè el navegador entengui React en un sol arxiu -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Estils generals i font -->
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap');
+    
+    body {
+      font-family: "Fredoka", ui-sans-serif, system-ui, sans-serif;
+      background-color: #fdf8f5;
+      background-image: radial-gradient(#e2d5cc 2px, transparent 2px);
+      background-size: 32px 32px;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- Lògica de l'aplicació (React + Dades) -->
+  <script type="text/babel" data-type="module">
+    // Fixem totes les llibreries a la mateixa versió exacta de React (18.3.1) per evitar conflictes interns
+    import React, { useState, useEffect } from 'https://esm.sh/react@18.3.1';
+    import { createRoot } from 'https://esm.sh/react-dom@18.3.1/client';
+    import { Volume2, ArrowLeft, BookOpen, Calendar, CalendarDays, Type, Globe2, CheckCircle2, Sparkles, Palette, Hash, Apple, User } from 'https://esm.sh/lucide-react@0.460.0?deps=react@18.3.1';
+    import { motion, AnimatePresence } from 'https://esm.sh/framer-motion@11.15.0?deps=react@18.3.1,react-dom@18.3.1';
+
+    // --- 1. DADES (Abans data.ts) ---
+    const languages = {
+      zh: { name: 'Xinès', nativeName: '中文' },
+      ur: { name: 'Urdú', nativeName: 'اردو' },
+      uk: { name: 'Ucraïnès', nativeName: 'Українська' },
+      ar: { name: 'Àrab', nativeName: 'العربية' },
+      wo: { name: 'Wòlof', nativeName: 'Wolof' },
+    };
+
+    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map(letter => ({
+      ca: letter,
+      translations: { zh: letter, ur: letter, uk: letter, ar: letter, wo: letter }
+    }));
+
+    const schoolVocab = [
+      { ca: 'Llibre', translations: { zh: '书', ur: 'کتاب', uk: 'Книга', ar: 'كتاب', wo: 'Téeré' } },
+      { ca: 'Llapis', translations: { zh: '铅笔', ur: 'پنسل', uk: 'Олівець', ar: 'قلم رصاص', wo: 'Kreyoŋ' } },
+      { ca: 'Goma', translations: { zh: '橡皮', ur: 'ربڑ', uk: 'Гумка', ar: 'ممحاة', wo: 'Gom' } },
+      { ca: 'Taula', translations: { zh: '桌子', ur: 'میز', uk: 'Стіл', ar: 'طاولة', wo: 'Taabal' } },
+      { ca: 'Cadira', translations: { zh: '椅子', ur: 'کرسی', uk: 'Стілець', ar: 'كرسي', wo: 'Siis' } },
+      { ca: 'Pissarra', translations: { zh: '黑板', ur: 'بلیک بورڈ', uk: 'Дошка', ar: 'سبورة', wo: 'Tablo' } },
+      { ca: 'Pati', translations: { zh: '操场', ur: 'کھیل کا میدان', uk: "Подвір'я", ar: 'ساحة', wo: 'Kër' } },
+      { ca: 'Lavabo', translations: { zh: '洗手间', ur: 'باتھ روم', uk: 'Туалет', ar: 'حمام', wo: 'Wanag' } },
+      { ca: 'Mestre / Mestra', translations: { zh: '老师', ur: 'استاد', uk: 'Вчитель', ar: 'معلم', wo: 'Jàngalekat' } },
+      { ca: 'Motxilla', translations: { zh: '书包', ur: 'بستہ', uk: 'Рюкзак', ar: 'حقيبة', wo: 'Saak' } },
+    ];
+
+    const daysVocab = [
+      { ca: 'Dilluns', translations: { zh: '星期一', ur: 'پیر', uk: 'Понеділок', ar: 'الإثنين', wo: 'Altine' } },
+      { ca: 'Dimarts', translations: { zh: '星期二', ur: 'منگل', uk: 'Вівторок', ar: 'الثلاثاء', wo: 'Talaata' } },
+      { ca: 'Dimecres', translations: { zh: '星期三', ur: 'بدھ', uk: 'Середа', ar: 'الأربعاء', wo: 'Àllarba' } },
+      { ca: 'Dijous', translations: { zh: '星期四', ur: 'جمعرات', uk: 'Четвер', ar: 'الخميس', wo: 'Alxames' } },
+      { ca: 'Divendres', translations: { zh: '星期五', ur: 'جمعہ', uk: "П'ятниця", ar: 'الجمعة', wo: 'Àjjuma' } },
+      { ca: 'Dissabte', translations: { zh: '星期六', ur: 'ہفتہ', uk: 'Субота', ar: 'السبت', wo: 'Gaawu' } },
+      { ca: 'Diumenge', translations: { zh: '星期日', ur: 'اتوار', uk: 'Неділя', ar: 'الأحد', wo: 'Dibéer' } },
+    ];
+
+    const monthsVocab = [
+      { ca: 'Gener', translations: { zh: '一月', ur: 'جنوری', uk: 'Січень', ar: 'يناير', wo: 'Samwiye' } },
+      { ca: 'Febrer', translations: { zh: '二月', ur: 'فروری', uk: 'Лютий', ar: 'فبراير', wo: 'Fewriye' } },
+      { ca: 'Març', translations: { zh: '三月', ur: 'مارچ', uk: 'Березень', ar: 'مارس', wo: 'Mars' } },
+      { ca: 'Abril', translations: { zh: '四月', ur: 'اپریل', uk: 'Квітень', ar: 'أبريل', wo: 'Awril' } },
+      { ca: 'Maig', translations: { zh: '五月', ur: 'مئی', uk: 'Травень', ar: 'مايو', wo: 'Mee' } },
+      { ca: 'Juny', translations: { zh: '六月', ur: 'جون', uk: 'Червень', ar: 'يونيو', wo: 'Suwe' } },
+      { ca: 'Juliol', translations: { zh: '七月', ur: 'جولائی', uk: 'Липень', ar: 'يوليو', wo: 'Sulet' } },
+      { ca: 'Agost', translations: { zh: '八月', ur: 'اگست', uk: 'Серпень', ar: 'أغسطس', wo: 'Ut' } },
+      { ca: 'Setembre', translations: { zh: '九月', ur: 'ستمبر', uk: 'Вересень', ar: 'سبتمبر', wo: 'Sàttumbar' } },
+      { ca: 'Octubre', translations: { zh: '十月', ur: 'اکتوبر', uk: 'Жовтень', ar: 'أكتوبر', wo: 'Oktoobar' } },
+      { ca: 'Novembre', translations: { zh: '十一月', ur: 'نومبر', uk: 'Листопад', ar: 'نوفمبر', wo: 'Nowàmbar' } },
+      { ca: 'Desembre', translations: { zh: '十二月', ur: 'دسمبر', uk: 'Грудень', ar: 'ديسمبر', wo: 'Desàmbar' } },
+    ];
+
+    const colorsVocab = [
+      { ca: 'Vermell', translations: { zh: '红色', ur: 'سرخ', uk: 'Червоний', ar: 'أحمر', wo: 'Xonq' } },
+      { ca: 'Blau', translations: { zh: '蓝色', ur: 'نیلا', uk: 'Синій', ar: 'أزرق', wo: 'Bulu' } },
+      { ca: 'Groc', translations: { zh: '黄色', ur: 'پیلا', uk: 'Жовтий', ar: 'أصفر', wo: 'Mboq' } },
+      { ca: 'Verd', translations: { zh: '绿色', ur: 'سبز', uk: 'Зелений', ar: 'أخضر', wo: 'Wert' } },
+      { ca: 'Negre', translations: { zh: '黑色', ur: 'کالا', uk: 'Чорний', ar: 'أسود', wo: 'Ñuul' } },
+      { ca: 'Blanc', translations: { zh: '白色', ur: 'سفید', uk: 'Білий', ar: 'أبيض', wo: 'Weex' } },
+    ];
+
+    const numbersVocab = [
+      { ca: 'U / Un', translations: { zh: '一', ur: 'ایک', uk: 'Один', ar: 'واحد', wo: 'Benn' } },
+      { ca: 'Dos', translations: { zh: '二', ur: 'دو', uk: 'Два', ar: 'اثنان', wo: 'Ñaar' } },
+      { ca: 'Tres', translations: { zh: '三', ur: 'تین', uk: 'Три', ar: 'ثلاثة', wo: 'Ñett' } },
+      { ca: 'Quatre', translations: { zh: '四', ur: 'چار', uk: 'Чотири', ar: 'أربعة', wo: 'Ñeent' } },
+      { ca: 'Cinc', translations: { zh: '五', ur: 'پانچ', uk: "П'ять", ar: 'خمسة', wo: 'Juroom' } },
+      { ca: 'Sis', translations: { zh: '六', ur: 'چھ', uk: 'Шість', ar: 'ستة', wo: 'Juroom benn' } },
+      { ca: 'Set', translations: { zh: '七', ur: 'سات', uk: 'Сім', ar: 'سبعة', wo: 'Juroom ñaar' } },
+      { ca: 'Vuit', translations: { zh: '八', ur: 'آٹھ', uk: 'Вісім', ar: 'ثمانية', wo: 'Juroom ñett' } },
+      { ca: 'Nou', translations: { zh: '九', ur: 'نو', uk: "Дев'ять", ar: 'تسعة', wo: 'Juroom ñeent' } },
+      { ca: 'Deu', translations: { zh: '十', ur: 'دس', uk: 'Десять', ar: 'عشرة', wo: 'Fukk' } },
+    ];
+
+    const foodVocab = [
+      { ca: 'Aigua', translations: { zh: '水', ur: 'پانی', uk: 'Вода', ar: 'ماء', wo: 'Ndok' } },
+      { ca: 'Pa', translations: { zh: '面包', ur: 'روٹی', uk: 'Хліб', ar: 'خبز', wo: 'Mburu' } },
+      { ca: 'Poma', translations: { zh: '苹果', ur: 'سیب', uk: 'Яблуко', ar: 'تفاحة', wo: 'Póm' } },
+      { ca: 'Plàtan', translations: { zh: '香蕉', ur: 'کیلا', uk: 'Банан', ar: 'موز', wo: 'Banaana' } },
+      { ca: 'Llet', translations: { zh: '牛奶', ur: 'دودھ', uk: 'Молоко', ar: 'حليب', wo: 'Meew' } },
+    ];
+
+    const bodyVocab = [
+      { ca: 'Boca', translations: { zh: '嘴巴', ur: 'منہ', uk: 'Рот', ar: 'فم', wo: 'Gémmiñ' } },
+      { ca: 'Ulls', translations: { zh: '眼睛', ur: 'آنکھیں', uk: 'Очі', ar: 'عيون', wo: 'Bët' } },
+      { ca: 'Nas', translations: { zh: '鼻子', ur: 'ناک', uk: 'Ніс', ar: 'أنف', wo: 'Bakkan' } },
+      { ca: 'Dents', translations: { zh: '牙齿', ur: 'دانت', uk: 'Зуби', ar: 'أسنان', wo: 'Bëñ' } },
+      { ca: 'Cabells', translations: { zh: '头发', ur: 'بال', uk: 'Волосся', ar: 'شعر', wo: 'Kawar' } },
+      { ca: 'Orella', translations: { zh: '耳朵', ur: 'کان', uk: 'Вухо', ar: 'أذن', wo: 'Nopp' } },
+      { ca: 'Braç', translations: { zh: '手臂', ur: 'بازو', uk: 'Рука', ar: 'ذراع', wo: 'Loxo' } },
+      { ca: 'Cama', translations: { zh: '腿', ur: 'ٹانگ', uk: 'Нога', ar: 'ساق', wo: 'Tank' } },
+      { ca: 'Cap', translations: { zh: '头', ur: 'سر', uk: 'Голова', ar: 'رأس', wo: 'Bopp' } },
+      { ca: 'Colze', translations: { zh: '手肘', ur: 'کہنی', uk: 'Лікоть', ar: 'كوع', wo: 'Cuncu' } },
+      { ca: 'Panxa', translations: { zh: '肚子', ur: 'پیٹ', uk: 'Живіт', ar: 'بطن', wo: 'Biir' } },
+      { ca: 'Mà', translations: { zh: '手', ur: 'ہاتھ', uk: 'Кисть', ar: 'يد', wo: 'Loxo' } },
+      { ca: 'Dits', translations: { zh: '手指', ur: 'انگلیاں', uk: 'Пальці', ar: 'أصابع', wo: 'Baaram' } },
+      { ca: 'Peu', translations: { zh: '脚', ur: 'پاؤں', uk: 'Стопа', ar: 'قدم', wo: 'Tank' } },
+      { ca: 'Espatlla', translations: { zh: '肩膀', ur: 'کندھا', uk: 'Плече', ar: 'كتف', wo: 'Mbagg' } },
+      { ca: 'Esquena', translations: { zh: '背', ur: 'کمر', uk: 'Спина', ar: 'ظهر', wo: 'Gannaaw' } },
+      { ca: 'Llengua', translations: { zh: '舌头', ur: 'زبان', uk: 'Язик', ar: 'لسان', wo: 'Lámmiñ' } },
+      { ca: 'Genoll', translations: { zh: '膝盖', ur: 'گھٹنا', uk: 'Коліно', ar: 'ركبة', wo: 'Óom' } },
+      { ca: 'Turmell', translations: { zh: '脚踝', ur: 'ٹخنہ', uk: 'Щиколотка', ar: 'كاحل', wo: 'Doq' } },
+      { ca: 'Cara', translations: { zh: '脸', ur: 'چہرہ', uk: 'Обличчя', ar: 'وجه', wo: 'Kanam' } },
+    ];
+
+    const categories = [
+      { id: 'alphabet', title: 'Abecedari', icon: 'Type', items: alphabet },
+      { id: 'school', title: "L'Escola", icon: 'BookOpen', items: schoolVocab },
+      { id: 'days', title: 'Dies de la setmana', icon: 'CalendarDays', items: daysVocab },
+      { id: 'months', title: "Mesos de l'any", icon: 'Calendar', items: monthsVocab },
+      { id: 'colors', title: 'Colors', icon: 'Palette', items: colorsVocab },
+      { id: 'numbers', title: 'Nombres', icon: 'Hash', items: numbersVocab },
+      { id: 'food', title: 'Menjar', icon: 'Apple', items: foodVocab },
+      { id: 'body', title: 'Parts del cos', icon: 'User', items: bodyVocab },
+    ];
+
+    // --- 2. COMPONENTS I LÒGICA (Abans App.tsx) ---
+    const categoryColors = {
+      alphabet: { bg: 'bg-rose-500', text: 'text-rose-600', border: 'border-rose-200', hover: 'hover:border-rose-400', light: 'bg-rose-100' },
+      school: { bg: 'bg-blue-500', text: 'text-blue-600', border: 'border-blue-200', hover: 'hover:border-blue-400', light: 'bg-blue-100' },
+      days: { bg: 'bg-emerald-500', text: 'text-emerald-600', border: 'border-emerald-200', hover: 'hover:border-emerald-400', light: 'bg-emerald-100' },
+      months: { bg: 'bg-purple-500', text: 'text-purple-600', border: 'border-purple-200', hover: 'hover:border-purple-400', light: 'bg-purple-100' },
+      colors: { bg: 'bg-pink-500', text: 'text-pink-600', border: 'border-pink-200', hover: 'hover:border-pink-400', light: 'bg-pink-100' },
+      numbers: { bg: 'bg-orange-500', text: 'text-orange-600', border: 'border-orange-200', hover: 'hover:border-orange-400', light: 'bg-orange-100' },
+      food: { bg: 'bg-amber-500', text: 'text-amber-600', border: 'border-amber-200', hover: 'hover:border-amber-400', light: 'bg-amber-100' },
+      body: { bg: 'bg-teal-500', text: 'text-teal-600', border: 'border-teal-200', hover: 'hover:border-teal-400', light: 'bg-teal-100' },
+    };
+
+    function App() {
+      const [selectedLang, setSelectedLang] = useState('uk');
+      const [activeCategory, setActiveCategory] = useState(null);
+      const [progress, setProgress] = useState({});
+
+      useEffect(() => {
+        const saved = localStorage.getItem('apren-catala-progress');
+        if (saved) {
+          try {
+            setProgress(JSON.parse(saved));
+          } catch (e) {
+            console.error('Failed to parse progress', e);
+          }
+        }
+      }, []);
+
+      useEffect(() => {
+        if (Object.keys(progress).length > 0) {
+          localStorage.setItem('apren-catala-progress', JSON.stringify(progress));
+        }
+      }, [progress]);
+
+      const speak = (categoryId, itemIndex, text) => {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'ca-ES';
+        window.speechSynthesis.speak(utterance);
+
+        setProgress(prev => {
+          const catProgress = prev[categoryId] || [];
+          if (!catProgress.includes(itemIndex)) {
+            return { ...prev, [categoryId]: [...catProgress, itemIndex] };
+          }
+          return prev;
+        });
+      };
+
+      const renderIcon = (iconName, className) => {
+        switch (iconName) {
+          case 'Type': return <Type className={className} />;
+          case 'BookOpen': return <BookOpen className={className} />;
+          case 'CalendarDays': return <CalendarDays className={className} />;
+          case 'Calendar': return <Calendar className={className} />;
+          case 'Palette': return <Palette className={className} />;
+          case 'Hash': return <Hash className={className} />;
+          case 'Apple': return <Apple className={className} />;
+          case 'User': return <User className={className} />;
+          default: return <BookOpen className={className} />;
+        }
+      };
+
+      return (
+        <div className="min-h-screen text-slate-900 font-sans">
+          <header className="bg-white/90 backdrop-blur-sm border-b-4 border-slate-200 sticky top-0 z-10">
+            <div className="max-w-4xl mx-auto px-4 h-20 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                {activeCategory ? (
+                  <button 
+                    onClick={() => setActiveCategory(null)}
+                    className="p-3 -ml-3 hover:bg-slate-100 rounded-2xl transition-colors"
+                    aria-label="Tornar"
+                  >
+                    <ArrowLeft className="w-7 h-7 text-slate-600" />
+                  </button>
+                ) : (
+                  <div className="w-12 h-12 bg-indigo-100 rounded-2xl flex items-center justify-center rotate-3">
+                    <Globe2 className="w-7 h-7 text-indigo-600" />
+                  </div>
+                )}
+                <h1 className="text-2xl font-bold text-slate-800">
+                  {activeCategory ? activeCategory.title : 'Aprèn Català'}
+                </h1>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <select
+                  value={selectedLang}
+                  onChange={(e) => setSelectedLang(e.target.value)}
+                  className="bg-slate-100 border-2 border-slate-200 text-sm font-bold rounded-xl px-4 py-2 focus:ring-4 focus:ring-indigo-500/20 outline-none cursor-pointer hover:bg-slate-200 transition-colors"
+                >
+                  {Object.entries(languages).map(([code, lang]) => (
+                    <option key={code} value={code}>
+                      {lang.nativeName} ({lang.name})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </header>
+
+          <main className="max-w-4xl mx-auto px-4 py-8">
+            <AnimatePresence mode="wait">
+              {!activeCategory ? (
+                <motion.div 
+                  key="home"
+                  className="space-y-8"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <div className="text-center space-y-4 py-8">
+                    <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900">
+                      Benvinguts a l'escola! 👋
+                    </h2>
+                    <p className="text-xl text-slate-600 max-w-2xl mx-auto font-medium">
+                      Tria una categoria per començar a aprendre paraules noves en català.
+                    </p>
+                  </div>
+
+                  <motion.div 
+                    className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6"
+                    initial="hidden"
+                    animate="visible"
+                    variants={{
+                      hidden: { opacity: 0 },
+                      visible: {
+                        opacity: 1,
+                        transition: { staggerChildren: 0.1 }
+                      }
+                    }}
+                  >
+                    {categories.map((category) => {
+                      const completedCount = progress[category.id]?.length || 0;
+                      const total = category.items.length;
+                      const isCompleted = total > 0 && completedCount === total;
+                      const isNew = completedCount === 0;
+                      const progressPercent = total > 0 ? Math.round((completedCount / total) * 100) : 0;
+                      const colors = categoryColors[category.id] || categoryColors.school;
+
+                      return (
+                        <motion.button
+                          key={category.id}
+                          onClick={() => setActiveCategory(category)}
+                          variants={{
+                            hidden: { opacity: 0, scale: 0.8 },
+                            visible: { opacity: 1, scale: 1 }
+                          }}
+                          whileHover={{ scale: 1.03, y: -4, rotate: isCompleted ? 0 : -1 }}
+                          whileTap={{ scale: 0.95 }}
+                          className={`group bg-white p-6 rounded-3xl shadow-sm border-4 transition-all text-left flex flex-col gap-4 relative overflow-hidden ${
+                            isCompleted ? 'border-emerald-400 bg-emerald-50/50' : `${colors.border} ${colors.hover} hover:shadow-xl`
+                          }`}
+                        >
+                          {isCompleted && (
+                            <div className="absolute top-4 right-4 text-emerald-700 flex items-center gap-1 bg-emerald-200 px-3 py-1.5 rounded-full text-sm font-bold shadow-sm">
+                              <CheckCircle2 className="w-4 h-4" />
+                              <span>Completat!</span>
+                            </div>
+                          )}
+                          {isNew && (
+                            <div className="absolute top-4 right-4 text-indigo-700 flex items-center gap-1 bg-indigo-200 px-3 py-1.5 rounded-full text-sm font-bold shadow-sm animate-pulse">
+                              <Sparkles className="w-4 h-4" />
+                              <span>Nou!</span>
+                            </div>
+                          )}
+
+                          <div className="flex items-center gap-4">
+                            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all ${
+                              isCompleted ? 'bg-emerald-200 text-emerald-700' : `${colors.light} ${colors.text} group-hover:scale-110 group-hover:rotate-6`
+                            }`}>
+                              {renderIcon(category.icon, "w-8 h-8")}
+                            </div>
+                            <div>
+                              <h3 className="text-2xl font-bold text-slate-800 mb-1">{category.title}</h3>
+                              <p className="text-base text-slate-500 font-medium">
+                                {total} {category.id === 'alphabet' ? 'lletres' : 'paraules'}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="w-full mt-2">
+                            <div className="flex justify-between text-sm mb-2 font-bold text-slate-500">
+                              <span>Progrés</span>
+                              <span>{completedCount} / {total}</span>
+                            </div>
+                            <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden border-2 border-slate-200">
+                              <motion.div 
+                                className={`h-full rounded-full ${isCompleted ? 'bg-emerald-500' : colors.bg}`}
+                                initial={{ width: 0 }}
+                                animate={{ width: `${progressPercent}%` }}
+                                transition={{ duration: 0.5, ease: "easeOut", type: "spring", bounce: 0.4 }}
+                              />
+                            </div>
+                          </div>
+                        </motion.button>
+                      );
+                    })}
+                  </motion.div>
+                </motion.div>
+              ) : (
+                <motion.div 
+                  key={activeCategory.id}
+                  className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"
+                  initial="hidden"
+                  animate="visible"
+                  exit="hidden"
+                  variants={{
+                    hidden: { opacity: 0 },
+                    visible: {
+                      opacity: 1,
+                      transition: { staggerChildren: 0.05 }
+                    }
+                  }}
+                >
+                  {activeCategory.items.map((item, index) => {
+                    const isItemCompleted = progress[activeCategory.id]?.includes(index);
+                    const colors = categoryColors[activeCategory.id] || categoryColors.school;
+                    
+                    return (
+                      <motion.div 
+                        key={index}
+                        variants={{
+                          hidden: { opacity: 0, scale: 0.5, rotate: -10 },
+                          visible: { opacity: 1, scale: 1, rotate: 0 }
+                        }}
+                        whileHover={{ scale: 1.05, rotate: 2 }}
+                        className={`rounded-3xl p-4 shadow-sm border-4 flex flex-col items-center text-center gap-3 transition-all relative group cursor-pointer ${
+                          isItemCompleted ? 'bg-emerald-50/80 border-emerald-300' : `bg-white ${colors.border} ${colors.hover} hover:shadow-xl`
+                        }`}
+                        onClick={() => speak(activeCategory.id, index, item.ca)}
+                      >
+                        <div
+                          className={`absolute top-3 right-3 p-2.5 rounded-2xl transition-all ${
+                            isItemCompleted 
+                              ? 'bg-emerald-200 text-emerald-700' 
+                              : `${colors.light} ${colors.text} group-hover:scale-110`
+                          }`}
+                        >
+                          <Volume2 className="w-5 h-5" />
+                        </div>
+                        
+                        <div className="flex-1 flex flex-col justify-center items-center py-6 w-full">
+                          <span className={`font-extrabold text-slate-900 ${activeCategory.id === 'alphabet' ? 'text-7xl' : 'text-2xl md:text-3xl'} mb-2`}>
+                            {item.ca}
+                          </span>
+                          {activeCategory.id !== 'alphabet' && (
+                            <span className="text-xl text-slate-500 font-bold">
+                              {item.translations[selectedLang]}
+                            </span>
+                          )}
+                        </div>
+                        
+                        <div
+                          className={`w-full py-3 rounded-2xl font-bold text-base transition-colors sm:hidden ${
+                            isItemCompleted
+                              ? 'bg-emerald-200 text-emerald-800'
+                              : `${colors.light} ${colors.text}`
+                          }`}
+                        >
+                          Escolta
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </main>
+        </div>
+      );
+    }
+
+    // --- 3. INICI DE L'APP (Abans main.tsx) ---
+    const root = createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
