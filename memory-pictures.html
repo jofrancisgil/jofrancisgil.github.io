@@ -92,10 +92,8 @@
 </head>
 <body class="min-h-screen flex flex-col items-center justify-center p-4 relative">
 
-    <!-- THEME SELECTION SCREEN -->
     <div id="theme-selection" class="flex flex-col items-center justify-center w-full max-w-2xl z-10 pop-in">
         
-        <!-- Back to Llengües Button -->
         <div class="w-full flex justify-start px-4 mb-4">
             <a href="llengues.html" class="flex items-center gap-2 text-indigo-600 font-bold bg-white px-4 py-2 rounded-full shadow-sm hover:shadow-md transition hover:scale-105 border border-indigo-100">
                 <span>← Back to Llengües</span>
@@ -126,17 +124,18 @@
                 <div class="text-4xl mb-2 group-hover:scale-110 transition-transform">🎨</div>
                 <div class="font-bold text-gray-700 text-xl">Colours</div>
             </button>
-            <!-- NOVA SECCIÓ DE FRUITES -->
             <button onclick="startGame('fruits')" class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 transition border-b-4 border-orange-200 group">
                 <div class="text-4xl mb-2 group-hover:scale-110 transition-transform">🍎</div>
                 <div class="font-bold text-gray-700 text-xl">Fruits</div>
             </button>
+            <button onclick="startGame('actions')" class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 transition border-b-4 border-purple-200 group">
+                <div class="text-4xl mb-2 group-hover:scale-110 transition-transform">🏃</div>
+                <div class="font-bold text-gray-700 text-xl">Actions</div>
+            </button>
         </div>
     </div>
 
-    <!-- GAME SCREEN -->
     <div id="game-container" class="w-full max-w-4xl flex flex-col items-center hidden-screen">
-        <!-- Header -->
         <header class="w-full flex justify-between items-center mb-6 px-4">
             <button onclick="showThemeSelection()" class="text-indigo-600 font-bold hover:underline flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-sm">
                 <span>← Back to Menu</span>
@@ -152,19 +151,14 @@
             </div>
         </header>
 
-        <!-- Game Grid -->
-        <!-- w-full to allow grid to grow, max-w-3xl for larger screens -->
         <div id="game-grid" class="grid gap-3 sm:gap-4 w-full px-2 sm:px-8">
-            <!-- Cards will be injected here by JavaScript -->
-        </div>
+            </div>
 
-        <!-- Restart Button (In-game) -->
         <button onclick="resetCurrentGame()" class="mt-8 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
             Restart Level
         </button>
     </div>
 
-    <!-- Win Modal -->
     <div id="win-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center backdrop-blur-sm">
         <div class="bg-white p-8 rounded-2xl shadow-2xl text-center max-w-xs w-full mx-4 pop-in">
             <div class="text-5xl mb-4">🎉</div>
@@ -213,12 +207,18 @@
                 { emoji: '⬛', name: 'Black' }, { emoji: '⬜', name: 'White' },
                 { emoji: '🟧', name: 'Orange' }, { emoji: '🟪', name: 'Purple' }
             ],
-            // NOVA SECCIÓ DE FRUITES (8 parelles, com la majoria de categories)
             fruits: [
                 { emoji: '🍎', name: 'Apple' }, { emoji: '🍌', name: 'Banana' },
                 { emoji: '🍊', name: 'Orange' }, { emoji: '🍓', name: 'Strawberry' },
                 { emoji: '🍇', name: 'Grapes' }, { emoji: '🍉', name: 'Watermelon' },
                 { emoji: '🍐', name: 'Pear' }, { emoji: '🍒', name: 'Cherry' }
+            ],
+            // NOVA SECCIÓ D'ACCIONS
+            actions: [
+                { emoji: '🏊', name: 'Swimming' }, { emoji: '💃', name: 'Dancing' },
+                { emoji: '🍔', name: 'Eating' }, { emoji: '🧃', name: 'Drinking' },
+                { emoji: '🛌', name: 'Sleeping' }, { emoji: '🚶', name: 'Walking' },
+                { emoji: '🏃', name: 'Running' }, { emoji: '🤸', name: 'Jumping' }
             ]
         };
 
@@ -288,27 +288,19 @@
             totalPairs = themeData.length;
 
             // Create Pairs & Shuffle
-            // We create a new array with unique IDs for this specific run
             let tempArray = [];
             themeData.forEach((item, index) => {
-                // Add pair 1
                 tempArray.push({ ...item, uniqueId: `pair${index}-1` });
-                // Add pair 2
                 tempArray.push({ ...item, uniqueId: `pair${index}-2` });
             });
             cardsArray = shuffle(tempArray);
 
             // Setup Grid CSS based on count
-            // If 6 pairs (12 cards), 4 cols x 3 rows usually works well.
-            // If 8 pairs (16 cards), 4 cols x 4 rows.
             gridElement.className = 'grid gap-3 sm:gap-4 w-full px-2 sm:px-8 max-w-3xl mx-auto';
             
             if (totalPairs === 6) {
-                 // Weather (12 cards) -> Mobile: 3 cols, Desktop: 4 cols
                  gridElement.classList.add('grid-cols-3', 'md:grid-cols-4');
             } else {
-                 // Others (16 cards) -> Mobile: 4 cols (might be tight) or 3, Desktop: 4 cols
-                 // Let's stick to 4 cols but make sure cards shrink
                  gridElement.classList.add('grid-cols-4');
             }
 
@@ -330,19 +322,15 @@
 
         function createCardElement(item) {
             const card = document.createElement('div');
-            // aspect-[3/4] makes them taller rectangles to fit text better, or aspect-square
-            // Let's use aspect-[4/5] to give a bit more vertical room for text
             card.classList.add('card', 'w-full', 'perspective-1000', 'aspect-[4/5]');
             card.dataset.name = item.name;
             
             card.innerHTML = `
                 <div class="card-inner relative w-full h-full transition-transform duration-500 transform-style-3d">
-                    <!-- Front (Question Mark) -->
                     <div class="card-front flex items-center justify-center rounded-xl shadow-md">
                         <span class="text-4xl font-bold opacity-80">?</span>
                     </div>
                     
-                    <!-- Back (Content) -->
                     <div class="card-back flex flex-col items-center justify-center rounded-xl shadow-md bg-white absolute top-0 left-0 w-full h-full backface-hidden transform-rotate-y-180 border-4 border-yellow-400 p-2">
                         <div class="text-5xl sm:text-6xl mb-2 transform transition-transform hover:scale-110">${item.emoji}</div>
                         <div class="text-base sm:text-lg font-bold text-gray-700 leading-tight text-center w-full truncate px-1">${item.name}</div>
@@ -418,7 +406,7 @@
                 if(firstCard) firstCard.classList.remove('flipped');
                 if(secondCard) secondCard.classList.remove('flipped');
                 resetBoard();
-            }, 1200); // Slightly longer delay so they can read the word
+            }, 1200); 
         }
 
         function resetBoard() {
