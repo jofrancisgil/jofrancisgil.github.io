@@ -92,7 +92,7 @@
 
         .main-grid {
             display: grid;
-            grid-template-columns: 300px 1fr;
+            grid-template-columns: 1fr;
             gap: 30px;
             margin-bottom: 30px;
         }
@@ -107,15 +107,15 @@
             background: var(--panel-bg);
             border: 1px solid var(--border-glow);
             border-radius: 15px;
-            padding: 25px;
+            padding: 20px;
             backdrop-filter: blur(10px);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
         }
 
         .panel-title {
-            font-size: 1.3rem;
+            font-size: 1.1rem;
             color: var(--accent-cyan);
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -130,28 +130,49 @@
 
         .element-selector {
             margin-bottom: 30px;
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 15px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent-cyan) var(--bg-tertiary);
+        }
+
+        .element-selector::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .element-selector::-webkit-scrollbar-track {
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+        }
+
+        .element-selector::-webkit-scrollbar-thumb {
+            background: var(--accent-cyan);
+            border-radius: 4px;
         }
 
         .element-btn {
-            width: 100%;
-            padding: 15px 20px;
-            margin-bottom: 10px;
+            min-width: 140px;
+            padding: 12px 16px;
             background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
             border: 1px solid rgba(0, 212, 255, 0.2);
             border-radius: 10px;
             color: var(--text-primary);
             cursor: pointer;
             transition: all 0.3s ease;
-            font-size: 1rem;
+            font-size: 0.9rem;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: space-between;
+            gap: 5px;
+            flex-shrink: 0;
         }
 
         .element-btn:hover {
             border-color: var(--accent-cyan);
             box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
-            transform: translateX(5px);
+            transform: translateY(-3px);
         }
 
         .element-btn.active {
@@ -161,80 +182,102 @@
         }
 
         .element-icon {
-            font-size: 1.5rem;
-            margin-right: 10px;
+            font-size: 1.8rem;
+        }
+
+        .element-name {
+            font-weight: 600;
+        }
+
+        .element-formula-small {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-family: 'Courier New', monospace;
         }
 
         .temperature-control {
-            margin-top: 30px;
+            margin-top: 20px;
         }
 
         .temp-display {
             text-align: center;
-            margin-bottom: 20px;
-            padding: 20px;
+            margin-bottom: 15px;
+            padding: 15px;
             background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(0, 102, 255, 0.1) 100%);
             border-radius: 10px;
             border: 1px solid rgba(0, 212, 255, 0.3);
         }
 
         .temp-value {
-            font-size: 3rem;
+            font-size: 2.5rem;
             font-weight: 700;
             color: var(--accent-cyan);
             text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
         }
 
         .temp-unit {
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             color: var(--text-secondary);
         }
 
         .temp-slider {
             width: 100%;
-            height: 8px;
-            border-radius: 4px;
+            height: 12px;
+            border-radius: 6px;
             background: linear-gradient(90deg, #3b82f6 0%, #ef4444 50%, #f59e0b 100%);
             outline: none;
             -webkit-appearance: none;
             cursor: pointer;
+            margin: 15px 0;
         }
 
         .temp-slider::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
-            width: 25px;
-            height: 25px;
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
             background: var(--accent-cyan);
             cursor: pointer;
-            box-shadow: 0 0 15px rgba(0, 212, 255, 0.8);
-            border: 3px solid var(--bg-primary);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.9);
+            border: 4px solid var(--bg-primary);
+            transition: all 0.2s ease;
+        }
+
+        .temp-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+            box-shadow: 0 0 30px rgba(0, 212, 255, 1);
         }
 
         .temp-slider::-moz-range-thumb {
-            width: 25px;
-            height: 25px;
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
             background: var(--accent-cyan);
             cursor: pointer;
-            box-shadow: 0 0 15px rgba(0, 212, 255, 0.8);
-            border: 3px solid var(--bg-primary);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.9);
+            border: 4px solid var(--bg-primary);
+            transition: all 0.2s ease;
+        }
+
+        .temp-slider::-moz-range-thumb:hover {
+            transform: scale(1.15);
+            box-shadow: 0 0 30px rgba(0, 212, 255, 1);
         }
 
         .temp-labels {
             display: flex;
             justify-content: space-between;
-            margin-top: 10px;
+            margin-top: 8px;
             color: var(--text-muted);
-            font-size: 0.9rem;
+            font-size: 0.8rem;
         }
 
         .simulation-area {
             background: var(--panel-bg);
             border: 1px solid var(--border-glow);
             border-radius: 15px;
-            padding: 30px;
+            padding: 25px;
             backdrop-filter: blur(10px);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
             display: flex;
@@ -493,84 +536,104 @@
                 <h3 class="panel-title">Selecciona Element</h3>
                 <div class="element-selector" id="elementSelector">
                     <button class="element-btn active" data-element="water">
-                        <span><span class="element-icon">💧</span>Aigua</span>
-                        <span>H₂O</span>
+                        <span class="element-icon">💧</span>
+                        <span class="element-name">Aigua</span>
+                        <span class="element-formula-small">H₂O</span>
                     </button>
                     <button class="element-btn" data-element="iron">
-                        <span><span class="element-icon">🔩</span>Ferro</span>
-                        <span>Fe</span>
+                        <span class="element-icon">🔩</span>
+                        <span class="element-name">Ferro</span>
+                        <span class="element-formula-small">Fe</span>
                     </button>
                     <button class="element-btn" data-element="mercury">
-                        <span><span class="element-icon">🌡️</span>Mercuri</span>
-                        <span>Hg</span>
+                        <span class="element-icon">🌡️</span>
+                        <span class="element-name">Mercuri</span>
+                        <span class="element-formula-small">Hg</span>
                     </button>
                     <button class="element-btn" data-element="oxygen">
-                        <span><span class="element-icon">💨</span>Oxigen</span>
-                        <span>O₂</span>
+                        <span class="element-icon">💨</span>
+                        <span class="element-name">Oxigen</span>
+                        <span class="element-formula-small">O₂</span>
                     </button>
                     <button class="element-btn" data-element="gold">
-                        <span><span class="element-icon">🥇</span>Or</span>
-                        <span>Au</span>
+                        <span class="element-icon">🥇</span>
+                        <span class="element-name">Or</span>
+                        <span class="element-formula-small">Au</span>
                     </button>
                     <button class="element-btn" data-element="nitrogen">
-                        <span><span class="element-icon">🌫️</span>Nitrogen</span>
-                        <span>N₂</span>
+                        <span class="element-icon">🌫️</span>
+                        <span class="element-name">Nitrogen</span>
+                        <span class="element-formula-small">N₂</span>
                     </button>
                     <button class="element-btn" data-element="aluminum">
-                        <span><span class="element-icon">🔶</span>Alumini</span>
-                        <span>Al</span>
+                        <span class="element-icon">🔶</span>
+                        <span class="element-name">Alumini</span>
+                        <span class="element-formula-small">Al</span>
                     </button>
                     <button class="element-btn" data-element="copper">
-                        <span><span class="element-icon">🟠</span>Coure</span>
-                        <span>Cu</span>
+                        <span class="element-icon">🟠</span>
+                        <span class="element-name">Coure</span>
+                        <span class="element-formula-small">Cu</span>
                     </button>
                     <button class="element-btn" data-element="lead">
-                        <span><span class="element-icon">⚫</span>Plom</span>
-                        <span>Pb</span>
+                        <span class="element-icon">⚫</span>
+                        <span class="element-name">Plom</span>
+                        <span class="element-formula-small">Pb</span>
                     </button>
                     <button class="element-btn" data-element="silver">
-                        <span><span class="element-icon">⚪</span>Plata</span>
-                        <span>Ag</span>
+                        <span class="element-icon">⚪</span>
+                        <span class="element-name">Plata</span>
+                        <span class="element-formula-small">Ag</span>
                     </button>
                     <button class="element-btn" data-element="tungsten">
-                        <span><span class="element-icon">💡</span>Tungstè</span>
-                        <span>W</span>
+                        <span class="element-icon">💡</span>
+                        <span class="element-name">Tungstè</span>
+                        <span class="element-formula-small">W</span>
                     </button>
                     <button class="element-btn" data-element="hydrogen">
-                        <span><span class="element-icon">🎈</span>Hidrogen</span>
-                        <span>H₂</span>
+                        <span class="element-icon">🎈</span>
+                        <span class="element-name">Hidrogen</span>
+                        <span class="element-formula-small">H₂</span>
                     </button>
                     <button class="element-btn" data-element="helium">
-                        <span><span class="element-icon">🎈</span>Helium</span>
-                        <span>He</span>
+                        <span class="element-icon">🎈</span>
+                        <span class="element-name">Helium</span>
+                        <span class="element-formula-small">He</span>
                     </button>
                     <button class="element-btn" data-element="carbon-dioxide">
-                        <span><span class="element-icon">❄️</span>CO₂</span>
-                        <span>CO₂</span>
+                        <span class="element-icon">❄️</span>
+                        <span class="element-name">CO₂</span>
+                        <span class="element-formula-small">CO₂</span>
                     </button>
                     <button class="element-btn" data-element="chlorine">
-                        <span><span class="element-icon">☣️</span>Clor</span>
-                        <span>Cl₂</span>
+                        <span class="element-icon">☣️</span>
+                        <span class="element-name">Clor</span>
+                        <span class="element-formula-small">Cl₂</span>
                     </button>
                     <button class="element-btn" data-element="neon">
-                        <span><span class="element-icon">💡</span>Neó</span>
-                        <span>Ne</span>
+                        <span class="element-icon">💡</span>
+                        <span class="element-name">Neó</span>
+                        <span class="element-formula-small">Ne</span>
                     </button>
                     <button class="element-btn" data-element="argon">
-                        <span><span class="element-icon">💡</span>Argó</span>
-                        <span>Ar</span>
+                        <span class="element-icon">💡</span>
+                        <span class="element-name">Argó</span>
+                        <span class="element-formula-small">Ar</span>
                     </button>
                     <button class="element-btn" data-element="ethanol">
-                        <span><span class="element-icon">🍷</span>Etanol</span>
-                        <span>C₂H₅OH</span>
+                        <span class="element-icon">🍷</span>
+                        <span class="element-name">Etanol</span>
+                        <span class="element-formula-small">C₂H₅OH</span>
                     </button>
                     <button class="element-btn" data-element="salt">
-                        <span><span class="element-icon">🧂</span>Sal</span>
-                        <span>NaCl</span>
+                        <span class="element-icon">🧂</span>
+                        <span class="element-name">Sal</span>
+                        <span class="element-formula-small">NaCl</span>
                     </button>
                     <button class="element-btn" data-element="sugar">
-                        <span><span class="element-icon">🍬</span>Sucre</span>
-                        <span>C₁₂H₂₂O₁₁</span>
+                        <span class="element-icon">🍬</span>
+                        <span class="element-name">Sucre</span>
+                        <span class="element-formula-small">C₁₂H₂₂O₁₁</span>
                     </button>
                 </div>
 
