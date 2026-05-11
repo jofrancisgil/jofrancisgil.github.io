@@ -333,9 +333,9 @@
             spinBtn.disabled = true;
             resultDiv.textContent = "Girant...";
             
-            spinArcStart = Math.random() * 10 + 10;
+            spinArcStart = Math.random() * 10 + 15; // Més velocitat inicial (abans era +10)
             spinTime = 0;
-            spinTimeTotal = Math.random() * 3000 + 4000;
+            spinTimeTotal = Math.random() * 4000 + 6000; // Més temps de gir (abans era 3000 + 4000)
             
             rotateWheel();
         }
