@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratori Quàntic: Estats de la Matèria</title>
+    <style>
+        /* =========================================
+           IMMMERSIVE UI - SCI-FI DARK THEME
+           ========================================= */
+        :root {
+            --bg-color: #0d1117;
+            --panel-bg: #161b22;
+            --neon-blue: #58a6ff;
+            --neon-green: #3fb950;
+            --neon-red: #f85149;
+            --text-main: #c9d1d9;
+            --font-mono: 'Courier New', Courier, monospace;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .terminal {
+            background-color: var(--panel-bg);
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(88, 166, 255, 0.1), inset 0 0 10px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 800px;
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .terminal::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--neon-blue), var(--neon-green), var(--neon-red));
+        }
+
+        h1 {
+            font-family: var(--font-mono);
+            color: var(--neon-blue);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-bottom: 1px dashed #30363d;
+            padding-bottom: 10px;
+            text-align: center;
+        }
+
+        /* Controls */
+        .controls-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        label {
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            color: #8b949e;
+            text-transform: uppercase;
+        }
+
+        select, input[type="range"] {
+            width: 100%;
+            background: var(--bg-color);
+            color: var(--neon-green);
+            border: 1px solid #30363d;
+            padding: 10px;
+            border-radius: 6px;
+            font-family: var(--font-mono);
+            font-size: 1.1rem;
+            outline: none;
+        }
+        
+        optgroup {
+            color: #8b949e;
+            font-style: normal;
+            font-weight: bold;
+            background-color: #161b22;
+        }
+        
+        option {
+            color: var(--neon-green);
+        }
+
+        select:focus {
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 8px rgba(88, 166, 255, 0.3);
+        }
+
+        .temp-display {
+            font-size: 2rem;
+            font-family: var(--font-mono);
+            color: var(--neon-red);
+            text-align: center;
+            margin-top: 10px;
+            text-shadow: 0 0 10px rgba(248, 81, 73, 0.4);
+        }
+
+        /* Simulator Screen */
+        .simulator-screen {
+            background-color: #000;
+            border: 2px solid #30363d;
+            border-radius: 8px;
+            height: 300px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            box-shadow: inset 0 0 20px rgba(88, 166, 255, 0.05);
+        }
+
+        .state-label {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            font-family: var(--font-mono);
+            color: var(--neon-blue);
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            z-index: 10;
+            background: rgba(0,0,0,0.7);
+            padding: 5px 10px;
+            border-radius: 4px;
+            border: 1px solid var(--neon-blue);
+        }
+
+        /* Molecule System */
+        #molecules {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .molecule {
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle at 30% 30%, #fff, var(--neon-blue));
+            border-radius: 50%;
+            position: absolute;
+            box-shadow: 0 0 10px var(--neon-blue);
+            transition: all 0.5s ease;
+        }
+
+        /* Animations */
+        @keyframes vibrate {
+            0% { transform: translate(0, 0); }
+            25% { transform: translate(2px, -2px); }
+            50% { transform: translate(-2px, 2px); }
+            75% { transform: translate(2px, 2px); }
+            100% { transform: translate(0, 0); }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0) translateX(0); }
+            33% { transform: translateY(-10px) translateX(5px); }
+            66% { transform: translateY(5px) translateX(-10px); }
+            100% { transform: translateY(0) translateX(0); }
+        }
+
+        @keyframes bounce {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(calc(100vw/3), calc(100vh/3)); }
+        }
+
+        /* Actions */
+        .btn-print {
+            margin-top: 20px;
+            width: 100%;
+            padding: 15px;
+            background-color: transparent;
+            color: var(--text-main);
+            border: 1px solid var(--neon-green);
+            border-radius: 6px;
+            font-family: var(--font-mono);
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-print:hover {
+            background-color: rgba(63, 185, 80, 0.1);
+            box-shadow: 0 0 15px rgba(63, 185, 80, 0.4);
+        }
+
+        /* =========================================
+           PRINTABLE WORKSHEET MODE (PDF-STYLE)
+           ========================================= */
+        .worksheet-only { display: none; }
+
+        @media print {
+            body {
+                background: white;
+                color: black;
+                align-items: flex-start;
+                padding: 0;
+            }
+            .terminal {
+                box-shadow: none;
+                border: none;
+                padding: 0;
+            }
+            .terminal::before { display: none; }
+            .btn-print, select, input[type="range"] { display: none; }
+            h1 {
+                color: black;
+                border-bottom: 2px solid black;
+            }
+            .controls-grid { margin-bottom: 10px; }
+            
+            /* Show printable headers */
+            .worksheet-only {
+                display: block;
+                font-family: Arial, sans-serif;
+                margin-bottom: 20px;
+            }
+            .worksheet-header {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 20px;
+                font-size: 1.2rem;
+            }
+            .worksheet-line {
+                border-bottom: 1px solid black;
+                min-width: 200px;
+                display: inline-block;
+            }
+
+            /* Convert screen to drawing box */
+            .simulator-screen {
+                background-color: white;
+                border: 2px solid black;
+                box-shadow: none;
+                height: 400px;
+            }
+            .state-label {
+                color: black;
+                border: 1px solid black;
+                background: white;
+            }
+            #molecules { display: none; } 
+            
+            .print-instructions {
+                text-align: center;
+                font-style: italic;
+                margin-top: 10px;
+                font-family: Arial, sans-serif;
+            }
+            .print-instructions::after {
+                content: "Dibuixa aquí com es comporten les molècules de l'element seleccionat en aquest estat.";
+                display: block;
+                padding-top: 150px;
+                color: #555;
+            }
+            .temp-display { color: black; text-shadow: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="terminal">
+        <div class="worksheet-only">
+            <div class="worksheet-header">
+                <div>Nom: <span class="worksheet-line"></span></div>
+                <div>Data: <span class="worksheet-line" style="min-width: 100px;"></span></div>
+            </div>
+        </div>
+
+        <h1>Simulador d'Estats de la Matèria</h1>
+
+        <div class="controls-grid">
+            <div class="control-group">
+                <label for="element">1. Selecciona l'Element</label>
+                <select id="element">
+                    <optgroup label="Compostos d'ús quotidià">
+                        <option value="aigua">Aigua (H₂O)</option>
+                        <option value="sal">Sal de taula (NaCl)</option>
+                        <option value="etanol">Alcohol (Etanol)</option>
+                    </optgroup>
+                    <optgroup label="Metalls">
+                        <option value="ferro">Ferro (Fe)</option>
+                        <option value="mercuri">Mercuri (Hg)</option>
+                        <option value="or">Or (Au)</option>
+                        <option value="alumini">Alumini (Al)</option>
+                        <option value="coure">Coure (Cu)</option>
+                        <option value="plom">Plom (Pb)</option>
+                        <option value="tungste">Tungstè (W)</option>
+                    </optgroup>
+                    <optgroup label="Gasos i No Metalls">
+                        <option value="oxigen">Oxigen (O₂)</option>
+                        <option value="nitrogen">Nitrogen (N₂)</option>
+                        <option value="heli">Heli (He)</option>
+                        <option value="sofre">Sofre (S)</option>
+                    </optgroup>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="temperature">2. Ajusta la Temperatura (°C)</label>
+                <!-- Límit augmentat a 6000 per poder fondre i evaporar el tungstè -->
+                <input type="range" id="temperature" min="-273" max="6000" value="20" step="1">
+                <div class="temp-display"><span id="temp-val">20</span> °C</div>
+            </div>
+        </div>
+
+        <div class="simulator-screen">
+            <div class="state-label" id="state-label">Estat: LÍQUID</div>
+            <div id="molecules"></div>
+            <div class="worksheet-only print-instructions"></div>
+        </div>
+
+        <button class="btn-print" onclick="window.print()">[ GENERAR FITXA IMPRIMIBLE PDF ]</button>
+    </div>
+
+    <script>
+        // Dades tècniques dels elements (Punt de fusió i Punt d'ebullició en °C)
+        const elements = {
+            // Compostos quotidians
+            aigua:   { fusion: 0,    boiling: 100 },
+            sal:     { fusion: 801,  boiling: 1465 },
+            etanol:  { fusion: -114, boiling: 78 },
+            
+            // Metalls
+            ferro:   { fusion: 1538, boiling: 2862 },
+            mercuri: { fusion: -39,  boiling: 356 },
+            or:      { fusion: 1064, boiling: 2970 },
+            alumini: { fusion: 660,  boiling: 2470 },
+            coure:   { fusion: 1085, boiling: 2562 },
+            plom:    { fusion: 327,  boiling: 1749 },
+            tungste: { fusion: 3422, boiling: 5555 },
+            
+            // Gasos i no metalls
+            oxigen:  { fusion: -218, boiling: -183 },
+            nitrogen:{ fusion: -210, boiling: -196 },
+            heli:    { fusion: -272, boiling: -269 },
+            sofre:   { fusion: 115,  boiling: 444 }
+        };
+
+        const tempSlider = document.getElementById('temperature');
+        const tempValDisplay = document.getElementById('temp-val');
+        const elementSelect = document.getElementById('element');
+        const stateLabel = document.getElementById('state-label');
+        const moleculesContainer = document.getElementById('molecules');
+
+        const NUM_MOLECULES = 35; // Quantitat de molècules a simular
+
+        // Inicialitzar molècules al DOM
+        function initMolecules() {
+            moleculesContainer.innerHTML = '';
+            for(let i = 0; i < NUM_MOLECULES; i++) {
+                const mol = document.createElement('div');
+                mol.classList.add('molecule');
+                moleculesContainer.appendChild(mol);
+            }
+        }
+
+        function updateSimulation() {
+            const temp = parseInt(tempSlider.value);
+            const elId = elementSelect.value;
+            const elData = elements[elId];
+            
+            tempValDisplay.innerText = temp;
+
+            let estat = '';
+            
+            if (temp < elData.fusion) {
+                estat = 'SÒLID';
+                renderSolid();
+            } else if (temp >= elData.fusion && temp < elData.boiling) {
+                estat = 'LÍQUID';
+                renderLiquid();
+            } else {
+                estat = 'GASÓS';
+                renderGas();
+            }
+
+            stateLabel.innerText = `Estat: ${estat}`;
+        }
+
+        // --- Lògica d'Animacions segons l'Estat ---
+
+        function renderSolid() {
+            const mols = document.querySelectorAll('.molecule');
+            const cols = 7;
+            const startX = 250; 
+            const startY = 100;
+
+            mols.forEach((mol, index) => {
+                const row = Math.floor(index / cols);
+                const col = index % cols;
+                // Posicions ordenades i juntes
+                mol.style.left = `${startX + (col * 22)}px`;
+                mol.style.top = `${startY + (row * 22)}px`;
+                mol.style.animation = `vibrate 0.2s infinite alternate`;
+                mol.style.transition = 'all 0.5s ease';
+            });
+        }
+
+        function renderLiquid() {
+            const mols = document.querySelectorAll('.molecule');
+            mols.forEach((mol, index) => {
+                // Posicions agrupades a la part inferior però desordenades
+                const randX = 150 + Math.random() * 400;
+                const randY = 200 + Math.random() * 80;
+                mol.style.left = `${randX}px`;
+                mol.style.top = `${randY}px`;
+                // Animació de flotació suau
+                mol.style.animation = `float ${2 + Math.random() * 2}s infinite alternate`;
+                mol.style.transition = 'all 1s ease';
+            });
+        }
+
+        function renderGas() {
+            const mols = document.querySelectorAll('.molecule');
+            mols.forEach((mol) => {
+                // Escampades per tot el contenidor
+                const randX = Math.random() * 700;
+                const randY = Math.random() * 250;
+                mol.style.left = `${randX}px`;
+                mol.style.top = `${randY}px`;
+                // Animació ràpida i caòtica
+                const dur = 0.5 + Math.random();
+                mol.style.animation = `vibrate ${dur}s infinite, float ${dur * 2}s infinite alternate`;
+                mol.style.transition = 'all 0.2s linear';
+            });
+        }
+
+        // Listeners d'esdeveniments
+        tempSlider.addEventListener('input', updateSimulation);
+        elementSelect.addEventListener('change', updateSimulation);
+
+        // Inicialització
+        initMolecules();
+        updateSimulation();
+    </script>
+</body>
+</html>
