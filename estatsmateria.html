@@ -111,12 +111,44 @@
         }
 
         .temp-display {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 10px;
             font-size: 2rem;
             font-family: var(--font-mono);
             color: var(--neon-red);
-            text-align: center;
-            margin-top: 10px;
             text-shadow: 0 0 10px rgba(248, 81, 73, 0.4);
+        }
+
+        /* Nou camp d'entrada manual per a la temperatura */
+        .temp-input {
+            background: transparent;
+            border: 1px dashed transparent;
+            color: var(--neon-red);
+            font-family: var(--font-mono);
+            font-size: 2.5rem;
+            text-align: right;
+            width: 130px;
+            padding: 0 10px;
+            outline: none;
+            transition: all 0.3s ease;
+            text-shadow: 0 0 10px rgba(248, 81, 73, 0.4);
+        }
+
+        .temp-input:hover, .temp-input:focus {
+            border-bottom: 1px dashed var(--neon-red);
+            background: rgba(248, 81, 73, 0.05);
+        }
+
+        /* Amagar fletxes de l'input numèric (opcional, ho fa més net) */
+        .temp-input::-webkit-outer-spin-button,
+        .temp-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .temp-input[type=number] {
+            -moz-appearance: textfield;
         }
 
         /* Simulator Screen */
@@ -182,11 +214,6 @@
             100% { transform: translateY(0) translateX(0); }
         }
 
-        @keyframes bounce {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(calc(100vw/3), calc(100vh/3)); }
-        }
-
         /* Actions */
         .btn-print {
             margin-top: 20px;
@@ -232,9 +259,9 @@
                 color: black;
                 border-bottom: 2px solid black;
             }
-            .controls-grid { margin-bottom: 10px; }
+            .controls-grid { margin-bottom: 10px; display: block; }
+            .control-group { margin-bottom: 15px; }
             
-            /* Show printable headers */
             .worksheet-only {
                 display: block;
                 font-family: Arial, sans-serif;
@@ -252,7 +279,6 @@
                 display: inline-block;
             }
 
-            /* Convert screen to drawing box */
             .simulator-screen {
                 background-color: white;
                 border: 2px solid black;
@@ -278,7 +304,16 @@
                 padding-top: 150px;
                 color: #555;
             }
-            .temp-display { color: black; text-shadow: none; }
+            .temp-display { 
+                color: black; 
+                text-shadow: none; 
+                justify-content: flex-start;
+            }
+            .temp-input {
+                color: black;
+                border: 1px solid black;
+                text-shadow: none;
+            }
         }
     </style>
 </head>
@@ -322,10 +357,13 @@
             </div>
             
             <div class="control-group">
-                <label for="temperature">2. Ajusta la Temperatura (°C)</label>
-                <!-- Límit augmentat a 6000 per poder fondre i evaporar el tungstè -->
+                <label for="temperature">2. Ajusta o Escriu la Temperatura (°C)</label>
                 <input type="range" id="temperature" min="-273" max="6000" value="20" step="1">
-                <div class="temp-display"><span id="temp-val">20</span> °C</div>
+                <div class="temp-display">
+                    <!-- S'ha substituït l'span per un input number -->
+                    <input type="number" id="temp-number" class="temp-input" min="-273" max="6000" value="20"> 
+                    <span>°C</span>
+                </div>
             </div>
         </div>
 
@@ -339,14 +377,10 @@
     </div>
 
     <script>
-        // Dades tècniques dels elements (Punt de fusió i Punt d'ebullició en °C)
         const elements = {
-            // Compostos quotidians
             aigua:   { fusion: 0,    boiling: 100 },
             sal:     { fusion: 801,  boiling: 1465 },
             etanol:  { fusion: -114, boiling: 78 },
-            
-            // Metalls
             ferro:   { fusion: 1538, boiling: 2862 },
             mercuri: { fusion: -39,  boiling: 356 },
             or:      { fusion: 1064, boiling: 2970 },
@@ -354,8 +388,6 @@
             coure:   { fusion: 1085, boiling: 2562 },
             plom:    { fusion: 327,  boiling: 1749 },
             tungste: { fusion: 3422, boiling: 5555 },
-            
-            // Gasos i no metalls
             oxigen:  { fusion: -218, boiling: -183 },
             nitrogen:{ fusion: -210, boiling: -196 },
             heli:    { fusion: -272, boiling: -269 },
@@ -363,14 +395,13 @@
         };
 
         const tempSlider = document.getElementById('temperature');
-        const tempValDisplay = document.getElementById('temp-val');
+        const tempNumber = document.getElementById('temp-number');
         const elementSelect = document.getElementById('element');
         const stateLabel = document.getElementById('state-label');
         const moleculesContainer = document.getElementById('molecules');
 
-        const NUM_MOLECULES = 35; // Quantitat de molècules a simular
+        const NUM_MOLECULES = 35; 
 
-        // Inicialitzar molècules al DOM
         function initMolecules() {
             moleculesContainer.innerHTML = '';
             for(let i = 0; i < NUM_MOLECULES; i++) {
@@ -380,13 +411,16 @@
             }
         }
 
+        // Funció central per actualitzar l'estat i l'animació
         function updateSimulation() {
-            const temp = parseInt(tempSlider.value);
+            // Agafem el valor actual de l'input numèric
+            let temp = parseInt(tempNumber.value);
+            
+            // Validació de seguretat si deixen el camp buit
+            if (isNaN(temp)) return; 
+
             const elId = elementSelect.value;
             const elData = elements[elId];
-            
-            tempValDisplay.innerText = temp;
-
             let estat = '';
             
             if (temp < elData.fusion) {
@@ -404,7 +438,6 @@
         }
 
         // --- Lògica d'Animacions segons l'Estat ---
-
         function renderSolid() {
             const mols = document.querySelectorAll('.molecule');
             const cols = 7;
@@ -414,7 +447,6 @@
             mols.forEach((mol, index) => {
                 const row = Math.floor(index / cols);
                 const col = index % cols;
-                // Posicions ordenades i juntes
                 mol.style.left = `${startX + (col * 22)}px`;
                 mol.style.top = `${startY + (row * 22)}px`;
                 mol.style.animation = `vibrate 0.2s infinite alternate`;
@@ -425,12 +457,10 @@
         function renderLiquid() {
             const mols = document.querySelectorAll('.molecule');
             mols.forEach((mol, index) => {
-                // Posicions agrupades a la part inferior però desordenades
                 const randX = 150 + Math.random() * 400;
                 const randY = 200 + Math.random() * 80;
                 mol.style.left = `${randX}px`;
                 mol.style.top = `${randY}px`;
-                // Animació de flotació suau
                 mol.style.animation = `float ${2 + Math.random() * 2}s infinite alternate`;
                 mol.style.transition = 'all 1s ease';
             });
@@ -439,20 +469,37 @@
         function renderGas() {
             const mols = document.querySelectorAll('.molecule');
             mols.forEach((mol) => {
-                // Escampades per tot el contenidor
                 const randX = Math.random() * 700;
                 const randY = Math.random() * 250;
                 mol.style.left = `${randX}px`;
                 mol.style.top = `${randY}px`;
-                // Animació ràpida i caòtica
                 const dur = 0.5 + Math.random();
                 mol.style.animation = `vibrate ${dur}s infinite, float ${dur * 2}s infinite alternate`;
                 mol.style.transition = 'all 0.2s linear';
             });
         }
 
-        // Listeners d'esdeveniments
-        tempSlider.addEventListener('input', updateSimulation);
+        // --- Listeners de Sincronització ---
+        
+        // Si es mou la barra, actualitzem el número i la simulació
+        tempSlider.addEventListener('input', (e) => {
+            tempNumber.value = e.target.value;
+            updateSimulation();
+        });
+
+        // Si s'escriu el número manualment, actualitzem la barra i la simulació
+        tempNumber.addEventListener('input', (e) => {
+            let val = parseInt(e.target.value);
+            
+            // Validem límits
+            if (!isNaN(val)) {
+                if (val < -273) val = -273;
+                if (val > 6000) val = 6000;
+                tempSlider.value = val;
+                updateSimulation();
+            }
+        });
+
         elementSelect.addEventListener('change', updateSimulation);
 
         // Inicialització
