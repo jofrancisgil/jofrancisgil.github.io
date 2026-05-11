@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estats de la Matèria - Laboratori Virtual</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0e17;
+            --bg-secondary: #111827;
+            --bg-tertiary: #1a2332;
+            --accent-cyan: #00d4ff;
+            --accent-blue: #0066ff;
+            --accent-purple: #7c3aed;
+            --accent-green: #10b981;
+            --accent-orange: #f59e0b;
+            --accent-red: #ef4444;
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --border-glow: rgba(0, 212, 255, 0.3);
+            --panel-bg: rgba(17, 24, 39, 0.8);
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, #0f172a 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(124, 58, 237, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(0, 102, 255, 0.05) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 0;
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--border-glow);
+            background: linear-gradient(180deg, rgba(0, 212, 255, 0.05) 0%, transparent 100%);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-blue) 50%, var(--accent-purple) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 968px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .control-panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-glow);
+            border-radius: 15px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .panel-title {
+            font-size: 1.3rem;
+            color: var(--accent-cyan);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .panel-title::before {
+            content: '⚡';
+            font-size: 1.5rem;
+        }
+
+        .element-selector {
+            margin-bottom: 30px;
+        }
+
+        .element-btn {
+            width: 100%;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 10px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .element-btn:hover {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+            transform: translateX(5px);
+        }
+
+        .element-btn.active {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.2) 0%, rgba(0, 102, 255, 0.2) 100%);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 25px rgba(0, 212, 255, 0.4);
+        }
+
+        .element-icon {
+            font-size: 1.5rem;
+            margin-right: 10px;
+        }
+
+        .temperature-control {
+            margin-top: 30px;
+        }
+
+        .temp-display {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(0, 102, 255, 0.1) 100%);
+            border-radius: 10px;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+        }
+
+        .temp-value {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        }
+
+        .temp-unit {
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+        }
+
+        .temp-slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: linear-gradient(90deg, #3b82f6 0%, #ef4444 50%, #f59e0b 100%);
+            outline: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+        }
+
+        .temp-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: var(--accent-cyan);
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.8);
+            border: 3px solid var(--bg-primary);
+        }
+
+        .temp-slider::-moz-range-thumb {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: var(--accent-cyan);
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.8);
+            border: 3px solid var(--bg-primary);
+        }
+
+        .temp-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .simulation-area {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-glow);
+            border-radius: 15px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .simulation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+        }
+
+        .element-info h2 {
+            font-size: 2rem;
+            color: var(--accent-cyan);
+            margin-bottom: 5px;
+        }
+
+        .element-formula {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            font-family: 'Courier New', monospace;
+        }
+
+        .state-indicator {
+            display: flex;
+            gap: 15px;
+        }
+
+        .state-badge {
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            opacity: 0.4;
+            border: 2px solid transparent;
+        }
+
+        .state-badge.solid {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: #3b82f6;
+            color: #60a5fa;
+        }
+
+        .state-badge.liquid {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: #10b981;
+            color: #34d399;
+        }
+
+        .state-badge.gas {
+            background: rgba(245, 158, 11, 0.2);
+            border-color: #f59e0b;
+            color: #fbbf24;
+        }
+
+        .state-badge.active {
+            opacity: 1;
+            box-shadow: 0 0 20px currentColor;
+            transform: scale(1.05);
+        }
+
+        .molecule-container {
+            flex: 1;
+            min-height: 400px;
+            background: linear-gradient(135deg, rgba(10, 14, 23, 0.8) 0%, rgba(17, 24, 39, 0.8) 100%);
+            border-radius: 15px;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .molecule-canvas {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .info-overlay {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(10, 14, 23, 0.9);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 10px;
+            padding: 15px 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .info-title {
+            color: var(--accent-cyan);
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-description {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .properties-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .property-card {
+            background: linear-gradient(135deg, rgba(17, 24, 39, 0.6) 0%, rgba(26, 35, 50, 0.6) 100%);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .property-card:hover {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .property-label {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .property-value {
+            color: var(--accent-cyan);
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .phase-transitions {
+            margin-top: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(17, 24, 39, 0.6) 0%, rgba(26, 35, 50, 0.6) 100%);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 12px;
+        }
+
+        .transitions-title {
+            color: var(--accent-cyan);
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .transition-bar {
+            height: 60px;
+            background: linear-gradient(90deg, 
+                #3b82f6 0%, 
+                #3b82f6 var(--melting-point, 0%), 
+                #10b981 var(--melting-point, 0%), 
+                #10b981 var(--boiling-point, 0%), 
+                #f59e0b var(--boiling-point, 0%), 
+                #f59e0b 100%);
+            border-radius: 8px;
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .transition-marker {
+            position: absolute;
+            top: -5px;
+            width: 3px;
+            height: 70px;
+            background: var(--accent-cyan);
+            box-shadow: 0 0 10px var(--accent-cyan);
+            transition: left 0.3s ease;
+        }
+
+        .transition-labels {
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-muted);
+            border-top: 1px solid rgba(0, 212, 255, 0.2);
+            margin-top: 30px;
+        }
+
+        .glow-effect {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.3) 0%, transparent 70%);
+            pointer-events: none;
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.1); }
+        }
+
+        .loading-state {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--accent-cyan);
+            font-size: 1.2rem;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(0, 212, 255, 0.3);
+            border-top-color: var(--accent-cyan);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 15px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔬 ESTATS DE LA MATÈRIA</h1>
+            <p class="subtitle">Explora com els elements canvien d'estat segons la temperatura. Experimenta amb diferents substàncies i observa el comportament molecular.</p>
+        </header>
+
+        <div class="main-grid">
+            <aside class="control-panel">
+                <h3 class="panel-title">Selecciona Element</h3>
+                <div class="element-selector" id="elementSelector">
+                    <button class="element-btn active" data-element="water">
+                        <span><span class="element-icon">💧</span>Aigua</span>
+                        <span>H₂O</span>
+                    </button>
+                    <button class="element-btn" data-element="iron">
+                        <span><span class="element-icon">🔩</span>Ferro</span>
+                        <span>Fe</span>
+                    </button>
+                    <button class="element-btn" data-element="mercury">
+                        <span><span class="element-icon">🌡️</span>Mercuri</span>
+                        <span>Hg</span>
+                    </button>
+                    <button class="element-btn" data-element="oxygen">
+                        <span><span class="element-icon">💨</span>Oxigen</span>
+                        <span>O₂</span>
+                    </button>
+                    <button class="element-btn" data-element="gold">
+                        <span><span class="element-icon">🥇</span>Or</span>
+                        <span>Au</span>
+                    </button>
+                    <button class="element-btn" data-element="nitrogen">
+                        <span><span class="element-icon">🌫️</span>Nitrogen</span>
+                        <span>N₂</span>
+                    </button>
+                    <button class="element-btn" data-element="aluminum">
+                        <span><span class="element-icon">🔶</span>Alumini</span>
+                        <span>Al</span>
+                    </button>
+                    <button class="element-btn" data-element="copper">
+                        <span><span class="element-icon">🟠</span>Coure</span>
+                        <span>Cu</span>
+                    </button>
+                    <button class="element-btn" data-element="lead">
+                        <span><span class="element-icon">⚫</span>Plom</span>
+                        <span>Pb</span>
+                    </button>
+                    <button class="element-btn" data-element="silver">
+                        <span><span class="element-icon">⚪</span>Plata</span>
+                        <span>Ag</span>
+                    </button>
+                    <button class="element-btn" data-element="tungsten">
+                        <span><span class="element-icon">💡</span>Tungstè</span>
+                        <span>W</span>
+                    </button>
+                    <button class="element-btn" data-element="hydrogen">
+                        <span><span class="element-icon">🎈</span>Hidrogen</span>
+                        <span>H₂</span>
+                    </button>
+                    <button class="element-btn" data-element="helium">
+                        <span><span class="element-icon">🎈</span>Helium</span>
+                        <span>He</span>
+                    </button>
+                    <button class="element-btn" data-element="carbon-dioxide">
+                        <span><span class="element-icon">❄️</span>CO₂</span>
+                        <span>CO₂</span>
+                    </button>
+                    <button class="element-btn" data-element="chlorine">
+                        <span><span class="element-icon">☣️</span>Clor</span>
+                        <span>Cl₂</span>
+                    </button>
+                    <button class="element-btn" data-element="neon">
+                        <span><span class="element-icon">💡</span>Neó</span>
+                        <span>Ne</span>
+                    </button>
+                    <button class="element-btn" data-element="argon">
+                        <span><span class="element-icon">💡</span>Argó</span>
+                        <span>Ar</span>
+                    </button>
+                    <button class="element-btn" data-element="ethanol">
+                        <span><span class="element-icon">🍷</span>Etanol</span>
+                        <span>C₂H₅OH</span>
+                    </button>
+                    <button class="element-btn" data-element="salt">
+                        <span><span class="element-icon">🧂</span>Sal</span>
+                        <span>NaCl</span>
+                    </button>
+                    <button class="element-btn" data-element="sugar">
+                        <span><span class="element-icon">🍬</span>Sucre</span>
+                        <span>C₁₂H₂₂O₁₁</span>
+                    </button>
+                </div>
+
+                <div class="temperature-control">
+                    <h3 class="panel-title">Control de Temperatura</h3>
+                    <div class="temp-display">
+                        <span class="temp-value" id="tempValue">25</span>
+                        <span class="temp-unit">°C</span>
+                    </div>
+                    <input type="range" class="temp-slider" id="tempSlider" min="-273" max="3000" value="25">
+                    <div class="temp-labels">
+                        <span>-273°C</span>
+                        <span>0°C</span>
+                        <span>100°C</span>
+                        <span>3000°C</span>
+                    </div>
+                </div>
+            </aside>
+
+            <main class="simulation-area">
+                <div class="simulation-header">
+                    <div class="element-info">
+                        <h2 id="elementName">Aigua</h2>
+                        <p class="element-formula" id="elementFormula">H₂O</p>
+                    </div>
+                    <div class="state-indicator">
+                        <div class="state-badge solid" id="solidBadge">Sòlid</div>
+                        <div class="state-badge liquid" id="liquidBadge">Líquid</div>
+                        <div class="state-badge gas" id="gasBadge">Gas</div>
+                    </div>
+                </div>
+
+                <div class="molecule-container" id="moleculeContainer">
+                    <canvas class="molecule-canvas" id="moleculeCanvas"></canvas>
+                    <div class="info-overlay">
+                        <h4 class="info-title">
+                            <span id="stateIcon">🧊</span>
+                            <span id="stateTitle">Estat Actual</span>
+                        </h4>
+                        <p class="info-description" id="stateDescription">
+                            Les molècules estan fortament unides en una estructura rígida. Vibren al seu lloc però no es mouen lliurement.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="properties-grid">
+                    <div class="property-card">
+                        <div class="property-label">Punt de Fusió</div>
+                        <div class="property-value" id="meltingPoint">0°C</div>
+                    </div>
+                    <div class="property-card">
+                        <div class="property-label">Punt d'Ebullició</div>
+                        <div class="property-value" id="boilingPoint">100°C</div>
+                    </div>
+                    <div class="property-card">
+                        <div class="property-label">Estat a 25°C</div>
+                        <div class="property-value" id="roomTempState">Líquid</div>
+                    </div>
+                    <div class="property-card">
+                        <div class="property-label">Temperatura Actual</div>
+                        <div class="property-value" id="currentTemp">25°C</div>
+                    </div>
+                </div>
+
+                <div class="phase-transitions">
+                    <h4 class="transitions-title">📊 Diagrama de Fases</h4>
+                    <div class="transition-bar" id="transitionBar">
+                        <div class="transition-marker" id="transitionMarker"></div>
+                    </div>
+                    <div class="transition-labels">
+                        <span>-273°C</span>
+                        <span id="meltingLabel">0°C</span>
+                        <span id="boilingLabel">100°C</span>
+                        <span>3000°C</span>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <footer>
+            <p>Laboratori Virtual dels Estats de la Matèria © 2024 | Aplicació Educativa de Ciència</p>
+        </footer>
+    </div>
+
+    <script>
+        // Dades dels elements
+        const elements = {
+            water: {
+                name: 'Aigua',
+                formula: 'H₂O',
+                meltingPoint: 0,
+                boilingPoint: 100,
+                roomTempState: 'Líquid',
+                color: '#3b82f6',
+                moleculeSize: 12,
+                description: {
+                    solid: 'Les molècules d\'aigua formen una estructura cristal·lina hexagonal (gel). Estan fortament unides per ponts d'hidrogen i vibren al seu lloc.',
+                    liquid: 'Les molècules es mouen lliurement però mantenen certa cohesió. Els ponts d'hidrogen es formen i es trenquen constantment.',
+                    gas: 'Les molècules es mouen ràpidament i caòticament. Els ponts d'hidrogen s'han trencat completament i les molècules estan molt separades.'
+                }
+            },
+            iron: {
+                name: 'Ferro',
+                formula: 'Fe',
+                meltingPoint: 1538,
+                boilingPoint: 2862,
+                roomTempState: 'Sòlid',
+                color: '#ef4444',
+                moleculeSize: 14,
+                description: {
+                    solid: 'Els àtoms de ferro formen una xarxa cristal·lina compacta. Els electrons lliures permeten la conductivitat elèctrica.',
+                    liquid: 'Els àtoms es mouen lliurement però mantenen certa proximitat. El ferro fos és molt dens i brillant.',
+                    gas: 'Els àtoms de ferro es mouen independentment a alta velocitat. Aquest estat només es dona a temperatures extremadament altes.'
+                }
+            },
+            mercury: {
+                name: 'Mercuri',
+                formula: 'Hg',
+                meltingPoint: -39,
+                boilingPoint: 357,
+                roomTempState: 'Líquid',
+                color: '#9ca3af',
+                moleculeSize: 13,
+                description: {
+                    solid: 'Els àtoms de mercuri formen una estructura cristal·lina. Només es dona a temperatures molt baixes.',
+                    liquid: 'El mercuri és l'únic metall líquid a temperatura ambient. Els àtoms es mouen lliurement però mantenen cohesió metàl·lica.',
+                    gas: 'Els àtoms de mercuri es dispersen. Els vapors de mercuri són tòxics i perillosos.'
+                }
+            },
+            oxygen: {
+                name: 'Oxigen',
+                formula: 'O₂',
+                meltingPoint: -219,
+                boilingPoint: -183,
+                roomTempState: 'Gas',
+                color: '#10b981',
+                moleculeSize: 10,
+                description: {
+                    solid: 'Les molècules d'oxigen formen cristalls blaus pàl·lids. Només es dona a temperatures properes al zero absolut.',
+                    liquid: 'L'oxigen líquid és blau clar i molt fred. S'utilitza en aplicacions industrials i mèdiques.',
+                    gas: 'Les molècules d'O₂ es mouen lliurement per l'espai. És essencial per a la respiració dels éssers vius.'
+                }
+            },
+            gold: {
+                name: 'Or',
+                formula: 'Au',
+                meltingPoint: 1064,
+                boilingPoint: 2856,
+                roomTempState: 'Sòlid',
+                color: '#f59e0b',
+                moleculeSize: 14,
+                description: {
+                    solid: 'Els àtoms d'or formen una xarxa cristal·lina cúbica. La seva estructura electrònica li dona el característic color groc.',
+                    liquid: 'L'or fos brilla intensament. S'utilitza en joieria i electrònica per les seves propietats úniques.',
+                    gas: 'Els àtoms d'or es mouen independentment. Aquest estat requereix temperatures extremadament altes.'
+                }
+            },
+            nitrogen: {
+                name: 'Nitrogen',
+                formula: 'N₂',
+                meltingPoint: -210,
+                boilingPoint: -196,
+                roomTempState: 'Gas',
+                color: '#7c3aed',
+                moleculeSize: 10,
+                description: {
+                    solid: 'El nitrogen sòlid forma cristalls blancs. Només existeix a temperatures extremadament baixes.',
+                    liquid: 'El nitrogen líquid és incolor i molt fred (-196°C). S'utilitza per a congelació ràpida i criogènia.',
+                    gas: 'Les molècules de N₂ constitueixen el 78% de l'atmosfera terrestre. Són molt estables i poc reactives.'
+                }
+            },
+            aluminum: {
+                name: 'Alumini',
+                formula: 'Al',
+                meltingPoint: 660,
+                boilingPoint: 2519,
+                roomTempState: 'Sòlid',
+                color: '#94a3b8',
+                moleculeSize: 13,
+                description: {
+                    solid: 'Els àtoms d\\'alumini formen una estructura cristal·lina cúbica. És lleuger i resistent a la corrosió.',
+                    liquid: 'L\\'alumini fos és molt fluid i brillant. S\\'utilitza en fosa per a peces d\\'automòbils i avions.',
+                    gas: 'Els àtoms d\\'alumini es mouen lliurement. Aquest estat requereix temperatures molt elevades.'
+                }
+            },
+            copper: {
+                name: 'Coure',
+                formula: 'Cu',
+                meltingPoint: 1085,
+                boilingPoint: 2562,
+                roomTempState: 'Sòlid',
+                color: '#d97706',
+                moleculeSize: 13,
+                description: {
+                    solid: 'Els àtoms de coure formen una xarxa cristal·lina. És excel·lent conductor de calor i electricitat.',
+                    liquid: 'El coure fos té un color vermell brillant. S\\'utilitza en cablejat i components elèctrics.',
+                    gas: 'Els àtoms de coure es dispersen a alta temperatura. Poc comú en aplicacions pràctiques.'
+                }
+            },
+            lead: {
+                name: 'Plom',
+                formula: 'Pb',
+                meltingPoint: 327,
+                boilingPoint: 1749,
+                roomTempState: 'Sòlid',
+                color: '#64748b',
+                moleculeSize: 15,
+                description: {
+                    solid: 'Els àtoms de plom formen una estructura densa. És tou, mal·leable i resistent a la corrosió.',
+                    liquid: 'El plom fos és molt dens i brillant. S\\'ha utilitzat històricament en canonades i bateries.',
+                    gas: 'Els vapors de plom són tòxics. Només es produeixen a temperatures molt altes.'
+                }
+            },
+            silver: {
+                name: 'Plata',
+                formula: 'Ag',
+                meltingPoint: 962,
+                boilingPoint: 2162,
+                roomTempState: 'Sòlid',
+                color: '#e2e8f0',
+                moleculeSize: 13,
+                description: {
+                    solid: 'Els àtoms de plata formen una xarxa cúbica. És el millor conductor elèctric de tots els metalls.',
+                    liquid: 'La plata fosa brilla intensament. S\\'utilitza en joieria, monedes i electrònica.',
+                    gas: 'Els àtoms de plata es mouen independentment. Estat que només es dona a temperatures extremes.'
+                }
+            },
+            tungsten: {
+                name: 'Tungstè',
+                formula: 'W',
+                meltingPoint: 3422,
+                boilingPoint: 5555,
+                roomTempState: 'Sòlid',
+                color: '#475569',
+                moleculeSize: 14,
+                description: {
+                    solid: 'Els àtoms de tungstè formen una estructura molt compacta. Té el punt de fusió més alt de tots els elements.',
+                    liquid: 'El tungstè fos és extremadament dens. S\\'utilitza en filaments de bombetes i eines de tall.',
+                    gas: 'Els àtoms de tungstè en estat gasós requereixen temperatures properes a les del Sol.'
+                }
+            },
+            hydrogen: {
+                name: 'Hidrogen',
+                formula: 'H₂',
+                meltingPoint: -259,
+                boilingPoint: -253,
+                roomTempState: 'Gas',
+                color: '#f472b6',
+                moleculeSize: 8,
+                description: {
+                    solid: 'L\\'hidrogen sòlid només existeix a temperatures properes al zero absolut. Forma cristalls translúcids.',
+                    liquid: 'L\\'hidrogen líquid és extremadament fred i s\\'utilitza com a combustible per a coets.',
+                    gas: 'Les molècules d\\'H₂ són les més lleugeres. És l\\'element més abundant de l\\'univers.'
+                }
+            },
+            helium: {
+                name: 'Helium',
+                formula: 'He',
+                meltingPoint: -272,
+                boilingPoint: -269,
+                roomTempState: 'Gas',
+                color: '#fbbf24',
+                moleculeSize: 8,
+                description: {
+                    solid: 'L\\'helium sòlid només es pot formar sota pressions extremadament altes. Mai es solidifica a pressió normal.',
+                    liquid: 'L\\'helium líquid és el refrigerant més fred conegut. S\\'utilitza en imants superconductors.',
+                    gas: 'Els àtoms d\\'helium són els segons més lleugers. És inert i no reacciona amb altres elements.'
+                }
+            },
+            'carbon-dioxide': {
+                name: 'Diòxid de Carboni',
+                formula: 'CO₂',
+                meltingPoint: -78,
+                boilingPoint: -57,
+                roomTempState: 'Gas',
+                color: '#60a5fa',
+                moleculeSize: 11,
+                description: {
+                    solid: 'El CO₂ sòlid és gel sec. Sublima directament a gas sense passar per estat líquid a pressió normal.',
+                    liquid: 'El CO₂ líquid només existeix sota pressió. S\\'utilitza en extintors i begudes carbonatades.',
+                    gas: 'Les molècules de CO₂ són essencials per a la fotosíntesi. Contribueixen a l\\'efecte hivernacle.'
+                }
+            },
+            chlorine: {
+                name: 'Clor',
+                formula: 'Cl₂',
+                meltingPoint: -101,
+                boilingPoint: -34,
+                roomTempState: 'Gas',
+                color: '#34d399',
+                moleculeSize: 11,
+                description: {
+                    solid: 'El clor sòlid forma cristalls groc-verdosos. Només a temperatures molt baixes.',
+                    liquid: 'El clor líquid és verd-groc i molt reactiu. S\\'utilitza per a desinfecció i blanqueig.',
+                    gas: 'Les molècules de Cl₂ són tòxiques i irritants. S\\'usen en tractament d\\'aigües.'
+                }
+            },
+            neon: {
+                name: 'Neó',
+                formula: 'Ne',
+                meltingPoint: -249,
+                boilingPoint: -246,
+                roomTempState: 'Gas',
+                color: '#fb923c',
+                moleculeSize: 9,
+                description: {
+                    solid: 'El neó sòlid forma cristalls brillants. Només a temperatures criogèniques extremes.',
+                    liquid: 'El neó líquid és un refrigerant criogènic. Més car però més eficient que l\\'hidrogen.',
+                    gas: 'Els àtoms de neó emeten llum taronja-vermella quan s\\'electritzen. Usat en rètols lluminosos.'
+                }
+            },
+            argon: {
+                name: 'Argó',
+                formula: 'Ar',
+                meltingPoint: -189,
+                boilingPoint: -186,
+                roomTempState: 'Gas',
+                color: '#a78bfa',
+                moleculeSize: 10,
+                description: {
+                    solid: 'L\\'argó sòlid forma cristalls cúbics. Només existeix a temperatures molt baixes.',
+                    liquid: 'L\\'argó líquid s\\'utilitza com a refrigerant i en soldadura per crear atmosferes inertes.',
+                    gas: 'Els àtoms d\\'argó constitueixen el 0.93% de l\\'atmosfera. És inert i no tòxic.'
+                }
+            },
+            ethanol: {
+                name: 'Etanol',
+                formula: 'C₂H₅OH',
+                meltingPoint: -114,
+                boilingPoint: 78,
+                roomTempState: 'Líquid',
+                color: '#fcd34d',
+                moleculeSize: 12,
+                description: {
+                    solid: 'L\\'etanol sòlid forma cristalls blancs. Només a temperatures molt baixes.',
+                    liquid: 'L\\'etanol líquid és incolor i volàtil. S\\'utilitza en begudes alcohòliques i com a combustible.',
+                    gas: 'Els vapors d\\'etanol són inflamables. Es poden formar durant la fermentació.'
+                }
+            },
+            salt: {
+                name: 'Sal (NaCl)',
+                formula: 'NaCl',
+                meltingPoint: 801,
+                boilingPoint: 1465,
+                roomTempState: 'Sòlid',
+                color: '#f1f5f9',
+                moleculeSize: 11,
+                description: {
+                    solid: 'Els ions de sodi i clor formen una xarxa cristal·lina cúbica perfecta. És essencial per als éssers vius.',
+                    liquid: 'La sal fosa és un líquid iònic conductor. S\\'utilitza en processos industrials.',
+                    gas: 'Els ions de NaCl es separen en estat gasós. Requereix temperatures molt elevades.'
+                }
+            },
+            sugar: {
+                name: 'Sucre',
+                formula: 'C₁₂H₂₂O₁₁',
+                meltingPoint: 186,
+                boilingPoint: 697,
+                roomTempState: 'Sòlid',
+                color: '#fef3c7',
+                moleculeSize: 14,
+                description: {
+                    solid: 'Les molècules de sucre formen cristalls blancs. És una font d\\'energia per als éssers vius.',
+                    liquid: 'El sucre fos es converteix en caramel. Les molècules es descomponen parcialment.',
+                    gas: 'El sucre es descompon abans de vaporitzar-se. No existeix realment en estat gasós natural.'
+                }
+            }
+        };
+
+        // Variables globals
+        let currentElement = 'water';
+        let currentTemp = 25;
+        let animationId = null;
+        let molecules = [];
+        const canvas = document.getElementById('moleculeCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Configuració del canvas
+        function resizeCanvas() {
+            const container = document.getElementById('moleculeContainer');
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+        }
+
+        // Classe Molècula
+        class Molecule {
+            constructor(x, y, element) {
+                this.x = x;
+                this.y = y;
+                this.baseX = x;
+                this.baseY = y;
+                this.vx = (Math.random() - 0.5) * 2;
+                this.vy = (Math.random() - 0.5) * 2;
+                this.element = element;
+                this.size = elements[element].moleculeSize;
+                this.color = elements[element].color;
+                this.angle = Math.random() * Math.PI * 2;
+                this.angularVelocity = (Math.random() - 0.5) * 0.1;
+            }
+
+            update(state, temperature) {
+                const tempFactor = (temperature + 273) / 273;
+                
+                if (state === 'solid') {
+                    // Vibració al voltant de la posició base
+                    const vibration = Math.sin(Date.now() * 0.005 + this.baseX) * 2 * tempFactor;
+                    this.x = this.baseX + vibration;
+                    this.y = this.baseY + vibration;
+                    this.angle += this.angularVelocity * 0.1;
+                } else if (state === 'liquid') {
+                    // Moviment moderat amb gravetat
+                    this.x += this.vx * tempFactor * 0.5;
+                    this.y += this.vy * tempFactor * 0.5 + 0.5;
+                    this.angle += this.angularVelocity * tempFactor * 0.3;
+
+                    // Rebot a les parets
+                    if (this.x < this.size || this.x > canvas.width - this.size) {
+                        this.vx *= -1;
+                        this.x = Math.max(this.size, Math.min(canvas.width - this.size, this.x));
+                    }
+                    if (this.y < this.size || this.y > canvas.height - this.size) {
+                        this.vy *= -0.5;
+                        this.y = Math.max(this.size, Math.min(canvas.height - this.size, this.y));
+                    }
+                } else if (state === 'gas') {
+                    // Moviment ràpid i caòtic
+                    const speed = tempFactor * 3;
+                    this.x += this.vx * speed;
+                    this.y += this.vy * speed;
+                    this.angle += this.angularVelocity * tempFactor;
+
+                    // Rebot a les parets
+                    if (this.x < this.size || this.x > canvas.width - this.size) {
+                        this.vx *= -1;
+                        this.x = Math.max(this.size, Math.min(canvas.width - this.size, this.x));
+                    }
+                    if (this.y < this.size || this.y > canvas.height - this.size) {
+                        this.vy *= -1;
+                        this.y = Math.max(this.size, Math.min(canvas.height - this.size, this.y));
+                    }
+                }
+            }
+
+            draw(state) {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.angle);
+
+                // Brillo exterior
+                const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, this.size * 2);
+                gradient.addColorStop(0, this.color + '80');
+                gradient.addColorStop(1, 'transparent');
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(0, 0, this.size * 2, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Nucli de la molècula
+                ctx.fillStyle = this.color;
+                ctx.shadowColor = this.color;
+                ctx.shadowBlur = state === 'gas' ? 20 : 10;
+                
+                if (this.element === 'water') {
+                    // Dibuixa H₂O
+                    ctx.beginPath();
+                    ctx.arc(0, 0, this.size, 0, Math.PI * 2); // O
+                    ctx.fill();
+                    ctx.beginPath();
+                    ctx.arc(-this.size * 0.8, this.size * 0.6, this.size * 0.5, 0, Math.PI * 2); // H
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fill();
+                    ctx.beginPath();
+                    ctx.arc(this.size * 0.8, this.size * 0.6, this.size * 0.5, 0, Math.PI * 2); // H
+                    ctx.fill();
+                } else if (this.element === 'oxygen' || this.element === 'nitrogen') {
+                    // Dibuixa molècula diatòmica
+                    ctx.beginPath();
+                    ctx.arc(-this.size * 0.6, 0, this.size * 0.7, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.beginPath();
+                    ctx.arc(this.size * 0.6, 0, this.size * 0.7, 0, Math.PI * 2);
+                    ctx.fill();
+                } else {
+                    // Àtom simple
+                    ctx.beginPath();
+                    ctx.arc(0, 0, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                ctx.restore();
+            }
+        }
+
+        // Inicialitzar molècules
+        function initMolecules() {
+            molecules = [];
+            const numMolecules = 50;
+            const elementData = elements[currentElement];
+            
+            for (let i = 0; i < numMolecules; i++) {
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * canvas.height;
+                molecules.push(new Molecule(x, y, currentElement));
+            }
+        }
+
+        // Organitzar molècules en estat sòlid
+        function arrangeSolid() {
+            const spacing = 30;
+            const cols = Math.floor(canvas.width / spacing);
+            const rows = Math.floor(canvas.height / spacing);
+            
+            let idx = 0;
+            for (let row = 0; row < rows && idx < molecules.length; row++) {
+                for (let col = 0; col < cols && idx < molecules.length; col++) {
+                    molecules[idx].baseX = col * spacing + spacing / 2;
+                    molecules[idx].baseY = row * spacing + spacing / 2;
+                    molecules[idx].x = molecules[idx].baseX;
+                    molecules[idx].y = molecules[idx].baseY;
+                    idx++;
+                }
+            }
+        }
+
+        // Determinar l'estat segons la temperatura
+        function getState(temperature) {
+            const element = elements[currentElement];
+            if (temperature <= element.meltingPoint) {
+                return 'solid';
+            } else if (temperature <= element.boilingPoint) {
+                return 'liquid';
+            } else {
+                return 'gas';
+            }
+        }
+
+        // Actualitzar la interfície
+        function updateUI() {
+            const element = elements[currentElement];
+            const state = getState(currentTemp);
+
+            // Actualitzar badges d'estat
+            document.querySelectorAll('.state-badge').forEach(badge => {
+                badge.classList.remove('active');
+            });
+            document.getElementById(state + 'Badge').classList.add('active');
+
+            // Actualitzar informació
+            document.getElementById('elementName').textContent = element.name;
+            document.getElementById('elementFormula').textContent = element.formula;
+            document.getElementById('meltingPoint').textContent = element.meltingPoint + '°C';
+            document.getElementById('boilingPoint').textContent = element.boilingPoint + '°C';
+            document.getElementById('roomTempState').textContent = element.roomTempState;
+            document.getElementById('currentTemp').textContent = currentTemp + '°C';
+            document.getElementById('tempValue').textContent = currentTemp;
+
+            // Actualitzar descripció
+            const descriptions = {
+                solid: { icon: '🧊', text: element.description.solid },
+                liquid: { icon: '💧', text: element.description.liquid },
+                gas: { icon: '💨', text: element.description.gas }
+            };
+            document.getElementById('stateIcon').textContent = descriptions[state].icon;
+            document.getElementById('stateTitle').textContent = state.charAt(0).toUpperCase() + state.slice(1);
+            document.getElementById('stateDescription').textContent = descriptions[state].text;
+
+            // Actualitzar barra de transició
+            const meltingPercent = ((element.meltingPoint + 273) / 3273) * 100;
+            const boilingPercent = ((element.boilingPoint + 273) / 3273) * 100;
+            const currentPercent = ((currentTemp + 273) / 3273) * 100;
+            
+            document.getElementById('transitionBar').style.setProperty('--melting-point', meltingPercent + '%');
+            document.getElementById('transitionBar').style.setProperty('--boiling-point', boilingPercent + '%');
+            document.getElementById('transitionMarker').style.left = Math.min(100, Math.max(0, currentPercent)) + '%';
+            document.getElementById('meltingLabel').textContent = element.meltingPoint + '°C';
+            document.getElementById('boilingLabel').textContent = element.boilingPoint + '°C';
+
+            // Reorganitzar molècules si cal
+            if (state === 'solid') {
+                arrangeSolid();
+            }
+        }
+
+        // Loop d'animació
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const state = getState(currentTemp);
+            
+            molecules.forEach(molecule => {
+                molecule.update(state, currentTemp);
+                molecule.draw(state);
+            });
+
+            animationId = requestAnimationFrame(animate);
+        }
+
+        // Event Listeners
+        document.getElementById('elementSelector').addEventListener('click', (e) => {
+            const btn = e.target.closest('.element-btn');
+            if (!btn) return;
+
+            document.querySelectorAll('.element-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            currentElement = btn.dataset.element;
+            resizeCanvas();
+            initMolecules();
+            updateUI();
+        });
+
+        document.getElementById('tempSlider').addEventListener('input', (e) => {
+            currentTemp = parseInt(e.target.value);
+            updateUI();
+        });
+
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+            initMolecules();
+        });
+
+        // Inicialització
+        resizeCanvas();
+        initMolecules();
+        updateUI();
+        animate();
+    </script>
+</body>
+</html>
