@@ -4,24 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Laboratori Quàntic: Estats de la Matèria</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* =========================================
-           IMMMERSIVE UI - SCI-FI DARK THEME
-           ========================================= */
         :root {
-            --bg-color: #0d1117;
-            --panel-bg: #161b22;
-            --neon-blue: #58a6ff;
-            --neon-green: #3fb950;
-            --neon-red: #f85149;
-            --text-main: #c9d1d9;
-            --font-mono: 'Courier New', Courier, monospace;
+            /* Paleta Científica Oscura */
+            --bg-base: #020617;
+            --panel-bg: rgba(15, 23, 42, 0.7);
+            --panel-border: rgba(51, 65, 85, 0.8);
+            
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            
+            /* Colors d'Estats */
+            --state-solid: #3b82f6;   /* Blau */
+            --state-liquid: #10b981;  /* Verd */
+            --state-gas: #ef4444;     /* Vermell */
+            
+            /* Termòmetre */
+            --thermo-glass: rgba(255, 255, 255, 0.05);
+            --thermo-cold: #0ea5e9;
+            --thermo-hot: #ef4444;
+
+            --font-ui: 'Inter', system-ui, sans-serif;
+            --font-data: 'JetBrains Mono', monospace;
         }
 
         body {
-            background-color: var(--bg-color);
+            background: radial-gradient(circle at center, #0f172a 0%, var(--bg-base) 100%);
             color: var(--text-main);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: var(--font-ui);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -29,482 +42,797 @@
             margin: 0;
             padding: 20px;
             box-sizing: border-box;
+            overflow-x: hidden;
         }
 
-        .terminal {
-            background-color: var(--panel-bg);
-            border: 1px solid #30363d;
-            border-radius: 12px;
-            box-shadow: 0 0 20px rgba(88, 166, 255, 0.1), inset 0 0 10px rgba(0,0,0,0.5);
+        .dashboard-container {
             width: 100%;
-            max-width: 800px;
+            max-width: 1100px;
+            background: var(--panel-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--panel-border);
+            border-radius: 20px;
             padding: 30px;
-            position: relative;
-            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.1);
         }
 
-        .terminal::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--neon-blue), var(--neon-green), var(--neon-red));
-        }
-
-        h1 {
-            font-family: var(--font-mono);
-            color: var(--neon-blue);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            border-bottom: 1px dashed #30363d;
-            padding-bottom: 10px;
+        .header {
             text-align: center;
-        }
-
-        /* Controls */
-        .controls-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
             margin-bottom: 30px;
         }
 
-        .control-group {
+        .header h1 {
+            font-family: var(--font-ui);
+            font-weight: 600;
+            font-size: 1.8rem;
+            margin: 0;
+            letter-spacing: 1px;
+            background: linear-gradient(to right, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 5px;
+            font-family: var(--font-data);
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 300px 120px 1fr;
+            gap: 30px;
+            align-items: stretch;
+        }
+
+        @media (max-width: 900px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+        }
+
+        .controls-panel {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 25px;
         }
 
-        label {
-            font-family: var(--font-mono);
-            font-size: 0.9rem;
-            color: #8b949e;
+        .control-group {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 20px;
+            border-radius: 16px;
+        }
+
+        .control-label {
+            display: block;
+            font-size: 0.75rem;
             text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            font-weight: 600;
         }
 
-        select, input[type="range"] {
+        select {
             width: 100%;
-            background: var(--bg-color);
-            color: var(--neon-green);
-            border: 1px solid #30363d;
-            padding: 10px;
-            border-radius: 6px;
-            font-family: var(--font-mono);
-            font-size: 1.1rem;
+            background: rgba(15, 23, 42, 0.8);
+            color: white;
+            border: 1px solid var(--panel-border);
+            padding: 12px 15px;
+            border-radius: 10px;
+            font-family: var(--font-ui);
+            font-size: 1rem;
             outline: none;
-        }
-        
-        optgroup {
-            color: #8b949e;
-            font-style: normal;
-            font-weight: bold;
-            background-color: #161b22;
-        }
-        
-        option {
-            color: var(--neon-green);
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px top 50%;
+            background-size: 12px auto;
+            transition: border-color 0.3s;
         }
 
         select:focus {
-            border-color: var(--neon-blue);
-            box-shadow: 0 0 8px rgba(88, 166, 255, 0.3);
+            border-color: #38bdf8;
         }
 
-        .temp-display {
+        optgroup { background: #0f172a; }
+
+        .element-info {
+            margin-top: 15px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+        .element-info span { color: white; font-family: var(--font-data); }
+
+        /* Input numèric de temperatura */
+        .temp-input-wrapper {
             display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: 10px;
-            font-size: 2rem;
-            font-family: var(--font-mono);
-            color: var(--neon-red);
-            text-shadow: 0 0 10px rgba(248, 81, 73, 0.4);
+            align-items: baseline;
+            gap: 5px;
+            background: rgba(0,0,0,0.3);
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: 1px solid var(--panel-border);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
         }
 
-        /* Nou camp d'entrada manual per a la temperatura */
-        .temp-input {
+        .temp-number {
             background: transparent;
-            border: 1px dashed transparent;
-            color: var(--neon-red);
-            font-family: var(--font-mono);
-            font-size: 2.5rem;
+            border: none;
+            color: white;
+            font-family: var(--font-data);
+            font-size: 2rem;
+            width: 100%;
             text-align: right;
-            width: 130px;
-            padding: 0 10px;
             outline: none;
-            transition: all 0.3s ease;
-            text-shadow: 0 0 10px rgba(248, 81, 73, 0.4);
         }
 
-        .temp-input:hover, .temp-input:focus {
-            border-bottom: 1px dashed var(--neon-red);
-            background: rgba(248, 81, 73, 0.05);
+        .temp-unit {
+            color: var(--text-muted);
+            font-family: var(--font-ui);
+            font-weight: 600;
+            font-size: 1.2rem;
         }
 
-        /* Amagar fletxes de l'input numèric (opcional, ho fa més net) */
-        .temp-input::-webkit-outer-spin-button,
-        .temp-input::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-        .temp-input[type=number] {
-            -moz-appearance: textfield;
-        }
-
-        /* Simulator Screen */
-        .simulator-screen {
-            background-color: #000;
-            border: 2px solid #30363d;
-            border-radius: 8px;
-            height: 300px;
-            position: relative;
+        .thermo-panel {
             display: flex;
             justify-content: center;
             align-items: center;
-            overflow: hidden;
-            box-shadow: inset 0 0 20px rgba(88, 166, 255, 0.05);
+            position: relative;
         }
 
-        .state-label {
+        .thermometer {
+            position: relative;
+            width: 80px;
+            height: 380px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .thermo-scale {
             position: absolute;
-            top: 15px;
-            left: 15px;
-            font-family: var(--font-mono);
-            color: var(--neon-blue);
-            font-size: 1.2rem;
+            left: -30px;
+            top: 10px;
+            bottom: 60px;
+            width: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding-right: 8px;
+            color: var(--text-muted);
+            font-family: var(--font-data);
+            font-size: 0.7rem;
+            pointer-events: none;
+        }
+
+        .thermo-scale::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .scale-mark {
+            position: relative;
+        }
+        .scale-mark::after {
+            content: '';
+            position: absolute;
+            right: -8px;
+            top: 50%;
+            width: 5px;
+            height: 1px;
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* El vidre del termòmetre */
+        .thermo-glass-tube {
+            width: 24px;
+            height: 100%;
+            background: var(--thermo-glass);
+            border-radius: 12px 12px 0 0;
+            border: 2px solid rgba(255,255,255,0.15);
+            border-bottom: none;
+            position: relative;
+            z-index: 2;
+            box-shadow: inset 2px 0 4px rgba(255,255,255,0.1), inset -2px 0 6px rgba(0,0,0,0.5);
+            overflow: hidden;
+            display: flex;
+            align-items: flex-end;
+        }
+
+        .thermo-bulb {
+            width: 48px;
+            height: 48px;
+            background: var(--thermo-glass);
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.15);
+            margin-top: -10px;
+            z-index: 3;
+            box-shadow: inset 4px 4px 8px rgba(255,255,255,0.1), inset -4px -4px 12px rgba(0,0,0,0.5), 0 5px 15px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* El líquid interior */
+        .thermo-fill-tube {
+            width: 100%;
+            height: 50%; /* Controlat via JS */
+            background: linear-gradient(to right, var(--thermo-cold), #38bdf8);
+            transition: height 0.3s ease-out, background 0.5s;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .thermo-fill-bulb {
+            position: absolute;
+            top: 2px; left: 2px; right: 2px; bottom: 2px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #38bdf8, var(--thermo-cold));
+            transition: background 0.5s;
+        }
+
+        /* L'input amagat que permet arrossegar */
+        .thermo-input {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-90deg);
+            width: 320px; 
+            height: 48px;
+            opacity: 0; /* Totalment transparent */
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .simulation-panel {
+            background: #000000;
+            border-radius: 16px;
+            border: 1px solid var(--panel-border);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: inset 0 0 40px rgba(0,0,0,0.8);
+        }
+
+        .sim-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(15, 23, 42, 0.5);
+            z-index: 2;
+            position: relative;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: var(--font-data);
+            font-size: 0.9rem;
             text-transform: uppercase;
             letter-spacing: 1px;
-            z-index: 10;
-            background: rgba(0,0,0,0.7);
-            padding: 5px 10px;
-            border-radius: 4px;
-            border: 1px solid var(--neon-blue);
         }
 
-        /* Molecule System */
-        #molecules {
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--state-liquid);
+            box-shadow: 0 0 10px var(--state-liquid);
+            transition: all 0.5s;
+        }
+
+        .canvas-container {
+            flex: 1;
+            position: relative;
             width: 100%;
             height: 100%;
-            position: relative;
         }
 
-        .molecule {
-            width: 20px;
-            height: 20px;
-            background: radial-gradient(circle at 30% 30%, #fff, var(--neon-blue));
-            border-radius: 50%;
+        #sim-canvas {
             position: absolute;
-            box-shadow: 0 0 10px var(--neon-blue);
-            transition: all 0.5s ease;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 1;
         }
 
-        /* Animations */
-        @keyframes vibrate {
-            0% { transform: translate(0, 0); }
-            25% { transform: translate(2px, -2px); }
-            50% { transform: translate(-2px, 2px); }
-            75% { transform: translate(2px, 2px); }
-            100% { transform: translate(0, 0); }
+        /* Efecte visual ambiental de temperatura */
+        .ambient-glow {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            background: radial-gradient(circle at center, transparent 30%, rgba(14, 165, 233, 0.1) 100%);
+            transition: background 1s;
         }
 
-        @keyframes float {
-            0% { transform: translateY(0) translateX(0); }
-            33% { transform: translateY(-10px) translateX(5px); }
-            66% { transform: translateY(5px) translateX(-10px); }
-            100% { transform: translateY(0) translateX(0); }
+        .actions {
+            margin-top: 30px;
+            text-align: right;
         }
 
-        /* Actions */
-        .btn-print {
-            margin-top: 20px;
-            width: 100%;
-            padding: 15px;
-            background-color: transparent;
+        .btn {
+            background: transparent;
             color: var(--text-main);
-            border: 1px solid var(--neon-green);
-            border-radius: 6px;
-            font-family: var(--font-mono);
-            font-size: 1.1rem;
+            border: 1px solid var(--panel-border);
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-family: var(--font-ui);
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .btn-print:hover {
-            background-color: rgba(63, 185, 80, 0.1);
-            box-shadow: 0 0 15px rgba(63, 185, 80, 0.4);
+        .btn:hover {
+            background: rgba(255,255,255,0.05);
+            border-color: #94a3b8;
         }
 
-        /* =========================================
-           PRINTABLE WORKSHEET MODE (PDF-STYLE)
-           ========================================= */
         .worksheet-only { display: none; }
 
         @media print {
-            body {
-                background: white;
-                color: black;
-                align-items: flex-start;
-                padding: 0;
-            }
-            .terminal {
-                box-shadow: none;
-                border: none;
-                padding: 0;
-            }
-            .terminal::before { display: none; }
-            .btn-print, select, input[type="range"] { display: none; }
-            h1 {
-                color: black;
-                border-bottom: 2px solid black;
-            }
-            .controls-grid { margin-bottom: 10px; display: block; }
-            .control-group { margin-bottom: 15px; }
+            body { background: white; color: black; padding: 0; }
+            .dashboard-container { box-shadow: none; border: none; padding: 0; max-width: 100%; }
+            .btn, .thermo-panel, select, .temp-input-wrapper { display: none; }
+            .main-grid { display: block; }
+            .simulation-panel { border: 2px solid black; height: 400px; background: white; }
+            .sim-header { background: #eee; border-bottom: 2px solid black; color: black; }
+            .status-dot { box-shadow: none !important; }
+            #sim-canvas, .ambient-glow { display: none; }
             
-            .worksheet-only {
-                display: block;
-                font-family: Arial, sans-serif;
-                margin-bottom: 20px;
-            }
-            .worksheet-header {
-                display: flex;
-                justify-content: space-between;
-                margin-bottom: 20px;
-                font-size: 1.2rem;
-            }
-            .worksheet-line {
-                border-bottom: 1px solid black;
-                min-width: 200px;
-                display: inline-block;
-            }
-
-            .simulator-screen {
-                background-color: white;
-                border: 2px solid black;
-                box-shadow: none;
-                height: 400px;
-            }
-            .state-label {
-                color: black;
-                border: 1px solid black;
-                background: white;
-            }
-            #molecules { display: none; } 
-            
-            .print-instructions {
-                text-align: center;
-                font-style: italic;
-                margin-top: 10px;
-                font-family: Arial, sans-serif;
-            }
-            .print-instructions::after {
-                content: "Dibuixa aquí com es comporten les molècules de l'element seleccionat en aquest estat.";
-                display: block;
-                padding-top: 150px;
-                color: #555;
-            }
-            .temp-display { 
-                color: black; 
-                text-shadow: none; 
-                justify-content: flex-start;
-            }
-            .temp-input {
-                color: black;
-                border: 1px solid black;
-                text-shadow: none;
-            }
+            .worksheet-only { display: block; font-family: Arial, sans-serif; margin-bottom: 20px; }
+            .worksheet-header { display: flex; justify-content: space-between; font-size: 1.2rem; }
+            .worksheet-line { border-bottom: 1px solid black; min-width: 200px; display: inline-block; }
+            .print-instructions { text-align: center; font-style: italic; margin-top: 20px; }
+            .print-instructions::after { content: "Dibuixa aquí l'estructura molecular d'aquest element en aquest estat."; display: block; padding-top: 150px; color: #333; }
         }
     </style>
 </head>
 <body>
 
-    <div class="terminal">
+    <div class="dashboard-container">
+        
         <div class="worksheet-only">
             <div class="worksheet-header">
-                <div>Nom: <span class="worksheet-line"></span></div>
-                <div>Data: <span class="worksheet-line" style="min-width: 100px;"></span></div>
+                <div>Nom i cognoms: <span class="worksheet-line"></span></div>
+                <div>Data: <span class="worksheet-line" style="min-width: 120px;"></span></div>
             </div>
         </div>
 
-        <h1>Simulador d'Estats de la Matèria</h1>
+        <div class="header">
+            <h1>CÀMERA DE SIMULACIÓ TÈRMICA</h1>
+            <p>Anàlisi Quàntica dels Estats de la Matèria</p>
+        </div>
 
-        <div class="controls-grid">
-            <div class="control-group">
-                <label for="element">1. Selecciona l'Element</label>
-                <select id="element">
-                    <optgroup label="Compostos d'ús quotidià">
-                        <option value="aigua">Aigua (H₂O)</option>
-                        <option value="sal">Sal de taula (NaCl)</option>
-                        <option value="etanol">Alcohol (Etanol)</option>
-                    </optgroup>
-                    <optgroup label="Metalls">
-                        <option value="ferro">Ferro (Fe)</option>
-                        <option value="mercuri">Mercuri (Hg)</option>
-                        <option value="or">Or (Au)</option>
-                        <option value="alumini">Alumini (Al)</option>
-                        <option value="coure">Coure (Cu)</option>
-                        <option value="plom">Plom (Pb)</option>
-                        <option value="tungste">Tungstè (W)</option>
-                    </optgroup>
-                    <optgroup label="Gasos i No Metalls">
-                        <option value="oxigen">Oxigen (O₂)</option>
-                        <option value="nitrogen">Nitrogen (N₂)</option>
-                        <option value="heli">Heli (He)</option>
-                        <option value="sofre">Sofre (S)</option>
-                    </optgroup>
-                </select>
-            </div>
+        <div class="main-grid">
             
-            <div class="control-group">
-                <label for="temperature">2. Ajusta o Escriu la Temperatura (°C)</label>
-                <input type="range" id="temperature" min="-273" max="6000" value="20" step="1">
-                <div class="temp-display">
-                    <!-- S'ha substituït l'span per un input number -->
-                    <input type="number" id="temp-number" class="temp-input" min="-273" max="6000" value="20"> 
-                    <span>°C</span>
+            <!-- Columna Esquerra: Controls -->
+            <div class="controls-panel">
+                <div class="control-group">
+                    <label class="control-label" for="element">1. Especimen a analitzar</label>
+                    <select id="element">
+                        <optgroup label="Compostos d'ús quotidià">
+                            <option value="aigua">Aigua (H₂O)</option>
+                            <option value="sal">Sal comuna (NaCl)</option>
+                            <option value="etanol">Etanol (Alcohol)</option>
+                        </optgroup>
+                        <optgroup label="Metalls Pesa'ts i Lleugers">
+                            <option value="ferro">Ferro (Fe)</option>
+                            <option value="mercuri">Mercuri (Hg)</option>
+                            <option value="or">Or (Au)</option>
+                            <option value="alumini">Alumini (Al)</option>
+                            <option value="tungste">Tungstè (W)</option>
+                        </optgroup>
+                        <optgroup label="Gasos i Elements Lleugers">
+                            <option value="oxigen">Oxigen (O₂)</option>
+                            <option value="nitrogen">Nitrogen (N₂)</option>
+                        </optgroup>
+                    </select>
+                    
+                    <div class="element-info">
+                        Punt de Fusió: <span id="info-fusion">0</span> °C<br>
+                        Punt d'Ebullició: <span id="info-boiling">100</span> °C
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label">2. Temperatura Ambiental</label>
+                    <div class="temp-input-wrapper">
+                        <input type="number" id="temp-number" class="temp-number" value="20">
+                        <span class="temp-unit">°C</span>
+                    </div>
                 </div>
             </div>
+
+            <!-- Columna Central: Termòmetre -->
+            <div class="thermo-panel">
+                <div class="thermometer">
+                    <div class="thermo-scale" id="thermo-scale">
+                        <!-- Generat per JS -->
+                    </div>
+                    
+                    <div class="thermo-glass-tube">
+                        <div class="thermo-fill-tube" id="thermo-fill"></div>
+                    </div>
+                    <div class="thermo-bulb">
+                        <div class="thermo-fill-bulb" id="thermo-bulb-fill"></div>
+                    </div>
+
+                    <!-- Input invisible per al control lliscant -->
+                    <input type="range" id="temp-slider" class="thermo-input" min="-273" max="200" value="20" step="1">
+                </div>
+            </div>
+
+            <!-- Columna Dreta: Simulació -->
+            <div class="simulation-panel">
+                <div class="sim-header">
+                    <div class="status-indicator">
+                        <div class="status-dot" id="status-dot"></div>
+                        <span id="state-label">Estat: LÍQUID</span>
+                    </div>
+                    <div style="font-family: var(--font-data); color: var(--text-muted); font-size: 0.8rem;">MAG: 10,000,000x</div>
+                </div>
+                
+                <div class="canvas-container" id="canvas-container">
+                    <div class="ambient-glow" id="ambient-glow"></div>
+                    <canvas id="sim-canvas"></canvas>
+                    <div class="worksheet-only print-instructions"></div>
+                </div>
+            </div>
+
         </div>
 
-        <div class="simulator-screen">
-            <div class="state-label" id="state-label">Estat: LÍQUID</div>
-            <div id="molecules"></div>
-            <div class="worksheet-only print-instructions"></div>
+        <div class="actions">
+            <button class="btn" onclick="window.print()">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                Generar Informe (PDF)
+            </button>
         </div>
-
-        <button class="btn-print" onclick="window.print()">[ GENERAR FITXA IMPRIMIBLE PDF ]</button>
     </div>
 
     <script>
+        // Dades físiques dels elements
         const elements = {
-            aigua:   { fusion: 0,    boiling: 100 },
-            sal:     { fusion: 801,  boiling: 1465 },
-            etanol:  { fusion: -114, boiling: 78 },
-            ferro:   { fusion: 1538, boiling: 2862 },
-            mercuri: { fusion: -39,  boiling: 356 },
-            or:      { fusion: 1064, boiling: 2970 },
-            alumini: { fusion: 660,  boiling: 2470 },
-            coure:   { fusion: 1085, boiling: 2562 },
-            plom:    { fusion: 327,  boiling: 1749 },
-            tungste: { fusion: 3422, boiling: 5555 },
-            oxigen:  { fusion: -218, boiling: -183 },
-            nitrogen:{ fusion: -210, boiling: -196 },
-            heli:    { fusion: -272, boiling: -269 },
-            sofre:   { fusion: 115,  boiling: 444 }
+            aigua:   { name: "Aigua", fusion: 0, boiling: 100, color: "#38bdf8" },
+            sal:     { name: "Sal", fusion: 801, boiling: 1465, color: "#e2e8f0" },
+            etanol:  { name: "Etanol", fusion: -114, boiling: 78, color: "#a78bfa" },
+            ferro:   { name: "Ferro", fusion: 1538, boiling: 2862, color: "#94a3b8" },
+            mercuri: { name: "Mercuri", fusion: -39, boiling: 356, color: "#cbd5e1" },
+            or:      { name: "Or", fusion: 1064, boiling: 2970, color: "#fbbf24" },
+            alumini: { name: "Alumini", fusion: 660, boiling: 2470, color: "#cbd5e1" },
+            tungste: { name: "Tungstè", fusion: 3422, boiling: 5555, color: "#64748b" },
+            oxigen:  { name: "Oxigen", fusion: -218, boiling: -183, color: "#60a5fa" },
+            nitrogen:{ name: "Nitrogen", fusion: -210, boiling: -196, color: "#818cf8" }
         };
 
-        const tempSlider = document.getElementById('temperature');
+        // Elements del DOM
+        const elSelect = document.getElementById('element');
+        const tempSlider = document.getElementById('temp-slider');
         const tempNumber = document.getElementById('temp-number');
-        const elementSelect = document.getElementById('element');
-        const stateLabel = document.getElementById('state-label');
-        const moleculesContainer = document.getElementById('molecules');
-
-        const NUM_MOLECULES = 35; 
-
-        function initMolecules() {
-            moleculesContainer.innerHTML = '';
-            for(let i = 0; i < NUM_MOLECULES; i++) {
-                const mol = document.createElement('div');
-                mol.classList.add('molecule');
-                moleculesContainer.appendChild(mol);
-            }
-        }
-
-        // Funció central per actualitzar l'estat i l'animació
-        function updateSimulation() {
-            // Agafem el valor actual de l'input numèric
-            let temp = parseInt(tempNumber.value);
-            
-            // Validació de seguretat si deixen el camp buit
-            if (isNaN(temp)) return; 
-
-            const elId = elementSelect.value;
-            const elData = elements[elId];
-            let estat = '';
-            
-            if (temp < elData.fusion) {
-                estat = 'SÒLID';
-                renderSolid();
-            } else if (temp >= elData.fusion && temp < elData.boiling) {
-                estat = 'LÍQUID';
-                renderLiquid();
-            } else {
-                estat = 'GASÓS';
-                renderGas();
-            }
-
-            stateLabel.innerText = `Estat: ${estat}`;
-        }
-
-        // --- Lògica d'Animacions segons l'Estat ---
-        function renderSolid() {
-            const mols = document.querySelectorAll('.molecule');
-            const cols = 7;
-            const startX = 250; 
-            const startY = 100;
-
-            mols.forEach((mol, index) => {
-                const row = Math.floor(index / cols);
-                const col = index % cols;
-                mol.style.left = `${startX + (col * 22)}px`;
-                mol.style.top = `${startY + (row * 22)}px`;
-                mol.style.animation = `vibrate 0.2s infinite alternate`;
-                mol.style.transition = 'all 0.5s ease';
-            });
-        }
-
-        function renderLiquid() {
-            const mols = document.querySelectorAll('.molecule');
-            mols.forEach((mol, index) => {
-                const randX = 150 + Math.random() * 400;
-                const randY = 200 + Math.random() * 80;
-                mol.style.left = `${randX}px`;
-                mol.style.top = `${randY}px`;
-                mol.style.animation = `float ${2 + Math.random() * 2}s infinite alternate`;
-                mol.style.transition = 'all 1s ease';
-            });
-        }
-
-        function renderGas() {
-            const mols = document.querySelectorAll('.molecule');
-            mols.forEach((mol) => {
-                const randX = Math.random() * 700;
-                const randY = Math.random() * 250;
-                mol.style.left = `${randX}px`;
-                mol.style.top = `${randY}px`;
-                const dur = 0.5 + Math.random();
-                mol.style.animation = `vibrate ${dur}s infinite, float ${dur * 2}s infinite alternate`;
-                mol.style.transition = 'all 0.2s linear';
-            });
-        }
-
-        // --- Listeners de Sincronització ---
+        const thermoFill = document.getElementById('thermo-fill');
+        const thermoBulbFill = document.getElementById('thermo-bulb-fill');
+        const thermoScale = document.getElementById('thermo-scale');
         
-        // Si es mou la barra, actualitzem el número i la simulació
+        const stateLabel = document.getElementById('state-label');
+        const statusDot = document.getElementById('status-dot');
+        const ambientGlow = document.getElementById('ambient-glow');
+        const infoFusion = document.getElementById('info-fusion');
+        const infoBoiling = document.getElementById('info-boiling');
+
+        // Variables Globals
+        let currentState = 'LÍQUID';
+        let currentElementColor = "#38bdf8";
+
+        function setupThermometerScale() {
+            const elId = elSelect.value;
+            const elData = elements[elId];
+            
+            // Adaptem el MAX del slider dinàmicament perquè el termòmetre sigui útil.
+            // Donem un marge sobre el punt d'ebullició.
+            let maxTemp = Math.ceil((elData.boiling * 1.3) / 100) * 100;
+            if(maxTemp < 100) maxTemp = 150; // Per elements freds (nitrogen)
+            if(elId === 'tungste') maxTemp = 6000;
+
+            const minTemp = -273; // Zero absolut constant
+            
+            tempSlider.min = minTemp;
+            tempSlider.max = maxTemp;
+
+            // Ens assegurem que el valor actual no supera el nou max
+            let currentVal = parseInt(tempSlider.value);
+            if(currentVal > maxTemp) {
+                currentVal = maxTemp;
+                tempSlider.value = currentVal;
+                tempNumber.value = currentVal;
+            }
+
+            // Dibuixar les marques laterals (Ticks)
+            thermoScale.innerHTML = '';
+            const range = maxTemp - minTemp;
+            const numTicks = 5;
+            for(let i = 0; i <= numTicks; i++) {
+                const tickVal = maxTemp - (i * (range / numTicks));
+                const mark = document.createElement('div');
+                mark.className = 'scale-mark';
+                mark.innerText = Math.round(tickVal);
+                thermoScale.appendChild(mark);
+            }
+
+            infoFusion.innerText = elData.fusion;
+            infoBoiling.innerText = elData.boiling;
+            currentElementColor = elData.color;
+        }
+
+        function updateUI() {
+            let temp = parseInt(tempNumber.value);
+            if(isNaN(temp)) return;
+
+            const min = parseInt(tempSlider.min);
+            const max = parseInt(tempSlider.max);
+            
+            // Límits reals
+            if(temp < min) temp = min;
+            if(temp > max) temp = max;
+
+            // Actualitzem l'altura visual del líquid al termòmetre
+            const percentage = ((temp - min) / (max - min)) * 100;
+            thermoFill.style.height = `${percentage}%`;
+
+            // Canviem el color del líquid segons si fa calor o fred relatiu al zero (0 graus)
+            let color1, color2;
+            if(temp < 0) {
+                color1 = "var(--thermo-cold)";
+                color2 = "#38bdf8";
+            } else if (temp < 100) {
+                color1 = "#f59e0b"; // taronja
+                color2 = "#fbbf24";
+            } else {
+                color1 = "var(--thermo-hot)";
+                color2 = "#f97316";
+            }
+            
+            thermoFill.style.background = `linear-gradient(to top, ${color1}, ${color2})`;
+            thermoBulbFill.style.background = `linear-gradient(135deg, ${color2}, ${color1})`;
+
+            // Determinem l'estat físic
+            const elId = elSelect.value;
+            const elData = elements[elId];
+
+            if (temp < elData.fusion) {
+                currentState = 'SÒLID';
+                statusDot.style.background = "var(--state-solid)";
+                statusDot.style.boxShadow = "0 0 10px var(--state-solid)";
+                ambientGlow.style.background = "radial-gradient(circle at center, transparent 30%, rgba(59, 130, 246, 0.15) 100%)";
+            } else if (temp >= elData.fusion && temp < elData.boiling) {
+                currentState = 'LÍQUID';
+                statusDot.style.background = "var(--state-liquid)";
+                statusDot.style.boxShadow = "0 0 10px var(--state-liquid)";
+                ambientGlow.style.background = "none";
+            } else {
+                currentState = 'GASÓS';
+                statusDot.style.background = "var(--state-gas)";
+                statusDot.style.boxShadow = "0 0 10px var(--state-gas)";
+                ambientGlow.style.background = "radial-gradient(circle at center, transparent 30%, rgba(239, 68, 68, 0.15) 100%)";
+            }
+
+            stateLabel.innerText = `Estat: ${currentState}`;
+        }
+
+        // Listeners del control lliscant i l'input numèric
         tempSlider.addEventListener('input', (e) => {
             tempNumber.value = e.target.value;
-            updateSimulation();
-        });
-
-        // Si s'escriu el número manualment, actualitzem la barra i la simulació
-        tempNumber.addEventListener('input', (e) => {
-            let val = parseInt(e.target.value);
+            updateUI();
             
-            // Validem límits
-            if (!isNaN(val)) {
-                if (val < -273) val = -273;
-                if (val > 6000) val = 6000;
-                tempSlider.value = val;
-                updateSimulation();
+            // Impuls tèrmic al moure el slider ràpid per als gasos
+            if(currentState === 'GASÓS') {
+                particles.forEach(p => { p.vx += (Math.random()-0.5)*3; p.vy += (Math.random()-0.5)*3; });
             }
         });
 
-        elementSelect.addEventListener('change', updateSimulation);
+        tempNumber.addEventListener('change', (e) => {
+            let val = parseInt(e.target.value);
+            if(!isNaN(val)) {
+                tempSlider.value = val;
+                updateUI();
+            }
+        });
 
-        // Inicialització
-        initMolecules();
-        updateSimulation();
+        elSelect.addEventListener('change', () => {
+            setupThermometerScale();
+            updateUI();
+            // Assignar color nou a les partícules
+            particles.forEach(p => p.baseColor = currentElementColor);
+        });
+
+        const canvas = document.getElementById('sim-canvas');
+        const ctx = canvas.getContext('2d');
+        const container = document.getElementById('canvas-container');
+
+        let width, height;
+        function resizeCanvas() {
+            width = container.clientWidth;
+            height = container.clientHeight;
+            canvas.width = width;
+            canvas.height = height;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        
+        const NUM_PARTICLES = 60;
+        const PARTICLE_RADIUS = 8;
+        let particles = [];
+
+        class Particle {
+            constructor(index) {
+                this.x = Math.random() * 200 + 100; // posició inicial centre
+                this.y = Math.random() * 200 + 100;
+                this.vx = (Math.random() - 0.5) * 2;
+                this.vy = (Math.random() - 0.5) * 2;
+                this.radius = PARTICLE_RADIUS;
+                this.index = index;
+                this.baseColor = currentElementColor;
+                
+                // Quadricula de cristal·lització per a sòlids
+                const cols = 10;
+                const spacing = 18;
+                const totalW = cols * spacing;
+                this.targetX = (index % cols) * spacing;
+                this.targetY = Math.floor(index / cols) * spacing;
+                this.offsetX = 0; // Calculat dinàmicament al dibuixar
+                this.offsetY = 0;
+            }
+
+            update() {
+                if (currentState === 'SÒLID') {
+                    // Atracció cap a la seva posició a la xarxa cristal·lina
+                    // Centrem la xarxa al fons
+                    const cols = 10;
+                    const spacing = 18;
+                    const startX = (width - (cols * spacing)) / 2;
+                    const startY = height - ((NUM_PARTICLES/cols) * spacing) - 20;
+
+                    const tx = startX + this.targetX;
+                    const ty = startY + this.targetY;
+
+                    this.vx += (tx - this.x) * 0.08;
+                    this.vy += (ty - this.y) * 0.08;
+                    this.vx *= 0.7; // Fricció alta
+                    this.vy *= 0.7;
+                    
+                    // Vibració per temperatura (més fred = menys vibració)
+                    let tempVal = parseInt(tempNumber.value);
+                    let tempFactor = Math.max(0, (tempVal + 273) / 1000); 
+                    this.x += (Math.random() - 0.5) * tempFactor;
+                    this.y += (Math.random() - 0.5) * tempFactor;
+
+                } else if (currentState === 'LÍQUID') {
+                    // Gravetat i moviment fluid (Brownià)
+                    this.vy += 0.2; 
+                    this.vx += (Math.random() - 0.5) * 0.6;
+                    this.vy += (Math.random() - 0.5) * 0.2;
+                    this.vx *= 0.96;
+                    this.vy *= 0.96;
+
+                } else if (currentState === 'GASÓS') {
+                    // Zero gravetat, agitació tèrmica alta
+                    const speed = Math.sqrt(this.vx*this.vx + this.vy*this.vy);
+                    if (speed < 7) {
+                        this.vx *= 1.05;
+                        this.vy *= 1.05;
+                    }
+                    if (speed > 15) {
+                        this.vx *= 0.9;
+                        this.vy *= 0.9;
+                    }
+                    this.vx += (Math.random() - 0.5) * 1.5;
+                    this.vy += (Math.random() - 0.5) * 1.5;
+                }
+
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Col·lisions amb vores
+                const bounce = currentState === 'GASÓS' ? 1 : 0.4;
+                if (this.x < this.radius) { this.x = this.radius; this.vx *= -bounce; }
+                if (this.x > width - this.radius) { this.x = width - this.radius; this.vx *= -bounce; }
+                if (this.y < this.radius) { this.y = this.radius; this.vy *= -bounce; }
+                if (this.y > height - this.radius) { this.y = height - this.radius; this.vy *= -bounce; }
+
+                // Col·lisions entre partícules (Simplificat per rendiment)
+                if (currentState !== 'GASÓS') {
+                    for (let j = this.index + 1; j < NUM_PARTICLES; j++) {
+                        const other = particles[j];
+                        const dx = other.x - this.x;
+                        const dy = other.y - this.y;
+                        const dist = Math.sqrt(dx*dx + dy*dy);
+                        const minDist = this.radius + other.radius + (currentState==='SÒLID'?2:0);
+
+                        if (dist < minDist) {
+                            const angle = Math.atan2(dy, dx);
+                            const force = (minDist - dist) * 0.1;
+                            const ax = Math.cos(angle) * force;
+                            const ay = Math.sin(angle) * force;
+                            
+                            this.vx -= ax;
+                            this.vy -= ay;
+                            other.vx += ax;
+                            other.vy += ay;
+                        }
+                    }
+                }
+            }
+
+            draw() {
+                // Afegim un "glow" si és gasós i fa calor
+                if(currentState === 'GASÓS') {
+                    ctx.shadowBlur = 15;
+                    ctx.shadowColor = this.baseColor;
+                } else {
+                    ctx.shadowBlur = 0;
+                }
+
+                // Dibuix de l'àtom/molècula amb degradat esfèric
+                const gradient = ctx.createRadialGradient(
+                    this.x - this.radius*0.3, this.y - this.radius*0.3, 1, 
+                    this.x, this.y, this.radius
+                );
+                gradient.addColorStop(0, '#ffffff');
+                gradient.addColorStop(0.4, this.baseColor);
+                
+                // Variació de fosc per donar volum
+                const hexColor = this.baseColor.replace('#', '');
+                const r = parseInt(hexColor.substring(0,2), 16) * 0.5;
+                const g = parseInt(hexColor.substring(2,4), 16) * 0.5;
+                const b = parseInt(hexColor.substring(4,6), 16) * 0.5;
+                gradient.addColorStop(1, `rgb(${r},${g},${b})`);
+
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = gradient;
+                ctx.fill();
+                ctx.closePath();
+            }
+        }
+
+        function animate() {
+            // Fons amb rastre fosc
+            ctx.fillStyle = currentState === 'GASÓS' ? 'rgba(0, 0, 0, 0.4)' : '#000000';
+            ctx.fillRect(0, 0, width, height);
+
+            for(let p of particles) {
+                p.update();
+                p.draw();
+            }
+            requestAnimationFrame(animate);
+        }
+
+        window.onload = function() {
+            resizeCanvas();
+            setupThermometerScale();
+            updateUI();
+            
+            // Iniciar partícules
+            for(let i=0; i<NUM_PARTICLES; i++) {
+                particles.push(new Particle(i));
+            }
+            animate();
+        };
     </script>
 </body>
 </html>
