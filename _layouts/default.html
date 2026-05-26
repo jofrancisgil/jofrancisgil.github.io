@@ -7,39 +7,47 @@
     <link rel="icon" type="image/png" href="IMG/logo.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        /* =========================================
+           ESTILS GLOBALS - MINIMAL BRUTALISM
+           ========================================= */
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Courier New', Courier, monospace; /* Tipografia crua/tècnica */
             margin: 0;
             padding: 0;
-            background: linear-gradient(135deg, #f5f7fa 0%, #e4eff9 100%);
-            color: #333;
+            background-color: #fdfdfd;
+            background-image: radial-gradient(#c2c2c2 2px, transparent 2px);
+            background-size: 30px 30px; /* Patró de punts brutalista */
+            color: #000000;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            overflow-x: hidden;
         }
 
+        /* =========================================
+           NAVEGACIÓ BRUTALISTA (Per al menu.html)
+           ========================================= */
         .glass-header {
             position: sticky;
-            top: 20px;
+            top: 0;
             z-index: 1000;
+            background: #ffffff;
+            border-bottom: 5px solid #000000;
+            padding: 15px 20px;
             display: flex;
             justify-content: center;
-            padding: 0 20px;
-            transition: all 0.3s ease;
+            align-items: center;
         }
 
         .glass-nav {
-            background: rgba(255, 255, 255, 0.65);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            border-radius: 100px;
-            padding: 8px 12px 8px 25px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-            max-width: 1050px;
+            max-width: 1200px;
             width: 100%;
         }
 
@@ -47,164 +55,289 @@
             display: flex;
             align-items: center;
             text-decoration: none;
+            background: #ffd166;
+            padding: 5px 15px;
+            border: 3px solid #000;
+            box-shadow: 4px 4px 0px #000;
+            transition: all 0.1s;
         }
 
         .nav-logo img {
             height: 45px;
             width: auto;
-            transition: transform 0.3s ease;
         }
-        
-        .nav-logo:hover img {
-            transform: scale(1.05);
+
+        .nav-logo:active {
+            transform: translate(4px, 4px);
+            box-shadow: 0px 0px 0px #000;
         }
 
         .nav-links {
             display: flex;
-            gap: 5px;
+            gap: 15px;
         }
 
         .nav-item {
+            text-decoration: none;
+            color: #000;
+            font-weight: bold;
+            text-transform: uppercase;
+            padding: 8px 15px;
+            border: 3px solid #000;
+            background: #fff;
+            box-shadow: 3px 3px 0px #000;
+            transition: all 0.2s;
             display: flex;
             align-items: center;
             gap: 8px;
-            padding: 10px 18px;
-            border-radius: 50px;
-            text-decoration: none;
-            color: #5a6b7c;
-            font-weight: 600;
-            font-size: 0.95em;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
         .nav-item i {
             font-size: 1.1em;
-            color: #899bb0;
-            transition: color 0.3s;
+            color: #000;
         }
 
         .nav-item:hover {
-            background: white;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
-            transform: translateY(-2px);
+            box-shadow: 5px 5px 0px #000;
+            transform: translate(-2px, -2px);
         }
 
-        .nav-mates:hover { color: #d32f2f; }
-        .nav-mates:hover i { color: #f44336; }
-
-        .nav-llengues:hover { color: #e65100; }
-        .nav-llengues:hover i { color: #ff9800; }
-
-        .nav-medi:hover { color: #2e7d32; }
-        .nav-medi:hover i { color: #4caf50; }
-
-        .nav-musica:hover { color: #6a1b9a; }
-        .nav-musica:hover i { color: #9c27b0; }
-
-        .nav-art:hover { color: #c2185b; }
-        .nav-art:hover i { color: #e91e63; }
-
-        .nav-jocs:hover { color: #00838f; }
-        .nav-jocs:hover i { color: #00bcd4; }
-
-        .nav-gestio:hover { color: #37474f; }
-        .nav-gestio:hover i { color: #607d8b; }
+        /* Colors específics per la navegació al fer hover */
+        .nav-mates:hover { background: #ffb3c6; color: #000; }
+        .nav-llengues:hover { background: #ffe6a7; color: #000; }
+        .nav-medi:hover { background: #b7e4c7; color: #000; }
+        .nav-musica:hover { background: #cdb4db; color: #000; }
+        .nav-art:hover { background: #ffc8dd; color: #000; }
+        .nav-jocs:hover { background: #a2d2ff; color: #000; }
+        .nav-gestio:hover { background: #e9ecef; color: #000; }
 
         @media (max-width: 850px) {
             .glass-header {
-                top: 0;
-                padding: 15px 0;
-                background: linear-gradient(to bottom, rgba(245, 247, 250, 1), rgba(245, 247, 250, 0));
+                padding: 10px 15px;
             }
-            .glass-nav {
-                border-radius: 0;
-                border: none;
-                box-shadow: none;
-                background: transparent;
-                backdrop-filter: none;
-                justify-content: center;
-                padding: 0;
-            }
-            .nav-logo img { height: 55px; }
             .nav-links {
                 position: fixed;
-                bottom: 20px;
-                left: 50%;
-                transform: translateX(-50%);
-                background: rgba(255, 255, 255, 0.85);
-                backdrop-filter: blur(15px);
-                -webkit-backdrop-filter: blur(15px);
-                border: 1px solid rgba(255, 255, 255, 0.6);
-                border-radius: 25px;
-                padding: 10px 5px;
-                box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                background: #ffffff;
+                border-top: 5px solid #000;
+                padding: 15px 10px;
                 display: flex;
-                gap: 2px;
-                width: 95%;
-                max-width: 500px;
+                gap: 5px;
                 justify-content: space-around;
                 z-index: 2000;
+                overflow-x: auto;
             }
             .nav-item {
                 flex-direction: column;
                 gap: 5px;
                 padding: 10px 5px;
                 font-size: 0.7em;
-                font-weight: 700;
-                border-radius: 15px;
-                width: 100%;
-                text-align: center;
+                box-shadow: 2px 2px 0px #000;
+                min-width: 60px;
             }
             .nav-item i {
                 font-size: 1.6em;
-                margin-bottom: 2px;
             }
-            .nav-item:hover { transform: translateY(-5px); }
-            
+            .nav-item:hover { transform: translate(-1px, -1px); box-shadow: 3px 3px 0px #000; }
             main { padding-bottom: 90px !important; } 
         }
 
+        /* =========================================
+           CONTENIDOR PRINCIPAL I ELEMENTS BRUTALISTES
+           ========================================= */
         main {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 40px 20px;
             flex: 1;
             width: 100%;
             box-sizing: border-box;
         }
 
-        .hero-section { text-align: center; padding: 60px 20px; margin-bottom: 30px; }
-        h1 { color: #333; font-size: 3em; line-height: 1.2; margin-bottom: 20px; font-weight: 800; }
-        .gradient-text { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: block; }
-        .subtitle { font-size: 1.2em; color: #666; max-width: 800px; margin: 0 auto; line-height: 1.6; }
+        /* HERO SECTION */
+        .hero-section, .hero-brutal {
+            background-color: #ffd166; /* Groc cridaner */
+            border: 5px solid #000;
+            box-shadow: 12px 12px 0px #000;
+            padding: 60px 40px;
+            margin-bottom: 80px;
+            text-align: left;
+            position: relative;
+        }
 
-        h2 { border-bottom: 2px solid #dce4eb; padding-bottom: 10px; margin-top: 50px; margin-bottom: 25px; font-weight: 700; display: flex; align-items: center; gap: 10px; width: 100%; }
-        .title-ai { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .title-top { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero-section h1, .hero-brutal h1 {
+            font-size: 4.5em;
+            font-weight: 900;
+            text-transform: uppercase;
+            line-height: 1;
+            margin: 0 0 20px 0;
+            color: #000;
+            letter-spacing: -2px;
+        }
 
-        .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
-        .card { border-radius: 15px; padding: 30px 20px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: transform 0.3s ease, box-shadow 0.3s ease; text-decoration: none; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 220px; }
-        .card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
-        .card-icon { font-size: 45px; margin-bottom: 15px; color: rgba(255, 255, 255, 0.95); text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .card h3 { margin: 10px 0; font-size: 1.5em; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .card p { font-size: 1em; line-height: 1.4; opacity: 0.95; margin: 0; font-weight: 500; }
+        /* Amaguem o redefinim classes antigues (gradient-text) */
+        .gradient-text {
+            background: none;
+            -webkit-text-fill-color: initial;
+            color: #ef476f; /* Li donem un color sòlid brutalista */
+            text-shadow: 3px 3px 0px #000;
+        }
 
-        .grad-purple { background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); }
-        .grad-blue { background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%); }
-        .grad-orange { background: linear-gradient(135deg, #fccb90 0%, #d57eeb 100%); }
-        .grad-green { background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%); }
-        .grad-red { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%); }
-        .grad-teal { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
-        .grad-calm { background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%); }
+        .subtitle {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #000;
+            border-top: 5px solid #000;
+            padding-top: 20px;
+            max-width: 800px;
+            margin: 0;
+            background: #fff;
+            display: inline-block;
+            padding: 15px;
+            border: 3px solid #000;
+            box-shadow: 4px 4px 0px #000;
+            margin-top: 20px;
+        }
 
-        footer { background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%); color: #444; text-align: center; padding: 40px 20px; margin-top: 60px; border-top: 1px solid rgba(255,255,255,0.5); }
-        footer p { margin: 10px 0; opacity: 0.9; font-weight: 500; }
+        /* TÍTOLS DE SECCIÓ */
+        h2 {
+            font-size: 2.5em;
+            font-weight: 900;
+            text-transform: uppercase;
+            background: #000;
+            color: #fff;
+            display: inline-block;
+            padding: 10px 20px;
+            margin-top: 20px;
+            margin-bottom: 40px;
+            border: 5px solid #000;
+            box-shadow: 6px 6px 0px rgba(0,0,0,0.2);
+            transform: rotate(-1deg);
+            width: auto;
+        }
+        
+        .title-ai { background: #ef476f; }
+        .title-top { background: #118ab2; }
+        .title-brutal { background: #000; }
+
+        /* GRAELLA */
+        .grid-container, .brutalist-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 40px;
+            margin-bottom: 80px;
+        }
+
+        /* TARGETES */
+        .card, .card-brutal {
+            border: 5px solid #000;
+            box-shadow: 8px 8px 0px #000;
+            padding: 30px 20px;
+            text-decoration: none;
+            color: #000;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.1s ease-out;
+            position: relative;
+            background-color: #fff; /* Fons per defecte si no tenen color */
+            min-height: 220px;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .card:hover, .card-brutal:hover {
+            transform: translate(4px, 4px);
+            box-shadow: 4px 4px 0px #000;
+        }
+
+        .card:active, .card-brutal:active {
+            transform: translate(8px, 8px);
+            box-shadow: 0px 0px 0px #000;
+        }
+
+        /* Adaptem les antigues classes de color (grad-*) a colors sòlids brutalistes */
+        .grad-purple, .color-purple { background-color: #cdb4db; }
+        .grad-purple:hover, .color-purple:hover { background-color: #9d4edd; color: white; }
+        
+        .grad-blue, .color-blue { background-color: #a2d2ff; }
+        .grad-blue:hover, .color-blue:hover { background-color: #00b4d8; color: white; }
+        
+        .grad-orange, .color-orange { background-color: #ffe6a7; }
+        .grad-orange:hover, .color-orange:hover { background-color: #fb8500; color: white; }
+
+        .grad-green, .color-green { background-color: #b7e4c7; }
+        .grad-green:hover, .color-green:hover { background-color: #40916c; color: white; }
+
+        .grad-red, .color-pink { background-color: #ffb3c6; }
+        .grad-red:hover, .color-pink:hover { background-color: #ff4d6d; color: white; }
+        
+        .grad-teal { background-color: #90e0ef; }
+        .grad-teal:hover { background-color: #0077b6; color: white; }
+        
+        .grad-calm { background-color: #caf0f8; }
+        .grad-calm:hover { background-color: #03045e; color: white; }
+
+        .card-icon {
+            font-size: 3.5em;
+            margin-bottom: 20px;
+            border-bottom: 4px solid currentColor;
+            padding-bottom: 10px;
+            display: inline-block;
+            color: #000; /* Forcem el negre en comptes del blanc antic */
+            text-shadow: none;
+        }
+        
+        .card:hover .card-icon {
+            color: currentColor;
+        }
+
+        .card h3, .card-brutal h3 {
+            font-size: 1.8em;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin: 0 0 15px 0;
+            line-height: 1.1;
+            text-shadow: none;
+        }
+
+        .card p, .card-brutal p {
+            font-size: 1.1em;
+            font-weight: bold;
+            line-height: 1.4;
+            margin: 0;
+            border-top: 2px dashed rgba(0,0,0,0.3);
+            padding-top: 15px;
+            opacity: 1;
+        }
+
+        /* =========================================
+           FOOTER BRUTALISTA
+           ========================================= */
+        footer {
+            background: #000;
+            color: #fff;
+            text-align: center;
+            padding: 40px 20px;
+            border-top: 10px solid #ef476f;
+            margin-top: auto;
+        }
+
+        footer p {
+            font-size: 1.2em;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin: 10px 0;
+        }
+        
         .footer-content { max-width: 800px; margin: 0 auto; }
-        .cc-license img { margin-bottom: 10px; opacity: 0.9; }
-        .cc-license a { color: #2b5876; text-decoration: underline; }
+        .cc-license img { margin-bottom: 10px; filter: grayscale(100%) contrast(200%); } /* Fem el logo CC brutalista */
+        .cc-license a { color: #ffd166; text-decoration: underline; text-decoration-thickness: 3px; font-weight: bold;}
 
         @media (max-width: 768px) {
-            h1 { font-size: 2em; }
+            .hero-section h1, .hero-brutal h1 { font-size: 3em; }
         }
     </style>
 </head>
