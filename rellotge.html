@@ -6,173 +6,218 @@
     <title>Rellotge Interactiu - Jo Recursos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;600&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        h1, h2, h3, .brand-font { font-family: 'Fredoka', sans-serif; }
-        
-        /* Àrea d'interacció del rellotge */
+        body { font-family: 'Nunito', sans-serif; }
+        h1, h2, h3, .brand-font, .fredoka { font-family: 'Fredoka', cursive, sans-serif; }
+
         #clock-interaction-area {
-            touch-action: none; 
+            touch-action: none;
             cursor: grab;
         }
         #clock-interaction-area:active {
             cursor: grabbing;
         }
 
-        /* Animació de les busques */
         .hand {
             position: absolute;
             bottom: 50%;
             left: 50%;
             transform-origin: bottom center;
-            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); /* Efecte rebot suau */
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+            transition: transform 0.25s cubic-bezier(0.34, 1.4, 0.64, 1);
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.25));
         }
-        
-        /* Treure transició mentre s'arrossega per resposta instantània */
-        body.dragging .hand { transition: none; }
 
-        /* Números del rellotge */
+        body.dragging .hand { 
+            transition: none !important; 
+        }
+
         .clock-number {
             position: absolute;
-            width: 30px;
-            height: 30px;
-            text-align: center;
-            line-height: 30px;
-            font-weight: bold;
-            color: #064e3b; /* emerald-900 */
-            font-size: 1.25rem;
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.35rem;
             transform: translate(-50%, -50%);
             font-family: 'Fredoka', sans-serif;
+            border-radius: 9999px;
+            user-select: none;
         }
 
-        /* Feedback visual (Validació) */
+        .minute-badge {
+            position: absolute;
+            font-size: 0.72rem;
+            font-weight: 800;
+            color: #047857;
+            transform: translate(-50%, -50%);
+            user-select: none;
+            background: #ecfdf5;
+            padding: 1px 4px;
+            border-radius: 6px;
+            border: 1px solid #a7f3d0;
+        }
+
         @keyframes pulse-green {
             0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-            70% { box-shadow: 0 0 0 20px rgba(16, 185, 129, 0); }
+            70% { box-shadow: 0 0 0 24px rgba(16, 185, 129, 0); }
             100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
         }
-        @keyframes pulse-red {
-            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-            70% { box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        @keyframes shake-err {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
         }
-        .success-pulse { animation: pulse-green 1s infinite; border-color: #10b981 !important; }
-        .error-pulse { animation: pulse-red 1s infinite; border-color: #ef4444 !important; }
+        .success-pulse { animation: pulse-green 1s ease-out 2; border-color: #10b981 !important; }
+        .error-shake { animation: shake-err 0.45s ease-in-out; border-color: #f43f5e !important; }
     </style>
 </head>
-<body class="bg-emerald-50 text-gray-800 min-h-screen flex flex-col">
+<body class="bg-gradient-to-b from-sky-50 via-emerald-50 to-teal-50 text-slate-800 min-h-screen flex flex-col">
 
-    <!-- Navegació -->
-    <nav class="bg-white shadow-md sticky top-0 z-50 no-print">
-        <div class="max-w-7xl mx-auto px-4 flex justify-between h-20 items-center">
-            <a href="matematiques.html" class="flex items-center gap-2 text-gray-600 hover:text-emerald-600 transition">
-                <i data-lucide="arrow-left" class="w-5 h-5"></i> Tornar a Mates
+    <!-- Navegació & Idioma -->
+    <nav class="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-50 border-b border-emerald-100">
+        <div class="max-w-5xl mx-auto px-4 flex justify-between h-16 items-center">
+            <a href="matematiques.html" class="flex items-center gap-2 text-slate-600 hover:text-emerald-600 font-semibold text-sm transition">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i> 
+                <span data-i18n="back-link">Tornar a Mates</span>
             </a>
-            <span class="text-2xl font-bold text-emerald-900 brand-font">Rellotge Interactiu</span>
+            
+            <div class="flex items-center gap-3">
+                <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-bold">
+                    <button id="lang-ca" class="px-2.5 py-1 rounded-lg transition-all bg-white shadow-sm text-emerald-700">CA</button>
+                    <button id="lang-en" class="px-2.5 py-1 rounded-lg transition-all text-slate-500 hover:text-slate-900">EN</button>
+                </div>
+            </div>
         </div>
     </nav>
 
-    <main class="flex-grow py-8 px-4 flex flex-col items-center justify-center">
+    <main class="flex-grow py-6 px-4 flex flex-col items-center justify-center">
         
-        <div class="w-full max-w-lg bg-white p-6 md:p-10 rounded-2xl shadow-xl border border-emerald-100">
+        <div class="w-full max-w-lg bg-white p-6 sm:p-8 rounded-3xl shadow-xl shadow-emerald-950/5 border border-emerald-100/80">
             
             <!-- Capçalera Eina -->
-            <header class="flex justify-between items-center mb-8">
-                <h1 class="text-xl font-bold text-emerald-900 flex items-center gap-2">
-                    <div class="p-2 bg-emerald-100 rounded-lg text-emerald-600">
-                        <i data-lucide="clock" class="w-6 h-6"></i>
-                    </div>
-                    Aprendre les Hores
-                </h1>
+            <header class="flex justify-between items-center mb-6">
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+                        <span class="p-2 bg-emerald-100 text-emerald-700 rounded-xl">
+                            <i data-lucide="clock" class="w-6 h-6"></i>
+                        </span>
+                        <span data-i18n="app-title">Rellotge Interactiu</span>
+                    </h1>
+                    <p class="text-xs text-slate-500 font-medium mt-0.5" data-i18n="app-subtitle">Mou les busques i descobreix les hores</p>
+                </div>
                 
-                <!-- Toggle Imant -->
-                <label class="flex items-center cursor-pointer text-sm font-medium text-slate-600 select-none bg-slate-50 px-3 py-1.5 rounded-full border border-slate-200">
-                    <span class="mr-2 text-xs uppercase font-bold text-emerald-700">Imant 5m</span>
+                <!-- Toggle Imant (Snap) -->
+                <label class="flex items-center cursor-pointer gap-2 bg-slate-50 hover:bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200 transition select-none">
+                    <span class="text-xs font-bold text-slate-600" data-i18n="magnet-label">Imant 5m</span>
                     <input type="checkbox" id="snap-toggle" class="sr-only peer" checked>
-                    <div class="relative w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
+                    <div class="relative w-8 h-4 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-emerald-600"></div>
                 </label>
             </header>
 
             <!-- Selector de Mode -->
-            <div class="grid grid-cols-3 gap-2 mb-10 bg-emerald-50 p-1.5 rounded-xl">
-                <button onclick="setMode('lliure')" id="mode-lliure-btn" class="py-2 rounded-lg font-bold text-sm transition-all bg-white shadow text-emerald-700 ring-1 ring-emerald-100">
-                    Lliure
+            <div class="grid grid-cols-3 gap-1.5 mb-8 bg-slate-100 p-1.5 rounded-2xl border border-slate-200/80">
+                <button onclick="setMode('lliure')" id="mode-lliure-btn" class="py-2.5 rounded-xl font-bold text-sm transition-all bg-white shadow-sm text-emerald-700">
+                    <span data-i18n="mode-free">Lliure</span>
                 </button>
-                <button onclick="setMode('quiz')" id="mode-quiz-btn" class="py-2 rounded-lg font-bold text-sm transition-all text-slate-500 hover:bg-emerald-100/50 hover:text-emerald-700">
-                    Repte
+                <button onclick="setMode('quiz')" id="mode-quiz-btn" class="py-2.5 rounded-xl font-bold text-sm transition-all text-slate-600 hover:text-emerald-700">
+                    <span data-i18n="mode-quiz">Repte</span>
                 </button>
-                <button onclick="setMode('aprenentatge')" id="mode-aprenentatge-btn" class="py-2 rounded-lg font-bold text-sm transition-all text-slate-500 hover:bg-emerald-100/50 hover:text-emerald-700">
-                    Practicar
+                <button onclick="setMode('aprenentatge')" id="mode-aprenentatge-btn" class="py-2.5 rounded-xl font-bold text-sm transition-all text-slate-600 hover:text-emerald-700">
+                    <span data-i18n="mode-learn">Practicar</span>
                 </button>
             </div>
 
             <!-- Rellotge Visual -->
-            <div class="relative w-72 h-72 sm:w-80 sm:h-80 mx-auto mb-10 select-none">
-                <!-- Àrea d'interacció -->
-                <div id="clock-interaction-area" class="absolute inset-[-20px] rounded-full z-30" title="Arrossega per moure"></div>
+            <div class="relative w-72 h-72 sm:w-80 sm:h-80 mx-auto mb-8 select-none">
+                <div id="clock-interaction-area" class="absolute inset-[-16px] rounded-full z-30" title="Arrossega per moure"></div>
 
-                <!-- Tauler -->
-                <div id="clock-container" class="w-full h-full bg-white rounded-full border-8 border-emerald-900 shadow-[inset_0_0_30px_rgba(0,0,0,0.05)] relative transition-colors duration-300">
+                <div id="clock-container" class="w-full h-full bg-gradient-to-b from-white to-slate-50 rounded-full border-8 border-slate-800 shadow-[inset_0_4px_16px_rgba(0,0,0,0.08),0_12px_24px_rgba(0,0,0,0.08)] relative transition-all duration-300">
                     
-                    <!-- Números (generats per JS) -->
-                    <div id="clock-numbers" class="absolute inset-0 pointer-events-none"></div>
+                    <div class="absolute inset-2 rounded-full border border-dashed border-slate-200 pointer-events-none"></div>
 
-                    <!-- Marques de minuts -->
                     <div id="clock-markers" class="absolute inset-0 pointer-events-none"></div>
+                    <div id="clock-numbers" class="absolute inset-0 pointer-events-none"></div>
+                    <div id="minute-numbers" class="absolute inset-0 pointer-events-none"></div>
 
-                    <!-- Busques -->
-                    <!-- Hora -->
-                    <div id="hour-hand" class="hand w-3 h-[28%] bg-emerald-900 rounded-full z-10 origin-bottom"></div>
-                    <!-- Minuts -->
-                    <div id="minute-hand" class="hand w-1.5 h-[42%] bg-emerald-500 rounded-full z-20 origin-bottom shadow-md"></div>
+                    <!-- Busca Hores (Curta) -->
+                    <div id="hour-hand" class="hand w-3.5 h-[27%] bg-indigo-600 rounded-full z-10 origin-bottom border border-indigo-700/50">
+                        <div class="w-2 h-2 rounded-full bg-white/60 mx-auto mt-2"></div>
+                    </div>
 
-                    <!-- Punt central -->
-                    <div class="absolute left-1/2 top-1/2 w-5 h-5 -translate-x-1/2 -translate-y-1/2 bg-white rounded-full border-4 border-emerald-600 z-40 shadow-sm"></div>
+                    <!-- Busca Minuts (Llarga) -->
+                    <div id="minute-hand" class="hand w-2 h-[41%] bg-emerald-500 rounded-full z-20 origin-bottom border border-emerald-600">
+                        <div class="w-1 h-3 rounded-full bg-emerald-100 mx-auto mt-2"></div>
+                    </div>
+
+                    <div class="absolute left-1/2 top-1/2 w-6 h-6 -translate-x-1/2 -translate-y-1/2 bg-amber-400 rounded-full border-4 border-slate-800 z-40 shadow-md"></div>
                 </div>
             </div>
 
-            <!-- ZONA DE CONTINGUT (Canvia segons el mode) -->
-            <div class="min-h-[120px]">
+            <!-- Llegenda ràpida -->
+            <div class="flex justify-center items-center gap-6 mb-6 text-xs font-bold text-slate-500">
+                <span class="flex items-center gap-1.5">
+                    <span class="w-3 h-3 rounded-full bg-indigo-600 inline-block"></span> 
+                    <span data-i18n="legend-hour">Busca curta = Hores</span>
+                </span>
+                <span class="flex items-center gap-1.5">
+                    <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span> 
+                    <span data-i18n="legend-min">Busca llarga = Minuts</span>
+                </span>
+            </div>
+
+            <!-- Zona de contingut -->
+            <div class="min-h-[140px]">
                 
                 <!-- MODE 1: Lliure -->
-                <div id="digital-display-area" class="text-center animate-in fade-in slide-in-from-bottom-4 duration-300">
-                    <div class="inline-block bg-slate-800 text-emerald-400 font-mono text-5xl px-8 py-4 rounded-xl shadow-lg border-b-4 border-slate-950 relative">
-                        <span id="digital-display">12:00</span>
-                        <span class="absolute top-2 right-3 text-[10px] text-slate-500 font-sans font-bold tracking-widest">DIGITAL</span>
+                <div id="digital-display-area" class="text-center">
+                    <div class="inline-flex items-center gap-2 bg-slate-900 px-6 py-3.5 rounded-2xl shadow-inner border border-slate-800">
+                        <span id="digital-h" class="font-mono text-4xl sm:text-5xl font-extrabold text-indigo-400">12</span>
+                        <span class="font-mono text-4xl sm:text-5xl font-extrabold text-slate-500">:</span>
+                        <span id="digital-m" class="font-mono text-4xl sm:text-5xl font-extrabold text-emerald-400">00</span>
                     </div>
-                    <p class="text-slate-400 mt-4 text-sm flex items-center justify-center gap-1">
-                        <i data-lucide="mouse-pointer-2" class="w-4 h-4"></i>
-                        Arrossega les busques per canviar l'hora
-                    </p>
+                    <div class="mt-4">
+                        <button onclick="speakCurrentTime()" class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-emerald-700 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-xl transition">
+                            <i data-lucide="volume-2" class="w-4 h-4"></i>
+                            <span data-i18n="listen-btn">Com es diu?</span>
+                        </button>
+                    </div>
                 </div>
 
-                <!-- MODE 2: Quiz -->
-                <div id="quiz-area" class="text-center hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
-                    <div class="bg-blue-50 border border-blue-100 p-4 rounded-xl mb-4">
-                        <p class="text-xs text-blue-600 font-bold uppercase tracking-wider mb-1">POSA AQUESTA HORA</p>
-                        <h3 id="quiz-question" class="text-4xl font-bold text-slate-800 tracking-tight">...</h3>
+                <!-- MODE 2: Repte (Quiz) -->
+                <div id="quiz-area" class="text-center hidden">
+                    <div class="bg-amber-50 border border-amber-200 p-4 rounded-2xl mb-4">
+                        <p class="text-[11px] text-amber-700 font-extrabold tracking-wider uppercase mb-1" data-i18n="quiz-prompt">Posa el rellotge a...</p>
+                        <h3 id="quiz-question" class="text-3xl sm:text-4xl font-black text-slate-800 tracking-tight fredoka">12:00</h3>
+                        <p id="quiz-question-sub" class="text-sm font-semibold text-slate-600 mt-1 italic"></p>
                     </div>
-                    <button id="validate-btn" class="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-emerald-200 transition-all flex items-center justify-center gap-2">
-                        <i data-lucide="check-circle" class="w-5 h-5"></i>
-                        Comprovar Resposta
-                    </button>
-                    <p id="quiz-message" class="text-lg font-bold mt-4 min-h-[1.75rem] transition-all"></p>
+
+                    <div class="flex gap-2">
+                        <button id="validate-btn" class="flex-1 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white font-bold py-3 px-4 rounded-xl shadow-lg shadow-emerald-600/20 transition-all flex items-center justify-center gap-2">
+                            <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+                            <span data-i18n="check-btn">Comprovar</span>
+                        </button>
+                        <button id="skip-btn" onclick="startQuiz()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-3 px-4 rounded-xl transition" title="Canviar hora">
+                            <i data-lucide="rotate-cw" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+
+                    <p id="quiz-message" class="text-base font-extrabold mt-3 min-h-[1.5rem] transition-all"></p>
                 </div>
 
                 <!-- MODE 3: Aprenentatge -->
-                <div id="aprenentatge-area" class="text-center hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
-                    <div class="mb-4">
-                        <button id="com-es-diu-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-indigo-200 transition-all flex items-center justify-center gap-2">
-                            <i data-lucide="volume-2" class="w-5 h-5"></i>
-                            Com es diu aquesta hora?
-                        </button>
-                    </div>
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 min-h-[80px] flex items-center justify-center relative overflow-hidden">
-                        <p id="aprenentatge-resultat" class="text-xl font-bold text-slate-400">
-                            Mou el rellotge i clica el botó...
+                <div id="aprenentatge-area" class="text-center hidden">
+                    <button id="com-es-diu-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-indigo-600/20 transition-all flex items-center justify-center gap-2 mb-3">
+                        <i data-lucide="volume-2" class="w-5 h-5"></i>
+                        <span data-i18n="how-to-say-btn">Descobrir i escoltar com es diu</span>
+                    </button>
+                    <div class="bg-indigo-50/60 p-4 rounded-2xl border border-indigo-100 min-h-[75px] flex flex-col items-center justify-center">
+                        <p id="aprenentatge-resultat" class="text-lg sm:text-xl font-black text-indigo-900 fredoka">
+                            ...
                         </p>
                     </div>
                 </div>
@@ -182,287 +227,374 @@
         </div>
     </main>
 
-    <footer class="bg-white border-t py-8 mt-auto no-print">
-        <div class="max-w-6xl mx-auto px-4 text-center text-sm text-gray-500">
-            <p>&copy; 2025 Jo Recursos.</p>
+    <footer class="bg-white border-t border-slate-100 py-4 mt-auto">
+        <div class="max-w-5xl mx-auto px-4 text-center text-xs text-slate-400 font-medium">
+            <p>&copy; 2026 Jo Recursos · Eines didàctiques per a l'escola</p>
         </div>
     </footer>
 
     <script>
-        lucide.createIcons();
+        const I18N = {
+            ca: {
+                "back-link": "Tornar a Mates",
+                "app-title": "Rellotge Interactiu",
+                "app-subtitle": "Mou les busques i descobreix les hores",
+                "magnet-label": "Imant 5m",
+                "mode-free": "Lliure",
+                "mode-quiz": "Repte",
+                "mode-learn": "Practicar",
+                "legend-hour": "Busca curta = Hores",
+                "legend-min": "Busca llarga = Minuts",
+                "listen-btn": "Com es diu?",
+                "quiz-prompt": "Posa el rellotge a...",
+                "check-btn": "Comprovar",
+                "how-to-say-btn": "Descobrir i escoltar com es diu",
+                "learn-default": "Mou el rellotge i prem el botó!",
+                "feedback-great": "Molt bé! Fantàstic! 🎉",
+                "feedback-almost": "Encara no. Has marcat les ",
+                "tts-lang": "ca-ES"
+            },
+            en: {
+                "back-link": "Back to Math",
+                "app-title": "Interactive Clock",
+                "app-subtitle": "Move the hands and learn the time",
+                "magnet-label": "5m Snap",
+                "mode-free": "Free play",
+                "mode-quiz": "Challenge",
+                "mode-learn": "Practice",
+                "legend-hour": "Short hand = Hours",
+                "legend-min": "Long hand = Minutes",
+                "listen-btn": "Tell me the time",
+                "quiz-prompt": "Set the clock to...",
+                "check-btn": "Check answer",
+                "how-to-say-btn": "Show and listen to the time",
+                "learn-default": "Move the hands and press the button!",
+                "feedback-great": "Awesome job! You got it! 🎉",
+                "feedback-almost": "Not quite yet. You set ",
+                "tts-lang": "en-GB"
+            }
+        };
 
-        document.addEventListener('DOMContentLoaded', () => {
-            // Referències
-            const clockContainer = document.getElementById('clock-container');
-            const hourHand = document.getElementById('hour-hand');
-            const minuteHand = document.getElementById('minute-hand');
-            const digitalDisplay = document.getElementById('digital-display');
-            const snapToggle = document.getElementById('snap-toggle');
+        let currentLang = 'ca';
+
+        let totalMinutes = 720; // 12:00
+        let targetTime = { h: 12, m: 0 };
+        let isDragging = false;
+        let currentMode = 'lliure';
+
+        function getHoraEnCatala(minutes) {
+            const hoursRaw = Math.floor(minutes / 60);
+            const m = minutes % 60;
             
-            // Àrees
+            let hActual = hoursRaw === 0 ? 12 : hoursRaw;
+            let hNext = (hActual % 12) + 1;
+            
+            const nums = ["", "una", "dues", "tres", "quatre", "cinc", "sis", "set", "vuit", "nou", "deu", "onze", "dotze"];
+            
+            const getArt = (h) => (h === 1 || h === 11) ? "d'" : "de ";
+            const getVerb = (h) => (h === 1) ? "És " : "Són ";
+            const getArtLa = (h) => (h === 1) ? "la " : "les ";
+
+            if (m === 0) return `${getVerb(hActual)}${getArtLa(hActual)}${nums[hActual]} en punt`;
+            if (m === 15) return `És un quart ${getArt(hNext)}${nums[hNext]}`;
+            if (m === 30) return `Són dos quarts ${getArt(hNext)}${nums[hNext]}`;
+            if (m === 45) return `Són tres quarts ${getArt(hNext)}${nums[hNext]}`;
+
+            if (m < 15) {
+                return `${getVerb(hActual)}${getArtLa(hActual)}${nums[hActual]} i ${m} minuts`;
+            } else if (m < 30) {
+                let diff = m - 15;
+                return `És un quart i ${diff} ${diff === 1 ? 'minut' : 'minuts'} ${getArt(hNext)}${nums[hNext]}`;
+            } else if (m < 45) {
+                let diff = m - 30;
+                return `Són dos quarts i ${diff} ${diff === 1 ? 'minut' : 'minuts'} ${getArt(hNext)}${nums[hNext]}`;
+            } else {
+                let diff = m - 45;
+                return `Són tres quarts i ${diff} ${diff === 1 ? 'minut' : 'minuts'} ${getArt(hNext)}${nums[hNext]}`;
+            }
+        }
+
+        function getHoraEnAngles(minutes) {
+            const hoursRaw = Math.floor(minutes / 60);
+            const m = minutes % 60;
+
+            let hActual = hoursRaw === 0 ? 12 : hoursRaw;
+            let hNext = (hActual % 12) + 1;
+
+            const words = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"];
+            const numberWords = {
+                5: "five",
+                10: "ten",
+                20: "twenty",
+                25: "twenty-five",
+                35: "twenty-five",
+                40: "twenty",
+                50: "ten",
+                55: "five"
+            };
+
+            if (m === 0) return `It's ${words[hActual]} o'clock`;
+            if (m === 15) return `It's quarter past ${words[hActual]}`;
+            if (m === 30) return `It's half past ${words[hActual]}`;
+            if (m === 45) return `It's quarter to ${words[hNext]}`;
+
+            if (m < 30) {
+                const pastWord = numberWords[m] || m;
+                return `It's ${pastWord} past ${words[hActual]}`;
+            } else {
+                const toMins = 60 - m;
+                const toWord = numberWords[m] || toMins;
+                return `It's ${toWord} to ${words[hNext]}`;
+            }
+        }
+
+        function getFormattedTimeText(minutes) {
+            return currentLang === 'ca' ? getHoraEnCatala(minutes) : getHoraEnAngles(minutes);
+        }
+
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = I18N[currentLang]["tts-lang"];
+                utterance.rate = 0.88;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function speakCurrentTime() {
+            speakText(getFormattedTimeText(totalMinutes));
+        }
+
+        function initClockFace() {
+            const numbersContainer = document.getElementById('clock-numbers');
+            const markersContainer = document.getElementById('clock-markers');
+            const minuteNumbersContainer = document.getElementById('minute-numbers');
+
+            numbersContainer.innerHTML = '';
+            markersContainer.innerHTML = '';
+            minuteNumbersContainer.innerHTML = '';
+
+            for (let i = 1; i <= 60; i++) {
+                const marker = document.createElement('div');
+                const isHour = i % 5 === 0;
+                const isQuarter = i % 15 === 0;
+
+                marker.style.position = 'absolute';
+                marker.style.left = '50%';
+                marker.style.top = '50%';
+                marker.style.width = isQuarter ? '4px' : (isHour ? '3px' : '1.5px');
+                marker.style.height = isQuarter ? '14px' : (isHour ? '10px' : '5px');
+                marker.style.backgroundColor = isQuarter ? '#047857' : (isHour ? '#475569' : '#cbd5e1');
+                marker.style.transformOrigin = 'center';
+                marker.style.transform = `translate(-50%, -50%) rotate(${i * 6}deg) translateY(-132px)`;
+                markersContainer.appendChild(marker);
+            }
+
+            for (let i = 1; i <= 12; i++) {
+                const num = document.createElement('div');
+                num.className = 'clock-number text-slate-800';
+                num.textContent = i;
+
+                const angle = (i * 30) * (Math.PI / 180);
+                const radius = 100;
+                const x = Math.sin(angle) * radius;
+                const y = -Math.cos(angle) * radius;
+
+                num.style.left = `calc(50% + ${x}px)`;
+                num.style.top = `calc(50% + ${y}px)`;
+                numbersContainer.appendChild(num);
+            }
+
+            for (let i = 0; i < 12; i++) {
+                const badge = document.createElement('div');
+                badge.className = 'minute-badge';
+                const mins = i * 5;
+                badge.textContent = String(mins).padStart(2, '0');
+
+                const angle = (i * 30) * (Math.PI / 180);
+                const radius = 130;
+                const x = Math.sin(angle) * radius;
+                const y = -Math.cos(angle) * radius;
+
+                badge.style.left = `calc(50% + ${x}px)`;
+                badge.style.top = `calc(50% + ${y}px)`;
+                minuteNumbersContainer.appendChild(badge);
+            }
+        }
+
+        function updateClock(minutes) {
+            totalMinutes = minutes;
+
+            const hours = Math.floor(totalMinutes / 60);
+            const mins = totalMinutes % 60;
+
+            const minAngle = mins * 6;
+            const hourAngle = (hours % 12) * 30 + (mins * 0.5);
+
+            document.getElementById('minute-hand').style.transform = `translateX(-50%) rotate(${minAngle}deg)`;
+            document.getElementById('hour-hand').style.transform = `translateX(-50%) rotate(${hourAngle}deg)`;
+
+            const displayH = hours === 0 ? 12 : hours;
+            document.getElementById('digital-h').textContent = String(displayH).padStart(2, '0');
+            document.getElementById('digital-m').textContent = String(mins).padStart(2, '0');
+
+            if (currentMode === 'aprenentatge' && !isDragging) {
+                document.getElementById('aprenentatge-resultat').textContent = I18N[currentLang]["learn-default"];
+                document.getElementById('aprenentatge-resultat').className = "text-base font-bold text-slate-400 fredoka";
+            }
+        }
+
+        function handleDrag(e) {
+            if (!isDragging) return;
+            e.preventDefault();
+
+            const rect = document.getElementById('clock-container').getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            const dx = clientX - centerX;
+            const dy = clientY - centerY;
+
+            let angle = Math.atan2(dy, dx) * (180 / Math.PI) + 90;
+            if (angle < 0) angle += 360;
+
+            let mins = Math.round(angle / 0.5);
+
+            if (document.getElementById('snap-toggle').checked) {
+                mins = Math.round(mins / 5) * 5;
+            }
+
+            mins = mins % 720;
+            updateClock(mins);
+        }
+
+        const area = document.getElementById('clock-interaction-area');
+        const startDrag = (e) => { isDragging = true; document.body.classList.add('dragging'); handleDrag(e); };
+        const stopDrag = () => { isDragging = false; document.body.classList.remove('dragging'); };
+
+        area.addEventListener('mousedown', startDrag);
+        window.addEventListener('mousemove', handleDrag);
+        window.addEventListener('mouseup', stopDrag);
+
+        area.addEventListener('touchstart', startDrag, { passive: false });
+        window.addEventListener('touchmove', handleDrag, { passive: false });
+        window.addEventListener('touchend', stopDrag);
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (I18N[lang][key]) el.textContent = I18N[lang][key];
+            });
+
+            if (lang === 'ca') {
+                document.getElementById('lang-ca').className = "px-2.5 py-1 rounded-lg transition-all bg-white shadow-sm text-emerald-700 font-bold";
+                document.getElementById('lang-en').className = "px-2.5 py-1 rounded-lg transition-all text-slate-500 hover:text-slate-900";
+            } else {
+                document.getElementById('lang-en').className = "px-2.5 py-1 rounded-lg transition-all bg-white shadow-sm text-emerald-700 font-bold";
+                document.getElementById('lang-ca').className = "px-2.5 py-1 rounded-lg transition-all text-slate-500 hover:text-slate-900";
+            }
+
+            if (currentMode === 'quiz') updateQuizDisplay();
+        }
+
+        document.getElementById('lang-ca').addEventListener('click', () => setLanguage('ca'));
+        document.getElementById('lang-en').addEventListener('click', () => setLanguage('en'));
+
+        window.setMode = function(mode) {
+            currentMode = mode;
             const areas = {
                 lliure: document.getElementById('digital-display-area'),
                 quiz: document.getElementById('quiz-area'),
                 aprenentatge: document.getElementById('aprenentatge-area')
             };
 
-            // Elements Quiz
-            const quizQuestion = document.getElementById('quiz-question');
-            const quizMessage = document.getElementById('quiz-message');
-
-            // Elements Aprenentatge
-            const aprenentatgeResultat = document.getElementById('aprenentatge-resultat');
-
-            // Estat
-            let totalMinutes = 0; 
-            let targetTime = { h: 12, m: 0 };
-            let isDragging = false;
-            let currentMode = 'lliure';
-
-            // --- INICIALITZACIÓ VISUAL ---
-            
-            function initClockFace() {
-                const numbersContainer = document.getElementById('clock-numbers');
-                const markersContainer = document.getElementById('clock-markers');
-                
-                // Generar marcadors
-                for (let i = 1; i <= 60; i++) {
-                    const marker = document.createElement('div');
-                    const isHour = i % 5 === 0;
-                    
-                    marker.style.position = 'absolute';
-                    marker.style.left = '50%';
-                    marker.style.top = '50%';
-                    marker.style.width = isHour ? '4px' : '2px';
-                    marker.style.height = isHour ? '12px' : '6px';
-                    marker.style.backgroundColor = isHour ? '#064e3b' : '#cbd5e1'; // emerald-900 / slate-300
-                    marker.style.transformOrigin = 'center';
-                    // Movem el marcador a la vora
-                    marker.style.transform = `translate(-50%, -50%) rotate(${i * 6}deg) translateY(-135px)`; // radi aprox
-                    
-                    markersContainer.appendChild(marker);
-                }
-
-                // Generar Números (1-12)
-                for (let i = 1; i <= 12; i++) {
-                    const num = document.createElement('div');
-                    num.className = 'clock-number';
-                    num.textContent = i;
-                    
-                    // Matemàtiques per posicionar en cercle
-                    const angle = (i * 30) * (Math.PI / 180);
-                    const radius = 112; // Ajustar segons mida rellotge
-                    // x = r * sin(a), y = -r * cos(a) per tenir 0 a dalt
-                    const x = Math.sin(angle) * radius;
-                    const y = -Math.cos(angle) * radius;
-
-                    num.style.left = `calc(50% + ${x}px)`;
-                    num.style.top = `calc(50% + ${y}px)`;
-                    
-                    numbersContainer.appendChild(num);
-                }
-            }
-
-            // --- LÒGICA RELLOTGE ---
-
-            function updateClock(minutes) {
-                totalMinutes = minutes;
-                
-                // Normalitzem per mostrar
-                const hours = Math.floor(totalMinutes / 60);
-                const mins = totalMinutes % 60;
-                
-                // Angles
-                const minAngle = mins * 6;
-                const hourAngle = (hours % 12) * 30 + (mins * 0.5);
-
-                minuteHand.style.transform = `translateX(-50%) rotate(${minAngle}deg)`;
-                hourHand.style.transform = `translateX(-50%) rotate(${hourAngle}deg)`;
-
-                // Digital
-                const displayH = hours === 0 ? 12 : (hours > 12 ? hours - 12 : hours);
-                const fixedH = hours === 0 ? 12 : hours; // Mantenim 1-12
-                digitalDisplay.textContent = `${String(fixedH).padStart(2, ' ')}:${String(mins).padStart(2, '0')}`;
-                
-                // Si estem en mode aprenentatge i no arrosseguem, netegem text per convidar a clicar botó
-                if (currentMode === 'aprenentatge' && !isDragging) {
-                    aprenentatgeResultat.classList.remove('text-indigo-600');
-                    aprenentatgeResultat.classList.add('text-slate-400');
-                }
-            }
-
-            // --- INTERACCIÓ ---
-
-            function handleDrag(e) {
-                if (!isDragging) return;
-                e.preventDefault();
-
-                const rect = clockContainer.getBoundingClientRect();
-                const centerX = rect.left + rect.width / 2;
-                const centerY = rect.top + rect.height / 2;
-                
-                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-
-                const dx = clientX - centerX;
-                const dy = clientY - centerY;
-
-                // Angle on el 0 és a les 12 (amunt)
-                let angle = Math.atan2(dy, dx) * (180 / Math.PI) + 90;
-                if (angle < 0) angle += 360;
-
-                let mins = Math.round(angle / 0.5); // 0.5 graus per minut en una esfera de 12h (720 min)
-                
-                // Lògica "Snap to 5m"
-                if (snapToggle.checked) {
-                    mins = Math.round(mins / 5) * 5;
-                }
-                
-                mins = mins % 720; // Assegurar 0-719
-
-                updateClock(mins);
-            }
-
-            const interactionArea = document.getElementById('clock-interaction-area');
-            
-            const startDrag = (e) => { isDragging = true; document.body.classList.add('dragging'); handleDrag(e); };
-            const stopDrag = () => { isDragging = false; document.body.classList.remove('dragging'); };
-
-            interactionArea.addEventListener('mousedown', startDrag);
-            window.addEventListener('mousemove', handleDrag);
-            window.addEventListener('mouseup', stopDrag);
-
-            interactionArea.addEventListener('touchstart', startDrag, {passive: false});
-            window.addEventListener('touchmove', handleDrag, {passive: false});
-            window.addEventListener('touchend', stopDrag);
-
-            // --- LÒGICA CATALÀ (TEXT I VEU) ---
-
-            function getHoraEnCatala(minutes) {
-                const hoursRaw = Math.floor(minutes / 60);
-                const m = minutes % 60;
-                
-                let hActual = hoursRaw === 0 ? 12 : hoursRaw;
-                let hNext = (hActual % 12) + 1;
-                
-                const nums = ["", "una", "dues", "tres", "quatre", "cinc", "sis", "set", "vuit", "nou", "deu", "onze", "dotze"];
-                
-                // Helpers
-                const getArt = (h) => (h === 1 || h === 11) ? "d'" : "de ";
-                const getVerb = (h) => (h === 1) ? "És " : "Són ";
-                const getArtLa = (h) => (h === 1) ? "la " : "les ";
-
-                // 1. En punt
-                if (m === 0) return `${getVerb(hActual)}${getArtLa(hActual)}${nums[hActual]} en punt`;
-                
-                // 2. Quarts plens
-                if (m === 15) return `És un quart ${getArt(hNext)}${nums[hNext]}`;
-                if (m === 30) return `Són dos quarts ${getArt(hNext)}${nums[hNext]}`;
-                if (m === 45) return `Són tres quarts ${getArt(hNext)}${nums[hNext]}`;
-
-                // 3. Intervals
-                if (m < 15) {
-                    return `${getVerb(hActual)}${getArtLa(hActual)}${nums[hActual]} i ${m} minuts`;
-                } else if (m < 30) {
-                    let diff = m - 15;
-                    return `És un quart i ${diff} ${diff===1?'minut':'minuts'} ${getArt(hNext)}${nums[hNext]}`;
-                } else if (m < 45) {
-                    let diff = m - 30;
-                    return `Són dos quarts i ${diff} ${diff===1?'minut':'minuts'} ${getArt(hNext)}${nums[hNext]}`;
+            ['lliure', 'quiz', 'aprenentatge'].forEach(m => {
+                const btn = document.getElementById(`mode-${m}-btn`);
+                if (m === mode) {
+                    btn.className = "py-2.5 rounded-xl font-bold text-sm transition-all bg-white shadow-sm text-emerald-700";
+                    areas[m].classList.remove('hidden');
                 } else {
-                    let diff = m - 45;
-                    return `Són tres quarts i ${diff} ${diff===1?'minut':'minuts'} ${getArt(hNext)}${nums[hNext]}`;
+                    btn.className = "py-2.5 rounded-xl font-bold text-sm transition-all text-slate-600 hover:text-emerald-700";
+                    areas[m].classList.add('hidden');
                 }
-            }
+            });
 
-            function speakText(text) {
-                if ('speechSynthesis' in window) {
-                    window.speechSynthesis.cancel();
-                    const utterance = new SpeechSynthesisUtterance(text);
-                    utterance.lang = 'ca-ES'; 
-                    utterance.rate = 0.9;
-                    window.speechSynthesis.speak(utterance);
-                }
-            }
+            const clock = document.getElementById('clock-container');
+            clock.classList.remove('success-pulse', 'error-shake');
+            document.getElementById('quiz-message').textContent = '';
 
-            // --- GESTIÓ DE MODES ---
+            if (mode === 'quiz') startQuiz();
+        };
 
-            window.setMode = function(mode) {
-                currentMode = mode;
-                
-                // UI Botons
-                ['lliure', 'quiz', 'aprenentatge'].forEach(m => {
-                    const btn = document.getElementById(`mode-${m}-btn`);
-                    if (m === mode) {
-                        // Estil actiu (Emerald)
-                        btn.className = "py-2 rounded-lg font-bold text-sm transition-all bg-white shadow text-emerald-700 ring-1 ring-emerald-100 transform scale-105";
-                        areas[m].classList.remove('hidden');
-                    } else {
-                        // Estil inactiu
-                        btn.className = "py-2 rounded-lg font-bold text-sm transition-all text-slate-500 hover:bg-emerald-100/50 hover:text-emerald-700";
-                        areas[m].classList.add('hidden');
-                    }
+        function startQuiz() {
+            const h = Math.floor(Math.random() * 12) + 1;
+            const m = Math.floor(Math.random() * 12) * 5;
+            targetTime = { h, m };
+
+            updateQuizDisplay();
+            document.getElementById('quiz-message').textContent = "";
+        }
+
+        function updateQuizDisplay() {
+            const rawMins = (targetTime.h === 12 ? 0 : targetTime.h) * 60 + targetTime.m;
+            document.getElementById('quiz-question').textContent = `${targetTime.h}:${String(targetTime.m).padStart(2, '0')}`;
+            document.getElementById('quiz-question-sub').textContent = `"${getFormattedTimeText(rawMins)}"`;
+        }
+
+        document.getElementById('validate-btn').addEventListener('click', () => {
+            const currentH = Math.floor(totalMinutes / 60);
+            const fixedCurrentH = currentH === 0 ? 12 : currentH;
+            const currentM = totalMinutes % 60;
+
+            const targetTotal = (targetTime.h === 12 ? 0 : targetTime.h) * 60 + targetTime.m;
+            const checkTotal = (fixedCurrentH === 12 ? 0 : fixedCurrentH) * 60 + currentM;
+
+            const clock = document.getElementById('clock-container');
+            const msg = document.getElementById('quiz-message');
+
+            if (Math.abs(targetTotal - checkTotal) <= 2) {
+                msg.textContent = I18N[currentLang]["feedback-great"];
+                msg.className = "text-base font-extrabold mt-3 text-emerald-600 animate-bounce";
+                clock.classList.add('success-pulse');
+
+                confetti({
+                    particleCount: 50,
+                    spread: 60,
+                    origin: { y: 0.7 }
                 });
 
-                // Neteja estats
-                clockContainer.classList.remove('success-pulse', 'error-pulse');
-                quizMessage.textContent = '';
-                
-                if (mode === 'quiz') startQuiz();
-            };
+                speakText(currentLang === 'ca' ? "Molt bé! Felicitats!" : "Well done!");
 
-            // --- QUIZ LOGIC ---
+                setTimeout(() => {
+                    clock.classList.remove('success-pulse');
+                    startQuiz();
+                }, 2200);
+            } else {
+                const formattedUserTime = `${fixedCurrentH}:${String(currentM).padStart(2, '0')}`;
+                msg.textContent = `${I18N[currentLang]["feedback-almost"]} ${formattedUserTime}`;
+                msg.className = "text-base font-extrabold mt-3 text-rose-500";
+                clock.classList.add('error-shake');
 
-            function startQuiz() {
-                const h = Math.floor(Math.random() * 12) + 1;
-                const m = Math.floor(Math.random() * 12) * 5; // intervals de 5
-                
-                targetTime = { h, m };
-                
-                quizQuestion.textContent = `${h}:${String(m).padStart(2, '0')}`;
-                quizMessage.textContent = "";
+                setTimeout(() => clock.classList.remove('error-shake'), 600);
             }
+        });
 
-            document.getElementById('validate-btn').addEventListener('click', () => {
-                const currentH = Math.floor(totalMinutes / 60);
-                const fixedCurrentH = currentH === 0 ? 12 : currentH;
-                const currentM = totalMinutes % 60;
+        document.getElementById('com-es-diu-btn').addEventListener('click', () => {
+            const text = getFormattedTimeText(totalMinutes);
+            const res = document.getElementById('aprenentatge-resultat');
+            res.textContent = text;
+            res.className = "text-xl sm:text-2xl font-black text-indigo-700 fredoka animate-pulse";
+            speakText(text);
+        });
 
-                const targetTotal = (targetTime.h === 12 ? 0 : targetTime.h) * 60 + targetTime.m;
-                const checkTotal = (fixedCurrentH === 12 ? 0 : fixedCurrentH) * 60 + currentM;
-
-                const diff = Math.abs(targetTotal - checkTotal);
-
-                if (diff <= 2) {
-                    // Èxit
-                    quizMessage.innerHTML = "<span class='flex items-center justify-center gap-2'>Molt bé! 🎉</span>";
-                    quizMessage.className = "text-lg font-bold mt-4 text-emerald-600";
-                    clockContainer.classList.add('success-pulse');
-                    speakText("Molt bé!");
-                    setTimeout(() => {
-                        clockContainer.classList.remove('success-pulse');
-                        startQuiz();
-                    }, 2000);
-                } else {
-                    // Error
-                    quizMessage.innerHTML = `Encara no. Has posat les ${fixedCurrentH}:${String(currentM).padStart(2, '0')}`;
-                    quizMessage.className = "text-lg font-bold mt-4 text-red-500";
-                    clockContainer.classList.add('error-pulse');
-                    setTimeout(() => clockContainer.classList.remove('error-pulse'), 1000);
-                }
-            });
-
-            // --- APRENENTATGE LOGIC ---
-
-            document.getElementById('com-es-diu-btn').addEventListener('click', () => {
-                const text = getHoraEnCatala(totalMinutes);
-                aprenentatgeResultat.textContent = text;
-                aprenentatgeResultat.classList.remove('text-slate-400');
-                aprenentatgeResultat.classList.add('text-indigo-700');
-                speakText(text);
-            });
-
-            // Start
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
             initClockFace();
             updateClock(720); // 12:00
         });
